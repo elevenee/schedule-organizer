@@ -1,0 +1,159 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        BigInt     @id @default(autoincrement())
+  name      String     @db.VarChar(50)
+  username  String     @unique @db.VarChar(16)
+  password  String     @db.VarChar(100)
+  role      Role       @default(DOSEN)
+  status    StatusUser @default(ACTIVE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+
+  @@index([username])
+}
+
+model TahunAkademik {
+  id        BigInt      @id @default(autoincrement())
+  name      String
+  status    StatusTahun @default(INACTIVE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  deletedAt DateTime?
+}
+
+model PengaturanJadwal {
+  id         BigInt    @id @default(autoincrement())
+  jenisDosen TypeDosen @default(TIDAK_TETAP)
+  minSks     Decimal   @db.Decimal(10, 2)
+  maxSks     Decimal   @db.Decimal(10, 2)
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
+  deletedAt  DateTime?
+}
+
+model Fakultas {
+  id             BigInt    @id @default(autoincrement())
+  nama           String    @unique
+  kode           String?   @unique
+  isPascasarjana Boolean   @default(false)
+  Jurusan        Jurusan[]
+  Dosen          Dosen[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  Jadwal         Jadwal[]
+}
+
+model Jurusan {
+  id         BigInt       @id @default(autoincrement())
+  kode       String       @unique
+  singkatan  String       @db.VarChar(100)
+  nama       String
+  jenjang    Jenjang      @default(S1)
+  fakultasId BigInt
+  Fakultas   Fakultas     @relation(fields: [fakultasId], references: [id])
+  MataKuliah MataKuliah[]
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  deletedAt  DateTime?
+
+  // @@unique([nama, fakultasId])
+  Jadwal Jadwal[]
+  Dosen  Dosen[]
+}
+
+model Dosen {
+  id         BigInt    @id @default(autoincrement())
+  nama       String
+  nidn       String?   @unique
+  status     TypeDosen @default(TIDAK_TETAP)
+  fakultasId BigInt?
+  Fakultas   Fakultas? @relation(fields: [fakultasId], references: [id])
+  jurusanId  BigInt?
+  Jurusan    Jurusan?  @relation(fields: [jurusanId], references: [id])
+  Jadwal     Jadwal[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+}
+
+model MataKuliah {
+  id        BigInt    @id @default(autoincrement())
+  nama      String
+  kode      String?
+  sks       Int
+  jurusanId BigInt
+  semester  Int
+  Jurusan   Jurusan   @relation(fields: [jurusanId], references: [id])
+  // Jadwal    Jadwal[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([nama, jurusanId, semester])
+}
+
+model Jadwal {
+  id            BigInt    @id @default(autoincrement())
+  tahunAkademik String
+  // mataKuliahId  BigInt
+  fakultasId    BigInt?
+  jurusanId     BigInt?
+  matakuliah    String
+  dosenId       BigInt
+  kelas         String[]
+  sks           Int
+  totalSks      Int?      @default(0) @db.SmallInt
+  keterangan    String?
+  semester      Int       @db.SmallInt
+  // MataKuliah    MataKuliah @relation(fields: [mataKuliahId], references: [id])
+  Dosen         Dosen     @relation(fields: [dosenId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Fakultas      Fakultas? @relation(fields: [fakultasId], references: [id])
+  Jurusan       Jurusan?  @relation(fields: [jurusanId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  FAKULTAS
+  PRODI
+  DOSEN
+}
+
+enum StatusUser {
+  ACTIVE
+  INACTIVE
+}
+
+enum TypeDosen {
+  TETAP
+  TIDAK_TETAP
+}
+
+enum Jenjang {
+  S1
+  S2
+  S3
+  S2_S3
+}
+
+enum StatusTahun {
+  ACTIVE
+  INACTIVE
+}
