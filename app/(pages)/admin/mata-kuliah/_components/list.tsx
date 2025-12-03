@@ -1,17 +1,15 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { MataKuliahModal } from "@/features/mata-kuliah/components/create-modal";
-import { DeleteTahunAkademik } from "@/features/mata-kuliah/components/delete-dialog";
 import { useGetMataKuliah } from "@/features/mata-kuliah/service";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Plus, Recycle } from "lucide-react";
+import { Plus } from "lucide-react";
 import React from "react";
 
+/* eslint-disable */
 export default function List() {
     const { open } = useModalManager()
 
@@ -24,39 +22,11 @@ export default function List() {
             enableHiding: false,
         },
         {
-            accessorKey: "nama",
+            accessorKey: "NAMA_MATAKULIAH",
             header: "Nama Matakuliah",
             cell: ({ row }) => (
-                <>{row.getValue("nama")}</>
+                <>{row.getValue("NAMA_MATAKULIAH")}</>
             ),
-        },
-        {
-            id: "jurusan",
-            header: "Jurusan",
-            cell: ({ row }) => (
-                <>{row.original.Jurusan?.nama}</>
-            ),
-        },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => {
-                return (
-                    <div className='flex flex-wrap gap-2'>
-                        {
-                            !row.original.deletedAt && (
-                                <Button variant={"outline"} onClick={() => open("mataKuliahModal", row.original)}><Edit /> <span className="hidden md:flex">Edit</span></Button>
-                            )
-                        }
-                        {
-                          row.original.deletedAt && (
-                            <Button variant={"outline"}><Recycle/> Restore</Button>
-                          )  
-                        }
-                        <DeleteTahunAkademik id={row.original.id} custom_text={row.original.deletedAt ? 'Hapus Permanent':'Hapus'}/>
-                    </div>
-                )
-            },
         },
     ];
 
@@ -76,12 +46,11 @@ export default function List() {
             initialSort: [{ id: "nama", desc: false }],
         });
     const { data, isLoading } = useGetMataKuliah({
-        page: page,
-        limit: limit,
-        search: search,
-        sort: { field: sorting[0].id ?? 'nama', orderBy: sorting[0].desc ? 'desc' : 'asc' },
+        offset: (page - 1) * limit,
+        limit,
+        // sort: sorting.length > 0 ? { field: sorting[0].id, orderBy: sorting[0].desc ? 'DESC' : 'ASC' } : undefined,
     });
-
+    
     return (
         <div className="w-full">
             <div className="flex gap-2 flex-col md:flex-row md:items-center md:flex-column md:justify-between mb-4">
@@ -91,9 +60,9 @@ export default function List() {
                 </div>
             </div>
             <DataTable
-                data={data?.data ?? []}
+                data={data?.data?.data ?? []}
                 columns={columns}
-                totalRows={data?.total ?? 0}
+                totalRows={data?.data?.totalData ?? 0}
                 pageSize={limit}
                 loading={isLoading}
                 onPaginationChange={onPaginationChange}

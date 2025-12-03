@@ -11,13 +11,19 @@ export async function GET_PAGINATE({
     page = 1,
     limit = 10,
     search = "",
-    sort = { field: "createdAt", orderBy: "desc" }
-}: { page?: number, limit?: number, search?: string, sort?: SortProp }) {
+    sort = { field: "createdAt", orderBy: "desc" },
+    id,
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, id?: number }) {
     const skip = (page - 1) * limit;
-    const where = search
+    const searchFilter = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};
+    const idFilter = id ? { id } : {};
 
+    const where = {
+        ...idFilter,
+        ...searchFilter,
+    };
     const [data, total] = await Promise.all([
         prisma.fakultas.findMany({
             skip,

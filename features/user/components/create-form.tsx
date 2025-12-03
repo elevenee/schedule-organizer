@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/combobox';
 import { Role } from '@prisma/client';
+import { useGetFakultas } from '@/features/fakultas/service';
 
 interface Props {
     form: UseFormReturn<userFormValues>;
@@ -21,12 +22,14 @@ export function UserForm({ form, onSubmit }: Props) {
     } = form;
 
     const roles = [
-        { label: Role.ADMIN, value: Role.ADMIN },
-        { label: Role.AKADEMIK, value: Role.AKADEMIK },
-        { label: Role.KEUANGAN, value: Role.KEUANGAN },
-        { label: Role.VERIFIKATOR, value: Role.VERIFIKATOR },
-        { label: Role.PENDAFTAR, value: Role.PENDAFTAR },
+        { label: Role.FAKULTAS, value: Role.FAKULTAS },
+        { label: Role.PRODI, value: Role.PRODI },
     ];
+
+    const { data: fakultasData } = useGetFakultas({
+        page: 1,
+        remove_pagination: true,
+    });
     return (
         <Form {...form}>
             <form id="form-user" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">
@@ -38,19 +41,6 @@ export function UserForm({ form, onSubmit }: Props) {
                             <FormLabel required>Name</FormLabel>
                             <FormControl>
                                 <Input placeholder="Input name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                        <FormItem className='col-span-12'>
-                            <FormLabel required>Email</FormLabel>
-                            <FormControl>
-                                <Input placeholder="Input email" value={field?.value ?? ''} onChange={field.onChange} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -110,8 +100,26 @@ export function UserForm({ form, onSubmit }: Props) {
                                 <Combobox
                                     options={roles}
                                     value={field.value}
-                                    onChange={(val) => setValue('status', val as Role)}
+                                    onChange={(val) => setValue('role', val as Role)}
                                     placeholder="Pilih Role"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="fakultasId"
+                    render={({ field }) => (
+                        <FormItem className='col-span-12'>
+                            <FormLabel>Fakultas</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    options={fakultasData?.data?.map((item:any) => ({ label: item.nama, value: String(item.id) })) || []}
+                                    value={field.value ? field.value.toString() : ''}
+                                    onChange={(val) => setValue('fakultasId', val as Role)}
+                                    placeholder="Pilih Fakultas"
                                 />
                             </FormControl>
                             <FormMessage />

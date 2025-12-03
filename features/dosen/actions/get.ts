@@ -11,16 +11,18 @@ type SortProp = {
 }
 export async function GET_PAGINATE({
     page = 1,
-    limit = 10,
+    limit = 100,
     search = "",
     sort = { field: "createdAt", orderBy: "DESC" },
-    remove_pagination = false
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean }) {
+    status = "",
+    fakultasId,
+    id,
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, id?: number }) {
     const skip = (page - 1) * limit;
     const searchNama = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};
-    
+    const statusFilter = status ? { status } : {};
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
 
@@ -29,11 +31,18 @@ export async function GET_PAGINATE({
         withDeleted = {};
     }
 
-    const where = {
-        ...searchNama,
-        ...withDeleted
-    };
+    const fakultasFilter = fakultasId ? { fakultasId } : {};
+    const idFilter = id ? { id } : {};
 
+    const where = {
+        ...idFilter,
+        ...searchNama,
+        ...statusFilter,
+        ...withDeleted,
+        ...fakultasFilter
+    };
+    console.log("############### ID ################",where, search);
+    
     const [data, total] = await Promise.all([
         prisma.dosen.findMany({
             skip,
@@ -51,7 +60,6 @@ export async function GET_PAGINATE({
         }),
         prisma.dosen.count({ where }),
     ]);
-
     return { data, total };
 }
 

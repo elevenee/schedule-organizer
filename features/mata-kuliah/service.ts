@@ -1,19 +1,22 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
+import { MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
 import { mataKuliahSchema } from "./validations";
 import { create } from "./actions/create";
 import { update } from "./actions/update";
 import { destroy } from "./actions/delete";
-import { GET_PAGINATE } from "./actions/get";
+import { GET } from "./actions/get";
 
 interface StoreOptions extends MutationOptions { }
 
-interface GetAllProps extends DataTableOptions {
-    nama?: string,
+interface GetAllProps {
+    NAMA_MATAKULIAH?: string,
+    jenjang?: string,
+    offset?: number,
+    limit?: number
 }
 export const useGetMataKuliah = (params: GetAllProps) => {
     return handleFetchData(
-        () => GET_PAGINATE(params as any),
+        () => GET(params as any),
         [
             "mata-kuliah",
             {

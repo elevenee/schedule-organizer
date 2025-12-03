@@ -7,6 +7,7 @@ import { Combobox } from '@/components/ui/combobox';
 import { Jurusan } from '@prisma/client';
 import { dosenFormValues } from '../validations';
 import { useGetFakultas } from '@/features/fakultas/service';
+import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
 
 interface Props {
     form: UseFormReturn<dosenFormValues>;
@@ -16,12 +17,10 @@ interface Props {
 export function DosenForm({ form, onSubmit }: Props) {
     const {
         formState: { errors },
-        reset,
         handleSubmit,
-        setValue,
     } = form;
 
-    const {data: listFakultas} = useGetFakultas({
+    const { data: listFakultas } = useGetFakultas({
         page: 1,
         remove_pagination: true,
         sort: {
@@ -29,7 +28,15 @@ export function DosenForm({ form, onSubmit }: Props) {
             orderBy: 'asc'
         }
     })
-    
+    const { data: listJurusan } = useGetProdi({
+        page: 1,
+        remove_pagination: true,
+        fakultas: form.watch().fakultasId ?? undefined,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
     return (
         <Form {...form}>
             <form id="form-dosen" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">
@@ -50,10 +57,10 @@ export function DosenForm({ form, onSubmit }: Props) {
                     control={form.control}
                     name="nidn"
                     render={({ field }) => (
-                        <FormItem className='col-span-12 md:col-span-6'>
+                        <FormItem className='col-span-12'>
                             <FormLabel required>NIDN</FormLabel>
                             <FormControl>
-                                <Input placeholder="Input NIDN" value={field.value ?? ""} onChange={field.onChange}/>
+                                <Input placeholder="Input NIDN" value={field.value ?? ""} onChange={field.onChange} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -72,10 +79,33 @@ export function DosenForm({ form, onSubmit }: Props) {
                                             label: t.nama,
                                             value: t.id.toString()
                                         }
-                                    }):[]}
+                                    }) : []}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
                                     placeholder="Pilih Fakultas"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="jurusanId"
+                    render={({ field }) => (
+                        <FormItem className='col-span-12'>
+                            <FormLabel>Jurusan</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    options={listJurusan?.data ? listJurusan?.data?.map((t: Jurusan) => {
+                                        return {
+                                            label: t.nama,
+                                            value: t.id.toString()
+                                        }
+                                    }) : []}
+                                    value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                                    onChange={(value) => field.onChange(Number(value))}
+                                    placeholder="Pilih Jurusan"
                                 />
                             </FormControl>
                             <FormMessage />

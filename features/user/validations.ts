@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { fa } from "zod/v4/locales";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_FILE_TYPES = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
@@ -16,6 +17,7 @@ export const userSchema = z.object({
         'PRODI',
         'DOSEN',
     ]),
+    fakultasId: z.string().nullable().optional(),
 });
 
 export type userFormValues = z.infer<typeof userSchema>;

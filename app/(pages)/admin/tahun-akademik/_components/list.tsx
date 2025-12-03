@@ -12,6 +12,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Edit, Plus, Recycle } from "lucide-react";
 import React from "react";
 
+/* eslint-disable */
 export default function List() {
     const { open } = useModalManager()
 
@@ -75,7 +76,6 @@ export default function List() {
             onLimitChange,
             onSortingChange,
             onSearchChange,
-            resetAll
         } = useDataTable({
             initialPageSize: 20,
             initialSort: [{ id: "name", desc: false }],

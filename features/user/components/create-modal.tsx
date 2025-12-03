@@ -18,6 +18,7 @@ import { useStoreUser, useUpdateUser } from '../service';
 import { UserForm } from './create-form';
 import { Role } from '@prisma/client';
 import { useModalManager } from '@/hooks/modal-manager';
+import BaseModal from '@/components/ui/modal';
 
 export function UserModal() {
     const { isOpen, getData, close } = useModalManager();
@@ -35,6 +36,7 @@ export function UserModal() {
             password: null,
             role: (user?.role as Role) ?? null,
             status: user?.status as "ACTIVE" | "INACTIVE" ?? 'INACTIVE',
+            fakultasId: user?.fakultasId ? String(user.fakultasId) : undefined,
         }
     });
     const storeUser = useStoreUser()
@@ -67,42 +69,39 @@ export function UserModal() {
                 password: null,
                 role: (user?.role as Role) ?? Role.ADMIN,
                 status: user?.status as "ACTIVE" | "INACTIVE" ?? 'INACTIVE',
+                fakultasId: user?.fakultasId ? String(user.fakultasId) : undefined,
             });
         }
     }, [open, user, form]);
 
     return (
         <>
-            <Dialog open={open} onOpenChange={(v) => !v && close("userModal")}>
-                <DialogContent className="sm:max-w-[450px]">
-                    <DialogHeader>
-                        <DialogTitle>{user ? 'Edit User' : 'Tambah User'}</DialogTitle>
-                        <DialogDescription>
-                            Silakan {user ? 'ubah' : 'tambah'} data User di sini. Klik simpan setelah selesai.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="max-h-[80vh] overflow-y-auto">
-                        <UserForm
+            <BaseModal open={open} onOpenChange={(v) => !v && close("userModal")} size="md">
+                <BaseModal.Header>
+                    <BaseModal.Title>{user ? 'Edit User' : 'Tambah User'}</BaseModal.Title>
+                    <BaseModal.Description>
+                        Silakan {user ? 'ubah' : 'tambah'} data User di sini. Klik simpan setelah selesai.
+                    </BaseModal.Description>
+                </BaseModal.Header>
+
+                <BaseModal.Body>
+                    <UserForm
                             form={form}
                             onSubmit={onSubmit}
                         />
-                    </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
-                            <Button type="button" variant="secondary" onClick={(v) => !v && close("userForm")}>
-                                Close
-                            </Button>
-                        </DialogClose>
-                        <Button
-                            type='submit'
-                            onClick={form.handleSubmit(onSubmit)}
-                            disabled={isSubmitting}
-                        >
-                            {user ? 'Simpan Perubahan' : 'Simpan'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                </BaseModal.Body>
+
+                <BaseModal.Footer>
+                    <BaseModal.CloseButton onClick={() => close("userModal")} />
+                    <Button
+                        type='submit'
+                        onClick={form.handleSubmit(onSubmit)}
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Processing..' : user ? 'Simpan Perubahan' : 'Simpan'}
+                    </Button>
+                </BaseModal.Footer>
+            </BaseModal>
         </>
     );
 }

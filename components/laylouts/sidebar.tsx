@@ -18,9 +18,21 @@ import Logo from "../ui/logo";
 import { Separator } from "../ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
+/* eslint-disable */
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const { role } = props;
     const base = "";
+    const COMMON_MENU = [
+        {
+            title: "Aplication",
+            group: true,
+            items: [
+                { url: `${base}/dashboard`, title: "Dashboard", icon: LayoutDashboardIcon },
+                { url: `${base}/profil`, title: "Profil Saya", icon: User },
+            ]
+        }
+    ];
+
     const ADMIN_MENU = [
         {
             title: "Application",
@@ -50,6 +62,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     icon: Calendar,
                     url: `${base}/admin/jadwal`
                 },
+                {
+                    title: "Pengaturan Jadwal Dosen",
+                    icon: Calendar,
+                    url: `${base}/admin/pengaturan-jadwal`
+                },
             ]
         },
         {
@@ -63,8 +80,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
     ];
 
+     const FAKULTAS_MENU = [
+        {
+            title: "Aplication",
+            group: true,
+            items: [
+                { url: `${base}/dashboard`, title: "Dashboard", icon: LayoutDashboardIcon },
+                { url: `${base}/fakultas/pengajuan-jadwal`, title: "Pengajuan Jadwal", icon: Calendar },
+            ]
+        }
+    ];
 
-    const links = ADMIN_MENU;
+    const links = role === "ADMIN"
+            ? ADMIN_MENU
+            : role === "FAKULTAS"
+                ? FAKULTAS_MENU
+                : COMMON_MENU;
     return (
         <Sidebar {...props}>
             <SidebarHeader className="flex flex-row gap-2 items-center justify-center">

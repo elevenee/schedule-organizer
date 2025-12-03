@@ -1,15 +1,20 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { dosenSchema } from "./validations";
-import { create } from "./actions/create";
-import { update } from "./actions/update";
-import { destroy } from "./actions/delete";
-import { GET_PAGINATE } from "./actions/get";
+import { dosenSchema } from "./../validations";
+import { create } from "./../actions/create";
+import { update } from "./../actions/update";
+import { destroy } from "./../actions/delete";
+import { GET_PAGINATE } from "./../actions/get";
+import { SYNC } from "../actions/sync";
 
 interface StoreOptions extends MutationOptions { }
 
 interface GetAllProps extends DataTableOptions {
+    search?: string,
     nama?: string,
+    status?: string,
+    fakultasId?: number,
+    id?: number
 }
 export const useGetDosen = (params: GetAllProps) => {
     return handleFetchData(
@@ -94,5 +99,31 @@ export const useDeleteDosen = (id: number, options: MutationOptions = {}) => {
         onSettled: async (_, error) => handleSettled(error, queryClient, ["dosen"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Dosen gagal dihapus"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Dosen berhasil dihapus"),
+    });
+};
+
+const syncDosen = async (action: () => Promise<any>, alertTitle: string) => {
+    try {
+        showProcessAlert(alertTitle, "Proses syncronisasi data..");
+        const response = await action();
+        if (response) {
+            return response;
+        } else {
+            throw new Error(`Data gagal diproses: ${response.statusText}`);
+        }
+    } catch (error) {
+        throw new Error(`Data gagal diproses: ${error}`);
+    }
+};
+
+export const useSyncDosen = (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showAlert = true } = { showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: () => syncDosen(() => SYNC(), "Syncroning Data"),
+        onSettled: async (_, error) => handleSettled(error, queryClient, ["dosen"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Dosen gagal disingkronkan"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Dosen berhasil disingkronkan"),
     });
 };

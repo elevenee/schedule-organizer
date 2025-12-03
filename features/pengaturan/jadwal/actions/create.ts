@@ -1,16 +1,17 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
-import { dosenFormValues } from "../validations";
+import { pengaturanJadwalFormValues } from "../validations";
+import { TypeDosen } from "@prisma/client";
 
-export async function create(formData: dosenFormValues) {
-  const { nama, nidn, fakultasId } = formData;
+export async function create(formData: pengaturanJadwalFormValues) {
+  const { jenisDosen, minSks, maxSks } = formData;
   const data = {
-    nama,
-    nidn,
-    fakultasId: Number(fakultasId),
+    jenisDosen: jenisDosen as TypeDosen,
+    minSks: Number(minSks),
+    maxSks: Number(maxSks),
   }
-  return await prisma.dosen.create({
+  return await prisma.pengaturanJadwal.create({
     data: data
   });
 }

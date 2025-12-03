@@ -29,14 +29,15 @@ export function BaseModal({
         md: "sm:max-w-[500px]",
         lg: "sm:max-w-[700px]",
         xl: "sm:max-w-[900px]",
-        full: "sm:max-w-[100vw] sm:h-[100vh] sm:rounded-none sm:m-0 sm:p-0",
+        full: "sm:max-w-[100vw] sm:h-[100vh] sm:rounded-none sm:m-0",
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 className={cn(
-                    "max-h-[90vh] flex flex-col",
+                    "flex flex-col",
+                    size === "full" ? undefined : "max-h-[90vh]",
                     sizeClasses[size],
                     className
                 )}

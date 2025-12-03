@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { QueryClient } from '@tanstack/react-query';
-import { useDeleteTahunAkademik } from '@/features/tahun_akademik/service';
+import { useDeleteJadwal } from '@/features/jadwal/service';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -12,24 +12,22 @@ type Props = {
     custom_text?: string
 };
 
-export function DeleteJadwal({ id, custom_text = "Hapus" }: Props) {
-    const [openModal, setOpenModal] = useState(false);
+export function DeleteJadwal({ id }: Props) {
     const queryClient = new QueryClient()
-    const deleteTahunAkademikMutation = useDeleteTahunAkademik(id)
+    const deleteJadwalMutation = useDeleteJadwal(id)
     const handleDelete = async () => {
-        (await deleteTahunAkademikMutation).mutate();
-        setOpenModal(false)
-        await queryClient.invalidateQueries({ queryKey: ['tahun-akademik'] });
+        (await deleteJadwalMutation).mutate();
+        await queryClient.invalidateQueries({ queryKey: ['jadwal'] });
     };
     return (
         <>
             <AlertDialog>
-                <AlertDialogTrigger asChild className='flex gap-2'><Button variant={'destructive'}><Trash2 /> <span className="hidden md:block">{custom_text}</span></Button></AlertDialogTrigger>
+                <AlertDialogTrigger asChild><Button variant={'outline'}><Trash2 className='text-rose-500 h-4 w-4'/></Button></AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Apakah anda yakin ?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            Tahun Akademik ini akan dihapus
+                            Jadwal ini akan dihapus
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>

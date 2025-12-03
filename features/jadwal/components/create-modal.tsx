@@ -16,15 +16,17 @@ export function JadwalModal() {
     const jadwal = getData("jadwalModal");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isMaximumReached, setIsMaximumReached] = useState(false);
+
     const form = useForm<jadwalFormValues>({
         resolver: zodResolver(jadwalSchema),
         defaultValues: {
             id: jadwal?.id ? Number(jadwal.id) : undefined,
             matakuliah: jadwal?.matakuliah ?? '',
-            sks: jadwal?.sks ? Number(jadwal.sks) : undefined,
+            sks: jadwal?.sks ? jadwal.sks : undefined,
             kelas: jadwal?.kelas ?? [],
             keterangan: jadwal?.keterangan ?? '',
-            semester: jadwal?.semester ? Number(jadwal.semester) : undefined,
+            semester: jadwal?.semester ? jadwal.semester : undefined,
             dosenId: jadwal?.dosenId ? Number(jadwal.dosenId) : undefined,
             fakultasId: jadwal?.fakultasId ? Number(jadwal.fakultasId) : undefined,
             jurusanId: jadwal?.jurusanId ? Number(jadwal.jurusanId) : undefined,
@@ -55,16 +57,31 @@ export function JadwalModal() {
             form.reset({
                 id: jadwal?.id ? Number(jadwal.id) : undefined,
                 matakuliah: jadwal?.matakuliah ?? '',
-                sks: jadwal?.sks ? Number(jadwal.sks) : undefined,
+                sks: jadwal?.sks ? jadwal.sks : undefined,
                 kelas: jadwal?.kelas ?? [],
                 keterangan: jadwal?.keterangan ?? '',
-                semester: jadwal?.semester ? Number(jadwal.semester) : undefined,
+                semester: jadwal?.semester ? jadwal.semester : undefined,
                 dosenId: jadwal?.dosenId ? Number(jadwal.dosenId) : undefined,
                 fakultasId: jadwal?.fakultasId ? Number(jadwal.fakultasId) : undefined,
                 jurusanId: jadwal?.jurusanId ? Number(jadwal.jurusanId) : undefined,
             });
         }
     }, [open, jadwal, form]);
+
+    useEffect(() => {
+        const subscription = form.watch((value) => {
+            const sks = value.sks ? Number(value.sks) : 0;
+            const kelasCount = value.kelas ? value.kelas.length : 0;
+            const totalSKS = sks * kelasCount;
+            const currentTotalSKS = jadwal?.currentTotalSKS ? Number(jadwal.currentTotalSKS) : 0;
+            const maxSks = jadwal?.maxSks ? Number(jadwal.maxSks) : 0;
+            console.log({ currentTotalSKS, totalSKS, maxSks });
+            
+            setIsMaximumReached((currentTotalSKS + totalSKS) > maxSks);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [form, jadwal]);
 
     return (
         <>
@@ -88,7 +105,7 @@ export function JadwalModal() {
                     <Button
                         type='submit'
                         onClick={form.handleSubmit(onSubmit)}
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || isMaximumReached}
                     >
                         {isSubmitting ? 'Processing..' : jadwal?.id ? 'Simpan Perubahan' : 'Simpan'}
                     </Button>

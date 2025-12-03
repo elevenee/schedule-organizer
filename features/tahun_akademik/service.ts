@@ -4,7 +4,7 @@ import { tahunAkademikSchema } from "./validations";
 import { create } from "./actions/create";
 import { update, updateStatus } from "./actions/update";
 import { destroy } from "./actions/delete";
-import { GET_PAGINATE } from "./actions/get";
+import { GET_PAGINATE, GET_TAHUN_AKADEMIK_AKTIF } from "./actions/get";
 
 interface StoreOptions extends MutationOptions { }
 
@@ -19,6 +19,14 @@ export const useGetTahunAkademik = (params: GetAllProps) => {
             {
                 params,
             },
+        ])
+}
+
+export const useGetTahunAkademikAktif = () => {
+    return handleFetchData(
+        () => GET_TAHUN_AKADEMIK_AKTIF(),
+        [
+            "tahun-akademik-aktif",
         ])
 }
 

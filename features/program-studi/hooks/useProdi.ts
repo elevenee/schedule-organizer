@@ -1,10 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { programStudiSchema } from "./validations";
-import { create } from "./actions/create";
-import { update } from "./actions/update";
-import { destroy } from "./actions/delete";
-import { GET_PAGINATE } from "./actions/get";
+import { programStudiSchema } from "../validations";
+import { create } from "../actions/create";
+import { update } from "../actions/update";
+import { destroy } from "../actions/delete";
+import { GET_PAGINATE } from "../actions/get";
+import { SYNC } from "../actions/sync";
 
 interface StoreOptions extends MutationOptions { }
 
@@ -94,5 +95,30 @@ export const useDeleteProgramStudi = (id: number, options: MutationOptions = {})
         onSettled: async (_, error) => handleSettled(error, queryClient, ["program-studi"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Program Studi gagal dihapus"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Program Studi berhasil dihapus"),
+    });
+};
+const syncProgramStudi = async (action: () => Promise<any>, alertTitle: string) => {
+    try {
+        showProcessAlert(alertTitle, "Proses syncronisasi data..");
+        const response = await action();
+        if (response) {
+            return response;
+        } else {
+            throw new Error(`Data gagal diproses: ${response.statusText}`);
+        }
+    } catch (error) {
+        throw new Error(`Data gagal diproses: ${error}`);
+    }
+};
+
+export const useSyncProgramStudi = (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showAlert = true } = { showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: () => syncProgramStudi(() => SYNC(), "Syncroning Data"),
+        onSettled: async (_, error) => handleSettled(error, queryClient, ["program-studi"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Program Studi gagal disingkronkan"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Program Studi berhasil disingkronkan"),
     });
 };

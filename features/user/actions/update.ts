@@ -17,19 +17,19 @@ export async function update(id: number, formData: userFormValues) {
     }
     const updateData = {
         name: formData.name,
-        email: formData.email,
         username: formData.username,
         status: session?.user?.role === 'SUPER_ADMIN' || session?.user?.role === 'ADMIN'
             ? (formData.status as StatusUser)
             : (find.status as StatusUser),
-        role: session?.user?.role === 'SUPER_ADMIN' ? (formData.role as Role) : (find.role as Role)
+        role: session?.user?.role === 'SUPER_ADMIN' ? (formData.role as Role) : (find.role as Role),
+        fakultasId: formData.fakultasId ? Number(formData.fakultasId) : null,
     } as {
         name: string;
-        email?: string | null;
         username: string;
         status: StatusUser;
         role: Role;
         password?: string;
+        fakultasId: number | null;
     };
 
     if (formData.password) {

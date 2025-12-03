@@ -11,6 +11,7 @@ import { Button } from "./button";
 import { Input } from "./input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./select";
 
+/* eslint-disable */
 interface ReusableTableProps<T> {
     data: T[];
     columns: ColumnDef<T>[];

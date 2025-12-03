@@ -5,8 +5,8 @@ import { mataKuliahFormValues } from '@/features/mata-kuliah/validations';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/combobox';
-import { useGetProdi } from '@/features/program-studi/service';
 import { Jurusan } from '@prisma/client';
+import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
 
 interface Props {
     form: UseFormReturn<mataKuliahFormValues>;

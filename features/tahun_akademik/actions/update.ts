@@ -2,17 +2,18 @@
 
 import { prisma } from "@/lib/prisma";
 import { tahunAkademikFormValues } from "../validations";
-import { StatusTahun } from "@prisma/client";
+import { SemesterPeriode, StatusTahun } from "@prisma/client";
 
 export async function update(id: number, formData: tahunAkademikFormValues) {
     const find = await prisma.tahunAkademik.findUnique({ where: { id } });
     if (!find) return { error: 'Tahun Akademik tidak ditemukan' };
 
-    const { tahun, status } = formData;
+    const { name, status, semester } = formData;
 
     let updateData = {
-        tahun,
+        name,
         status: status as StatusTahun,
+        semester: semester as SemesterPeriode
     }
 
     const updated = await prisma.tahunAkademik.update({

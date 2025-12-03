@@ -5,16 +5,18 @@ import { ProgramStudiModal } from "@/features/program-studi/components/create-mo
 import { DeleteProgramStudi } from "@/features/program-studi/components/delete-dialog";
 import ProgramStudiFilterAdvanceForm from "@/features/program-studi/components/filter-advance";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Plus } from "lucide-react";
+import { Edit, Plus, RecycleIcon } from "lucide-react";
 import { useState } from "react";
 import { useModalManager } from "@/hooks/modal-manager";
-import { useGetProdi } from "@/features/program-studi/service";
+import { useGetProdi, useSyncProgramStudi } from "@/features/program-studi/hooks/useProdi";
 import { useGetFakultas } from "@/features/fakultas/service";
 import { useDataTable } from "@/hooks/use-datatables";
 
+/* eslint-disable */
 export default function List() {
     const { open } = useModalManager();
     const [selectedFakultas, setSelectedFakultas] = useState("")
+    const syncronMutation = useSyncProgramStudi();
 
     const columns: ColumnDef<any>[] = [
         {
@@ -84,11 +86,16 @@ export default function List() {
         resetAll()
     }
 
+    const handleSync = async ()=>{
+        const sync = await syncronMutation.mutateAsync()
+    }
+
     return (
         <div className="w-full">
             <div className="flex gap-2 flex-col md:flex-row md:items-center md:flex-column md:justify-between mb-4">
                 <h1 className="text-3xl font-bold order-2 md:order-1">Daftar Program Studi</h1>
-                <div className="order-1 md:order-2">
+                <div className="order-1 md:order-2 space-x-2">
+                    <Button variant={"outline"} onClick={handleSync}><RecycleIcon /> Sync</Button>
                     <Button variant={"default"} onClick={() => open("prodiModal")}><Plus /> Tambah</Button>
                 </div>
             </div>

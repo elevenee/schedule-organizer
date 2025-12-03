@@ -10,7 +10,11 @@ interface StoreOptions extends MutationOptions { }
 
 interface GetAllProps extends DataTableOptions {
     nama?: string,
-    jenisDosen?: string
+    jenisDosen?: string,
+    tahunAkademik?: number | null,
+    fakultas?: number | null,
+    programStudi?: number | null,
+    matakuliah?: string | null,
 }
 export const useGetJadwal = (params: GetAllProps) => {
     return handleFetchData(

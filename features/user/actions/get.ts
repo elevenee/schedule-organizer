@@ -16,8 +16,9 @@ export async function GET_PAGINATE({
     status,
     role,
     sort = { field: "createdAt", orderBy: "DESC" },
-    remove_pagination = false
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean, status?: string, role?: string }) {
+    remove_pagination = false,
+    fakultasId,
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean, status?: string, role?: string, fakultasId?: number }) {
     const skip = (page - 1) * limit;
     const searchName = search
         ? {
@@ -33,6 +34,8 @@ export async function GET_PAGINATE({
         ? { status: status } : {};
     const roleFilter = role && role !== ''
         ? { role: role } : {};
+    const fakultasFilter = fakultasId
+        ? { fakultasId: fakultasId } : {};
 
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
@@ -46,6 +49,7 @@ export async function GET_PAGINATE({
         ...searchName,
         ...statusFilter,
         ...roleFilter,
+        ...fakultasFilter,
         ...withDeleted
     };
 
@@ -64,8 +68,8 @@ export async function GET_PAGINATE({
 
 export default async function GET_ALL() {
     const result = await prisma.user.findMany({
-        where: { deleted_at: null },
-        orderBy: { created_at: 'desc' }
+        where: { deletedAt: null },
+        orderBy: { createdAt: 'desc' }
     });
 
     return result;

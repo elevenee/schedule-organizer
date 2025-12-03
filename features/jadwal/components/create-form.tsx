@@ -5,13 +5,16 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/combobox';
 import { jadwalFormValues } from '../validations';
-import { useGetDosen } from '@/features/dosen/service';
+import { useGetDosen } from '@/features/dosen/hooks/useDosen';
 import { Dosen } from '@/features/dosen/types';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useGetFakultas } from '@/features/fakultas/service';
-import { useGetProdi } from '@/features/program-studi/service';
+import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
+import { useEffect, useState } from 'react';
+import { Jurusan } from '@prisma/client';
 
 interface Props {
     form: UseFormReturn<jadwalFormValues>;
@@ -19,6 +22,7 @@ interface Props {
     isSubmitting?: boolean;
 }
 export function JadwalForm({ form, onSubmit }: Props) {
+    const [availableSemester, setAvailableSemester] =  useState<{value: string; label:  string}[]>([]);
     const {
         formState: { errors },
         reset,
@@ -84,6 +88,26 @@ export function JadwalForm({ form, onSubmit }: Props) {
 
     const isAllSelected = kelasValue.length === availableKelas.length;
 
+    const {data: tahunAkademik} = useGetTahunAkademikAktif();
+
+    const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
+
+    useEffect(() => {
+        if (tahunAkademik) {
+            if (tahunAkademik?.semester === 'GENAP') {
+                setAvailableSemester(SEMESTER.filter((s) => s % 2 === 0).map((semester) => ({
+                    value: semester.toString(),
+                    label: `Semester ${semester}`,
+                })));
+            }else{
+                setAvailableSemester(SEMESTER.filter((s) => s % 2 !== 0).map((semester) => ({
+                    value: semester.toString(),
+                    label: `Semester ${semester}`,
+                })));
+            }
+        }   
+
+    }, [tahunAkademik.data, setValue]);
 
     return (
         <Form {...form}>
@@ -115,7 +139,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                     control={form.control}
                     name="fakultasId"
                     render={({ field }) => (
-                        <FormItem className='col-span-12 md:col-span-6'>
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
                             <FormLabel required>Fakultas</FormLabel>
                             <FormControl>
                                 <Combobox
@@ -138,13 +162,13 @@ export function JadwalForm({ form, onSubmit }: Props) {
                     control={form.control}
                     name="jurusanId"
                     render={({ field }) => (
-                        <FormItem className='col-span-12 md:col-span-6'>
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
                             <FormLabel required>Jurusan</FormLabel>
                             <FormControl>
                                 <Combobox
-                                    options={listJurusan?.data ? listJurusan.data?.map((t: Dosen) => {
+                                    options={listJurusan?.data ? listJurusan.data?.map((t: Jurusan) => {
                                         return {
-                                            label: t.nama,
+                                            label: t.nama +` (${t.jenjang})`,
                                             value: t.id.toString()
                                         }
                                     }) : []}
@@ -157,6 +181,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
                     name="matakuliah"
@@ -165,6 +190,15 @@ export function JadwalForm({ form, onSubmit }: Props) {
                             <FormLabel required>Nama Matakuliah</FormLabel>
                             <FormControl>
                                 <Input placeholder="Input nama matakuliah" {...field} />
+                                {/* <SearchInput
+                                    suggestions={COUNTRIES}
+                                    value={country}
+                                    onChange={setCountry}
+                                    onSelect={handleCountrySelect}
+                                    placeholder="Search countries..."
+                                    emptyMessage="No countries found."
+                                    maxSuggestions={5}
+                                /> */}
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -174,7 +208,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                     control={form.control}
                     name="sks"
                     render={({ field }) => (
-                        <FormItem className='col-span-12 md:col-span-6'>
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
                             <FormLabel required>Jumlah SKS</FormLabel>
                             <FormControl>
                                 <Select value={field.value ? field.value.toString() : ""} onValueChange={field.onChange}>
@@ -197,24 +231,15 @@ export function JadwalForm({ form, onSubmit }: Props) {
                     control={form.control}
                     name="semester"
                     render={({ field }) => (
-                        <FormItem className='col-span-12 md:col-span-6'>
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
                             <FormLabel required>Semester</FormLabel>
                             <FormControl>
-                                <Select value={field.value ? field.value.toString() : ""} onValueChange={field.onChange}>
-                                    <SelectTrigger className="w-auto">
-                                        <SelectValue placeholder="Semester" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1">1</SelectItem>
-                                        <SelectItem value="2">2</SelectItem>
-                                        <SelectItem value="3">3</SelectItem>
-                                        <SelectItem value="4">4</SelectItem>
-                                        <SelectItem value="5">5</SelectItem>
-                                        <SelectItem value="6">6</SelectItem>
-                                        <SelectItem value="7">7</SelectItem>
-                                        <SelectItem value="8">8</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <Combobox
+                                    options={availableSemester ?? []}
+                                    value={field.value ? field.value.toString() : ""}
+                                    onChange={(val) => setValue('semester', val)}
+                                    placeholder="Pilih Semester"
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

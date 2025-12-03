@@ -5,6 +5,7 @@ export function convertDecimalsToNumbers<T extends object>(
 ): T {
     if (!obj) return obj
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = { ...obj } as any
 
     decimalFields.forEach(field => {
@@ -33,12 +34,14 @@ export function convertNestedDecimals<T extends object>(
 ): T {
     if (!obj) return obj
 
-    let result = { ...obj } as any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = { ...obj } as any
 
     // Process nested relations
     Object.entries(config).forEach(([key, decimalFields]) => {
         if (result[key] && Array.isArray(result[key])) {
             // Handle array relations (hasMany)
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             result[key] = result[key].map((item: any) =>
                 convertDecimalsToNumbers(item, decimalFields as string[])
             )

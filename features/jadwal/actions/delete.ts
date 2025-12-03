@@ -8,7 +8,7 @@ export async function destroy(id: number) {
     const jadwal = await prisma.jadwal.findUnique({
         where: { id }
     });
-    if (!jadwal) throw new Error("Mata Kuliah not found");
+    if (!jadwal) throw new Error("Jadwal not found");
     await prisma.jadwal.delete({
         where: { id }
     });

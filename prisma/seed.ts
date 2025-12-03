@@ -15,24 +15,35 @@ async function main() {
             status: StatusUser.ACTIVE
         }
     })
-    await prisma.pengaturanJadwal.upsert({
-        where: { id: 1, jenisDosen: TypeDosen.TETAP },
+    await prisma.user.upsert({
+        where: { username: "ADMIN" },
         update: {},
         create: {
-            jenisDosen: TypeDosen.TETAP,
-            minSks: 12,
-            maxSks: 20,
+            name: "ADMIN",
+            username: "ADMIN",
+            password: await hash("admin9900"),
+            role: Role.ADMIN,
+            status: StatusUser.ACTIVE
         }
     })
-    await prisma.pengaturanJadwal.upsert({
-        where: { id: 2, jenisDosen: TypeDosen.TIDAK_TETAP },
-        update: {},
-        create: {
-            jenisDosen: TypeDosen.TIDAK_TETAP,
-            minSks: 12,
-            maxSks: 20,
-        }
-    })
+    // await prisma.pengaturanJadwal.upsert({
+    //     where: { id: 1, jenisDosen: TypeDosen.TETAP },
+    //     update: {},
+    //     create: {
+    //         jenisDosen: TypeDosen.TETAP,
+    //         minSks: 12,
+    //         maxSks: 20,
+    //     }
+    // })
+    // await prisma.pengaturanJadwal.upsert({
+    //     where: { id: 2, jenisDosen: TypeDosen.TIDAK_TETAP },
+    //     update: {},
+    //     create: {
+    //         jenisDosen: TypeDosen.TIDAK_TETAP,
+    //         minSks: 12,
+    //         maxSks: 20,
+    //     }
+    // })
     const fakultas = [
         {
             "nama": "Dakwah dan Ilmu Komunikasi",
@@ -1753,9 +1764,9 @@ async function main() {
         { nama: "Drs. Ma'ruf, S.H., M.Ag." },
         { nama: "Dr. Ummu Rosyidah, M.E.I." }
     ];
-    await prisma.dosen.createMany({
-        data: dosen
-    })
+    // await prisma.dosen.createMany({
+    //     data: dosen
+    // })
 }
 
 main()

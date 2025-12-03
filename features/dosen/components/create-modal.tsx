@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button"
 import { dosenFormValues, dosenSchema } from '../validations';
-import { useStoreDosen, useUpdateDosen } from '../service';
+import { useStoreDosen, useUpdateDosen } from '../hooks/useDosen';
 import { DosenForm } from './create-form';
 import { useModalManager } from '@/hooks/modal-manager';
 import BaseModal from '@/components/ui/modal';
@@ -21,8 +21,9 @@ export function DosenModal() {
         defaultValues: {
             id: dosen?.id ? Number(dosen.id) : undefined,
             nama: dosen?.nama ?? '',
-            nidn: dosen?.kode ?? '',
+            nidn: dosen?.nidn ?? '',
             fakultasId: dosen?.fakultasId ? Number(dosen.fakultasId) : undefined,
+            jurusanId: dosen?.jurusanId ? Number(dosen.jurusanId) : undefined,
         }
     });
     const storedosen = useStoreDosen()
@@ -50,8 +51,9 @@ export function DosenModal() {
             form.reset({
                 id: dosen?.id ? Number(dosen.id) : undefined,
                 nama: dosen?.nama ?? '',
-                nidn: dosen?.kode ?? '',
+                nidn: dosen?.nidn ?? '',
                 fakultasId: dosen?.fakultasId ? Number(dosen.fakultasId) : undefined,
+                jurusanId: dosen?.jurusanId ? Number(dosen.jurusanId) : undefined,
             });
         }
     }, [open, dosen, form]);

@@ -9,6 +9,7 @@ import { GET_PAGINATE } from "./actions/get";
 interface StoreOptions extends MutationOptions { }
 
 interface GetAllProps extends DataTableOptions {
+    id?: number,
     name?: string,
 }
 export const useGetFakultas = (params: GetAllProps) => {

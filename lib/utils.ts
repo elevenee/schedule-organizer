@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+ // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const parseJsonDateRange = (jsonData: any): DateRange | undefined => {
   if (!jsonData) return undefined;
 
@@ -41,7 +42,6 @@ export const stringToDateRange = (dateString: string): DateRange | undefined => 
   const [fromString, toString] = dateString.split('-')
 
   try {
-    const parsed = JSON.parse(dateString)
     const from = new Date(fromString)
     const to = new Date(toString)
 
@@ -64,6 +64,7 @@ export const dateRangeToString = (dateRange: DateRange | undefined): string => {
 
 export function formatDate(date: string, format: string, loc?: string) {
   const validFormats: ('medium' | 'full' | 'long' | 'short')[] = ['medium', 'full', 'long', 'short'];
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dateStyle: 'medium' | 'full' | 'long' | 'short' = validFormats.includes(format as any)
     ? (format as 'medium' | 'full' | 'long' | 'short')
     : 'medium';

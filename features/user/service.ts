@@ -11,6 +11,7 @@ interface StoreOptions extends MutationOptions { }
 interface GetAllProps extends DataTableOptions {
     status?: string,
     role?: string,
+    fakultasId?: number,
 }
 export const useGetUser = (params: GetAllProps) => {
     return handleFetchData(

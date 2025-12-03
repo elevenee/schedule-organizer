@@ -4,17 +4,8 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import { ProgramStudiFormValues, programStudiSchema } from '../validations';
-import { useStoreProgramStudi, useUpdateProgramStudi } from '../service';
+import { useStoreProgramStudi, useUpdateProgramStudi } from '../hooks/useProdi';
 import { ProgramStudiForm } from './create-form';
 import { useModalManager } from '@/hooks/modal-manager';
 import { useGetFakultas } from '@/features/fakultas/service';

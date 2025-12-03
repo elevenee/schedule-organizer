@@ -12,7 +12,7 @@ interface NavbarProps {
     children?: React.ReactNode
 }
 
-export function Navbar({ sidebarTrigger, children }: NavbarProps) {
+export function Navbar({ sidebarTrigger }: NavbarProps) {
     const router = useRouter();
     return (
         <header className="flex sticky top-0 z-30 bg-white dark:bg-slate-900 h-16 shrink-0 items-center justify-between gap-2 border-b px-4">

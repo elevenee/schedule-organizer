@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
-import { Jadwal, Prisma, TypeDosen } from "@prisma/client";
+import { Prisma, TypeDosen } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 type SortProp = {
@@ -15,26 +15,53 @@ export async function GET_PAGINATE({
     search = "",
     sort = { field: "createdAt", orderBy: "DESC" },
     remove_pagination = false,
-    jenisDosen = ""
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean, jenisDosen?: string }) {
+    jenisDosen = "",
+    tahunAkademik = null,
+    fakultas = null,
+    programStudi = null,
+    matakuliah = null,
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean, jenisDosen?: string, tahunAkademik?: number | null, fakultas?: number | null, programStudi?: number | null, matakuliah?: string | null }) {
     const skip = (page - 1) * limit;
     const searchFilter = search
         ? {
             Dosen: {
                 nama: { contains: search, mode: Prisma.QueryMode.insensitive }
             },
-            matakuliah: { contains: search, mode: Prisma.QueryMode.insensitive }
+            matakuliah: { contains: search, mode: Prisma.QueryMode.insensitive },
         }
         : {};
     const jenisDosenFilter = jenisDosen ? {
         status: jenisDosen as TypeDosen
-    }:{}
+    } : {}
+    const fakultasFilter = fakultas ? {
+        fakultasId: fakultas
+    } : {}
+    const programStudiFilter = programStudi ? {
+        jurusanId: programStudi
+    } : {}
+    const matakuliahFilter = matakuliah ? {
+        matakuliah: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
+    } : {}
+
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
+    const selectedTahunAkademik = tahunAkademik ?? undefined;
+    const findTahunAkademik = selectedTahunAkademik
+        ? await prisma.tahunAkademik.findUnique({
+            where: { id: selectedTahunAkademik }
+        })
+        : null;
 
     const where = {
         ...searchFilter,
-        ...jenisDosenFilter
+        ...jenisDosenFilter,
+    };
+
+    const whereJadwal = {
+        tahunAkademikId: selectedTahunAkademik,
+        ...fakultasFilter,
+        ...programStudiFilter,
+        ...matakuliahFilter,
     };
 
     // const [data, total] = await Promise.all([
@@ -91,26 +118,35 @@ export async function GET_PAGINATE({
 
     // const resultData = Object.values(groupedData);
     // return { data:resultData, total };
-    const selectedTahunAkademik = "2026/2027";
 
     const [dosenList, jadwalData, total] = await Promise.all([
         prisma.dosen.findMany({
             where: where,
-            select: {
-                id: true,
-                nama: true,
-                nidn: true,
-                status: true
+            // select: {
+            //     id: true,
+            //     nama: true,
+            //     nidn: true,
+            //     status: true,
+            //     Fakultas: {
+            // },
+            include: {
+                Fakultas: {
+                    select: {
+                        id: true,
+                        nama: true
+                    }
+                },
+                Jurusan: {
+                    select: {
+                        id: true,
+                        nama: true
+                    }
+                },
             },
             orderBy: { nama: 'asc' },
-            skip,
-            take: limit,
         }),
         prisma.jadwal.findMany({
-            where: {
-                tahunAkademik: selectedTahunAkademik,
-                ...where
-            },
+            where: whereJadwal,
             select: {
                 id: true,
                 dosenId: true,
@@ -128,7 +164,8 @@ export async function GET_PAGINATE({
                 Jurusan: {
                     select: {
                         id: true,
-                        nama: true
+                        nama: true,
+                        jenjang: true
                     }
                 }
             },
@@ -152,23 +189,28 @@ export async function GET_PAGINATE({
 
     const data = dosenList.map(dosen => {
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
-        
+
         return {
             id: dosen.id,
             nama: dosen.nama,
             nidn: dosen.nidn,
             status: dosen.status,
-            tahunAkademik: selectedTahunAkademik.replace(/_/g, '/'),
+            homebase: dosen.Jurusan?.nama || "-",
+            tahunAkademik: findTahunAkademik?.name.replace(/_/g, '/') || "" + " - SMT " + findTahunAkademik?.semester,
             totalJadwal: jadwalDosen.length,
-            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + j.sks, 0),
+            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks * j.kelas.length), 0),
             jadwal: jadwalDosen.map((j: any) => ({
+                id: j.id,
                 matakuliah: j.matakuliah,
                 sks: j.sks,
                 kelas: j.kelas,
                 semester: j.semester,
                 keterangan: j.keterangan,
                 fakultas: j.Fakultas?.nama,
-                jurusan: j.Jurusan?.nama,
+                jurusan: j.Jurusan?.nama + ` (${j.Jurusan?.jenjang})`,
+                fakultasId: j.Fakultas?.id,
+                jurusanId: j.Jurusan?.id,
+                dosenId: j.dosenId
             }))
         };
     });

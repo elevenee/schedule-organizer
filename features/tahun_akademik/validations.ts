@@ -7,6 +7,7 @@ export const tahunAkademikSchema = z.object({
         .max(9, 'Format tahun tidak sesuai eg:f2024/2025')
         .regex(/^\d{4}\/\d{4}$/, 'Format tahun harus 2024/2025'),
     status: z.enum(['ACTIVE', 'INACTIVE']),
+    semester: z.enum(['GANJIL', 'GENAP']),
 });
 
 export type tahunAkademikFormValues = z.infer<typeof tahunAkademikSchema>;

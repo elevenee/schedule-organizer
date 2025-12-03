@@ -55,3 +55,10 @@ export default async function GET_ALL() {
 
     return result;
 }
+export async function GET_TAHUN_AKADEMIK_AKTIF() {
+    const result = await prisma.tahunAkademik.findFirst({
+        where: { deletedAt: null, status:'ACTIVE' },
+    });
+
+    return result;
+}

@@ -1,49 +1,54 @@
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Role } from "@prisma/client";
+import { useMemo } from "react";
 
 export default function UserAdvanceFilterForm({
     current,
-    onStatusChange,
+    onFakultasChange,
+    fakultas,
     onRoleChange,
     onReset
 }: {
-    current: { status: string; role: string };
-    onStatusChange: (q: string) => void;
+    current: { selectedFakultas: string; selectedRole: string };
+    onFakultasChange: (q: string) => void;
+    fakultas: any[];
     onRoleChange: (p: string) => void;
     onReset: () => void
 }) {
     const roles = [
         { label: Role.ADMIN, value: Role.ADMIN },
-        { label: Role.AKADEMIK, value: Role.AKADEMIK },
-        { label: Role.KEUANGAN, value: Role.KEUANGAN },
-        { label: Role.VERIFIKATOR, value: Role.VERIFIKATOR },
-        { label: Role.PENDAFTAR, value: Role.PENDAFTAR },
+        { label: Role.FAKULTAS, value: Role.FAKULTAS },
+        { label: Role.DOSEN, value: Role.DOSEN },
+        { label: Role.PRODI, value: Role.PRODI },
     ];
+    const fakultasOptions = useMemo(() =>
+        fakultas?.map((item) => ({
+            label: item.nama,
+            value: item.id.toString(),
+        })) || [],
+        [fakultas]
+    );
     return (
         <div
             className="flex flex-wrap justify-center justify-start md:justify-end gap-4 items-end mb-4 w-full border-b py-4 border-gray-200 dark:border-gray-400"
         >
-            <div className="flex flex-col gap-2">
-                <Label>Status</Label>
-                <Select value={current.status.toString()} onValueChange={onStatusChange}>
-                    <SelectTrigger className="w-auto">
-                        <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="ACTIVE">ACTIVE</SelectItem>
-                        <SelectItem value="INACTIVE">INACTIVE</SelectItem>
-                    </SelectContent>
-                </Select>
+            <div className="flex flex-col gap-2 min-w-[350px]">
+                <Label>Fakultas</Label>
+                <Combobox
+                    options={fakultasOptions}
+                    value={current.selectedFakultas ?? ""}
+                    onChange={onFakultasChange}
+                    placeholder="Pilih Fakultas"
+                />
             </div>
 
             <div className="flex flex-col gap-2">
                 <Label>Role</Label>
                 <Combobox
                     options={roles}
-                    value={current.role ? current.role?.toString() : ''}
+                    value={current.selectedRole ? current.selectedRole?.toString() : ''}
                     onChange={onRoleChange}
                     placeholder="Pilih Role"
                 />

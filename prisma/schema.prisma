@@ -15,26 +15,33 @@ datasource db {
 }
 
 model User {
-  id        BigInt     @id @default(autoincrement())
-  name      String     @db.VarChar(50)
-  username  String     @unique @db.VarChar(16)
-  password  String     @db.VarChar(100)
-  role      Role       @default(DOSEN)
-  status    StatusUser @default(ACTIVE)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  deletedAt DateTime?
+  id         BigInt     @id @default(autoincrement())
+  name       String     @db.VarChar(50)
+  username   String     @unique @db.VarChar(16)
+  password   String     @db.VarChar(100)
+  role       Role       @default(DOSEN)
+  status     StatusUser @default(ACTIVE)
+  fakultasId BigInt?
+  Fakultas   Fakultas?  @relation(fields: [fakultasId], references: [id])
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  deletedAt  DateTime?
 
   @@index([username])
 }
 
 model TahunAkademik {
-  id        BigInt      @id @default(autoincrement())
-  name      String
-  status    StatusTahun @default(INACTIVE)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
-  deletedAt DateTime?
+  id            BigInt          @id @default(autoincrement())
+  name          String
+  semester      SemesterPeriode
+  status        StatusTahun     @default(INACTIVE)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+  Jadwal        Jadwal[]
+  JadwalRequest JadwalRequest[]
+
+  @@unique([name, semester])
 }
 
 model PengaturanJadwal {
@@ -48,21 +55,23 @@ model PengaturanJadwal {
 }
 
 model Fakultas {
-  id             BigInt    @id @default(autoincrement())
-  nama           String    @unique
-  kode           String?   @unique
-  isPascasarjana Boolean   @default(false)
+  id             BigInt          @id @default(autoincrement())
+  nama           String          @unique
+  kode           String?         @unique
+  isPascasarjana Boolean         @default(false)
   Jurusan        Jurusan[]
   Dosen          Dosen[]
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   Jadwal         Jadwal[]
+  JadwalRequest  JadwalRequest[]
+  User           User[]
 }
 
 model Jurusan {
   id         BigInt       @id @default(autoincrement())
   kode       String       @unique
-  singkatan  String       @db.VarChar(100)
+  singkatan  String?      @db.VarChar(100)
   nama       String
   jenjang    Jenjang      @default(S1)
   fakultasId BigInt
@@ -73,23 +82,25 @@ model Jurusan {
   deletedAt  DateTime?
 
   // @@unique([nama, fakultasId])
-  Jadwal Jadwal[]
-  Dosen  Dosen[]
+  Jadwal        Jadwal[]
+  Dosen         Dosen[]
+  JadwalRequest JadwalRequest[]
 }
 
 model Dosen {
-  id         BigInt    @id @default(autoincrement())
-  nama       String
-  nidn       String?   @unique
-  status     TypeDosen @default(TIDAK_TETAP)
-  fakultasId BigInt?
-  Fakultas   Fakultas? @relation(fields: [fakultasId], references: [id])
-  jurusanId  BigInt?
-  Jurusan    Jurusan?  @relation(fields: [jurusanId], references: [id])
-  Jadwal     Jadwal[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  id            BigInt          @id @default(autoincrement())
+  nama          String
+  nidn          String?         @unique
+  status        TypeDosen       @default(TIDAK_TETAP)
+  fakultasId    BigInt?
+  Fakultas      Fakultas?       @relation(fields: [fakultasId], references: [id])
+  jurusanId     BigInt?
+  Jurusan       Jurusan?        @relation(fields: [jurusanId], references: [id])
+  Jadwal        Jadwal[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
+  JadwalRequest JadwalRequest[]
 }
 
 model MataKuliah {
@@ -109,24 +120,57 @@ model MataKuliah {
 }
 
 model Jadwal {
-  id            BigInt    @id @default(autoincrement())
-  tahunAkademik String
+  id              BigInt        @id @default(autoincrement())
+  tahunAkademikId BigInt
   // mataKuliahId  BigInt
-  fakultasId    BigInt?
-  jurusanId     BigInt?
-  matakuliah    String
-  dosenId       BigInt
-  kelas         String[]
-  sks           Int
-  totalSks      Int?      @default(0) @db.SmallInt
-  keterangan    String?
-  semester      Int       @db.SmallInt
+  fakultasId      BigInt?
+  jurusanId       BigInt?
+  matakuliah      String
+  dosenId         BigInt
+  kelas           String[]
+  sks             Int
+  totalSks        Int?          @default(0) @db.SmallInt
+  keterangan      String?
+  semester        Int           @db.SmallInt
+  TahunAkademik   TahunAkademik @relation(fields: [tahunAkademikId], references: [id])
   // MataKuliah    MataKuliah @relation(fields: [mataKuliahId], references: [id])
-  Dosen         Dosen     @relation(fields: [dosenId], references: [id])
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  Fakultas      Fakultas? @relation(fields: [fakultasId], references: [id])
-  Jurusan       Jurusan?  @relation(fields: [jurusanId], references: [id])
+  Dosen           Dosen         @relation(fields: [dosenId], references: [id])
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  Fakultas        Fakultas?     @relation(fields: [fakultasId], references: [id])
+  Jurusan         Jurusan?      @relation(fields: [jurusanId], references: [id])
+
+  @@unique([tahunAkademikId, matakuliah, fakultasId, jurusanId, dosenId, semester, kelas])
+}
+
+model JadwalRequest {
+  id              BigInt              @id @default(autoincrement())
+  tahunAkademikId BigInt
+  fakultasId      BigInt?
+  jurusanId       BigInt?
+  matakuliah      String
+  dosenId         BigInt
+  kelas           String[]
+  sks             Int
+  totalSks        Int?                @default(0) @db.SmallInt
+  keterangan      String?
+  semester        Int                 @db.SmallInt
+  TahunAkademik   TahunAkademik       @relation(fields: [tahunAkademikId], references: [id])
+  Dosen           Dosen               @relation(fields: [dosenId], references: [id])
+  status          StatusJadwalRequest @default(PENDING)
+  keteranganAdmin String?
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  Fakultas        Fakultas?           @relation(fields: [fakultasId], references: [id])
+  Jurusan         Jurusan?            @relation(fields: [jurusanId], references: [id])
+
+  @@unique([tahunAkademikId, matakuliah, fakultasId, jurusanId, dosenId, semester, kelas])
+}
+
+enum StatusJadwalRequest {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 enum Role {
@@ -134,6 +178,11 @@ enum Role {
   FAKULTAS
   PRODI
   DOSEN
+}
+
+enum SemesterPeriode {
+  GANJIL
+  GENAP
 }
 
 enum StatusUser {

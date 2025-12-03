@@ -12,7 +12,7 @@ export async function destroy(id: number) {
 
     await prisma.user.update({
         where: { id },
-        data: { deleted_at: new Date() }
+        data: { deletedAt: new Date() }
     });
     return true;
 }

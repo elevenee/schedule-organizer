@@ -37,10 +37,28 @@ export function TahunAkademikForm({ form, onSubmit }: Props) {
                 />
                 <FormField
                     control={form.control}
+                    name="semester"
+                    render={({ field }) => (
+                        <FormItem className='col-span-12'>
+                            <FormLabel required>Semester</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    options={[{ value: "GANJIL", label: "GANJIL" }, { value: "GENAP", label: "GENAP" }]}
+                                    value={field.value}
+                                    onChange={(val) => setValue('semester', val as "GANJIL" | "GENAP")}
+                                    placeholder="Pilih Semester"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="status"
                     render={({ field }) => (
                         <FormItem className='col-span-12'>
-                            <FormLabel required>Status Jalur Pendaftaran</FormLabel>
+                            <FormLabel required>Status</FormLabel>
                             <FormControl>
                                 <Combobox
                                     options={[{ value: "ACTIVE", label: "ACTIVE" }, { value: "INACTIVE", label: "INACTIVE" }]}

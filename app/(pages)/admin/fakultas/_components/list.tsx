@@ -13,7 +13,7 @@ import React from "react";
 
 export default function List() {
     const { open } = useModalManager()
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const columns: ColumnDef<any>[] = [
         {
             id: "select",
@@ -61,7 +61,6 @@ export default function List() {
         onLimitChange,
         onSortingChange,
         onSearchChange,
-        resetAll
     } = useDataTable({
         initialPageSize: 20,
         initialSort: [{ id: "name", desc: false }],

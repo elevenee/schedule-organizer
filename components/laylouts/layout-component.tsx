@@ -16,7 +16,6 @@ type Props = {
 
 export default async function LayoutDashboard({ children, session }: Props) {
     const role = typeof session?.user?.role === "string" ? session.user.role : undefined;
-
     return (
         <SidebarProvider>
             <AppSidebar role={role} />

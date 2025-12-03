@@ -137,8 +137,6 @@ export const validateForm = (scheme: ZodObject, formData: any) => {
 export const handleSettled = async (error: any, queryClient: QueryClient, queryKey: any, showAlert: boolean) => {
     if (error) {
         if (error.type === "ValidationError") {
-            console.log(error);
-            
             handleMutationError(error, showAlert, "Pastikan data yang diinput telah sesuai");
         } else {
             return error;

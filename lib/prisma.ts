@@ -19,7 +19,9 @@ function softDeleteHandlers() {
             query,
             ctx,
         }: {
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             args: any;
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             query: (args: any) => Promise<any>;
             ctx?: Context;
         }) {
@@ -39,7 +41,9 @@ function softDeleteHandlers() {
             query,
             ctx,
         }: {
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             args: any;
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             query: (args: any) => Promise<any>;
             ctx?: Context;
         }) {
@@ -61,7 +65,9 @@ function softDeleteHandlers() {
             query,
             ctx,
         }: {
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             args: any;
+             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             query: (args: any) => Promise<any>;
             ctx?: Context;
         }) {

@@ -5,14 +5,14 @@ export async function destroy(id: number) {
 
     if (!id) throw new Error("ID is required");
 
-    const program_studi = await prisma.programStudi.findUnique({
+    const program_studi = await prisma.jurusan.findUnique({
         where: { id }
     });
     if (!program_studi) throw new Error("Program studi not found");
 
-    await prisma.programStudi.update({
+    await prisma.jurusan.update({
         where: { id },
-        data: { deleted_at: new Date() }
+        data: { deletedAt: new Date() }
     });
     return true;
 }
