@@ -33,20 +33,24 @@ export const authOptions: NextAuthOptions = {
 
                 const isValid = await bcrypt.compare(credentials.password, user.password);
                 if (!isValid) throw Error('Username atau password salah.');
-
-                const SIAKAD_LOGIN = await apiFetcher('/auth/login', {
+                let SIAKAD_LOGIN = null;
+                try {
+                    SIAKAD_LOGIN = await apiFetcher('/auth/login', {
                     method: 'POST',
                     body: {
                         username: "ijazah",
                         password: "ijazah123",
                     },
                 });
+                } catch (error) {
+                    
+                }
                 
                 return {
                     id: String(user.id),
                     name: user.name,
                     role: user.role,
-                    accessToken: SIAKAD_LOGIN.token,
+                    accessToken: SIAKAD_LOGIN?.token || null,
                     fakultasId: user.fakultasId ? String(user.fakultasId) : undefined,
                 };
             },
