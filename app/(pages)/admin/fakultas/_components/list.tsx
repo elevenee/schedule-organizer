@@ -63,7 +63,7 @@ export default function List() {
         onSearchChange,
     } = useDataTable({
         initialPageSize: 20,
-        initialSort: [{ id: "name", desc: false }],
+        initialSort: [{ id: "nama", desc: false }],
     });
 
     const { data, isLoading } = useGetFakultas({
