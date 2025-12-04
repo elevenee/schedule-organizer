@@ -3,8 +3,10 @@ module.exports = {
     apps: [
         {
             name: 'offering',           // Nama aplikasi di PM2
-            cwd: './.next/standalone',  // 🎯 Working directory
-            script: 'server.js',        // Entry point
+            // cwd: './.next/standalone',  // 🎯 Working directory
+            // script: 'server.js',        // Entry point
+            script: "node_modules/next/dist/bin/next",
+            args: "start -p 3001",
             instances: '1',           // Cluster mode
             exec_mode: 'fork',       // Mode fork
             autorestart: true,          // Auto restart jika crash
