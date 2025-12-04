@@ -3,8 +3,7 @@ module.exports = {
     apps: [
         {
             name: 'offering',           // Nama aplikasi di PM2
-            // cwd: './.next/standalone',  // 🎯 Working directory
-            // script: 'server.js',        // Entry point
+            cwd: '/www/wwwroot/offering', 
             script: "node_modules/next/dist/bin/next",
             args: "start -p 3001",
             instances: '1',           // Cluster mode
