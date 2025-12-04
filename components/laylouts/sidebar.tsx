@@ -1,6 +1,6 @@
 'use client'
 import * as React from "react"
-import { Box, Building, Calendar, ChevronRight, LayoutDashboardIcon, User } from "lucide-react"
+import { Box, Building, Calendar, ChevronRight, LayoutDashboardIcon, User, Users } from "lucide-react"
 
 import {
     Sidebar,
@@ -50,6 +50,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 { url: `${base}/admin/fakultas`, title: "Fakultas", icon: Building },
                 { url: `${base}/admin/program-studi`, title: "Program Studi", icon: Box },
                 { url: `${base}/admin/mata-kuliah`, title: "Mata Kuliah", icon: Box },
+                { url: `${base}/admin/dosen`, title: "Dosen", icon: Users },
             ]
         },
         {

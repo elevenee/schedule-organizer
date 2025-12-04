@@ -1,4 +1,5 @@
 'use client'
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { DosenModal } from "@/features/dosen/components/create-modal";
@@ -27,7 +28,18 @@ export default function List() {
             accessorKey: "nama",
             header: "Nama Dosen",
             cell: ({ row }) => (
-                <div className="capitalize">{row.getValue("nama")}</div>
+                <div>{row.getValue("nama")}</div>
+            ),
+        },
+        {
+            accessorKey: "status",
+            header: "Status",
+            cell: ({ row }) => (
+                <div>
+                    {
+                        row.getValue("status") === 'TETAP' ? (<Badge variant={"outline"} className="text-emerald-500">TETAP</Badge>) : (<Badge variant={"outline"} className="text-blue-500">TIDAK TETAP</Badge>)
+                    }
+                </div>
             ),
         },
         {

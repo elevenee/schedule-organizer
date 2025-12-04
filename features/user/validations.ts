@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { fa } from "zod/v4/locales";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const ACCEPTED_FILE_TYPES = ['application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
@@ -8,7 +7,6 @@ export const userSchema = z.object({
     id: z.number().optional(),
     name: z.string().min(1, { error: "Nama harus diisi" }),
     username: z.string().min(1, { error: "Username harus diisi" }),
-    email: z.email().nullable().optional(),
     password: z.string().nullable().optional(),
     status: z.string(),
     role: z.enum([

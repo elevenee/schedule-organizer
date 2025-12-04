@@ -12,12 +12,12 @@ type Props = {
     onDeleted?: () => void;
 };
 
-export function DeleteUserAkademik({ id, onDeleted }: Props) {
+export function DeleteUserAkademik({ id }: Props) {
     const [openModal, setOpenModal] = useState(false);
     const queryClient = new QueryClient()
-    const deleteTahunAkademikMutation = useDeleteUser()
+    const deleteUserMutation = useDeleteUser()
     const handleDelete = async () => {
-        (await deleteTahunAkademikMutation).mutate(id);
+        (await deleteUserMutation).mutate(id);
         setOpenModal(false)
         await queryClient.invalidateQueries({ queryKey: ['user'] });
     };

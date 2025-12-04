@@ -4,15 +4,6 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button"
-import {
-    Dialog,
-    DialogClose,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog"
 import { userFormValues, userSchema } from '../validations';
 import { useStoreUser, useUpdateUser } from '../service';
 import { UserForm } from './create-form';
@@ -29,9 +20,8 @@ export function UserModal() {
     const form = useForm<userFormValues>({
         resolver: zodResolver(userSchema),
         defaultValues: {
-            id: user?.id ?? undefined,
+            id: user?.id ? Number(user.id) : undefined,
             name: user?.name ?? '',
-            email: user?.email ?? '',
             username: user?.username ?? '',
             password: null,
             role: (user?.role as Role) ?? null,
@@ -41,9 +31,10 @@ export function UserModal() {
     });
     const storeUser = useStoreUser()
     const updateUser = useUpdateUser()
-
+    
     const onSubmit = async (values: userFormValues) => {
         setIsSubmitting(true);
+        
         try {
             if (user) {
                 if (values.id) {
@@ -62,9 +53,8 @@ export function UserModal() {
     useEffect(() => {
         if (open) {
             form.reset({
-                id: user?.id ?? undefined,
+                id: user?.id ? Number(user.id) : undefined,
                 name: user?.name ?? '',
-                email: user?.email ?? '',
                 username: user?.username ?? '',
                 password: null,
                 role: (user?.role as Role) ?? Role.ADMIN,
