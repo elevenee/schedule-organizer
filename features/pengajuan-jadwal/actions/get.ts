@@ -43,7 +43,7 @@ export async function GET_PAGINATE({
     const fakultasFilter = fakultas ? {
         fakultasId: fakultas
     } : {}
-    
+
     const programStudiFilter = programStudi ? {
         jurusanId: programStudi
     } : {}
@@ -72,7 +72,7 @@ export async function GET_PAGINATE({
         ...programStudiFilter,
         ...matakuliahFilter,
     };
-    
+
     const [jadwalData, jadwalDataRequest, total] = await Promise.all([
         prisma.jadwal.findMany({
             where: whereJadwal,
@@ -104,7 +104,7 @@ export async function GET_PAGINATE({
             ]
         }),
         prisma.jadwalRequest.findMany({
-            where: {...whereJadwal, ...statusFilter},
+            where: { ...whereJadwal, ...statusFilter },
             select: {
                 id: true,
                 dosenId: true,
@@ -149,15 +149,45 @@ export async function GET_PAGINATE({
         }),
         prisma.dosen.count(),
     ]);
-    const listDosenx = jadwalDataRequest.map(j => {
-        return {
-            id: j.dosenId,
-            nama: j.Dosen?.nama,
-            nidn: j.Dosen?.nidn,
-            status: j.Dosen?.status,
-            homebase: j.Dosen?.Jurusan?.nama || "-",
+    // const listDosenx = Array.from(
+    //     new Map(
+    //         jadwalDataRequest.map(j => [
+    //             j.dosenId,
+    //             {
+    //                 id: j.dosenId,
+    //                 nama: j.Dosen?.nama,
+    //                 nidn: j.Dosen?.nidn,
+    //                 status: j.Dosen?.status,
+    //                 homebase: j.Dosen?.Jurusan?.nama || "-",
+    //             }
+    //         ])
+    //     ).values()
+    // );
+
+    const uniqueDosen = jadwalDataRequest.reduce((acc, j) => {
+        if (!j.dosenId || !j.Dosen) return acc;
+
+        if (!acc.has(j.dosenId)) {
+            acc.set(j.dosenId, {
+                id: j.dosenId,
+                nama: j.Dosen.nama,
+                nidn: j.Dosen.nidn,
+                status: j.Dosen.status,
+                homebase: j.Dosen.Jurusan?.nama || "-",
+                totalJadwal: 0,
+                jadwalIds: new Set()
+            });
         }
-    });
+
+        const dosen = acc.get(j.dosenId);
+        dosen.totalJadwal++;
+
+        return acc;
+    }, new Map());
+
+    // Convert ke array
+    const listDosenx = Array.from(uniqueDosen.values());
+
     // Group jadwal by dosenId untuk mapping
     const jadwalByDosen = jadwalData.reduce((acc, jadwal) => {
         const dosenIdStr = jadwal.dosenId.toString();
@@ -188,12 +218,12 @@ export async function GET_PAGINATE({
             homebase: dosen.homebase || "-",
             tahunAkademik: findTahunAkademik?.name.replace(/_/g, '/') || "" + " - SMT " + findTahunAkademik?.semester,
             totalJadwal: jadwalDosen.length,
-            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks * j.kelas.length), 0),
-            totalSKSRequest: jadwalRequestDosen.reduce((sum: any, j: any) => sum + (j.sks * j.kelas.length), 0),
+            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
+            totalSKSRequest: jadwalRequestDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
             jadwal: jadwalRequestDosen.map((j: any) => ({
                 id: j.id,
                 matakuliah: j.matakuliah,
-                sks: j.sks,
+                sks: j.sks?.toNumber(),
                 kelas: j.kelas,
                 semester: j.semester,
                 keterangan: j.keterangan,
@@ -203,7 +233,7 @@ export async function GET_PAGINATE({
                 jurusanId: j.Jurusan?.id,
                 dosenId: j.dosenId,
                 status: j.status,
-                keteranganAdmin: j.keteranganAdmin, 
+                keteranganAdmin: j.keteranganAdmin,
             }))
         };
     });

@@ -1,3 +1,4 @@
+import { Decimal } from "@prisma/client/runtime/library";
 import { clsx, type ClassValue } from "clsx"
 import { DateRange } from "react-day-picker"
 import { twMerge } from "tailwind-merge"
@@ -6,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
- // eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const parseJsonDateRange = (jsonData: any): DateRange | undefined => {
   if (!jsonData) return undefined;
 
@@ -64,7 +65,7 @@ export const dateRangeToString = (dateRange: DateRange | undefined): string => {
 
 export function formatDate(date: string, format: string, loc?: string) {
   const validFormats: ('medium' | 'full' | 'long' | 'short')[] = ['medium', 'full', 'long', 'short'];
-   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dateStyle: 'medium' | 'full' | 'long' | 'short' = validFormats.includes(format as any)
     ? (format as 'medium' | 'full' | 'long' | 'short')
     : 'medium';
@@ -76,3 +77,5 @@ export function formatDate(date: string, format: string, loc?: string) {
 export function formatCurrency(value: number, currency: 'IDR' | 'USD' | 'EUR' = 'IDR') {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency }).format(value);
 }
+
+export const formatDecimal = (val: Decimal) => val.toNumber().toFixed(1);

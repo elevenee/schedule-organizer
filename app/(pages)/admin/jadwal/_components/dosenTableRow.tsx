@@ -7,6 +7,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Edit } from 'lucide-react';
 import { DeleteJadwal } from '@/features/jadwal/components/delete-dialog';
 import { Jadwal } from '@prisma/client';
+import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
 
 /* eslint-disable */
 interface DosenTableRowProps {
@@ -136,15 +137,15 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
             </>
         );
     }
-
+    
     return (
         <>
             <TableCell className='border'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>
             <TableCell className='border text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
             <TableCell className='border'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
             <TableCell className='border text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
-            <TableCell className='border text-center'>{jadwal.sks}</TableCell>
             <TableCell className='border text-center'>{jadwal.kelas?.length || 0}</TableCell>
+            <TableCell className='border text-center'>{jadwal.sks}</TableCell>
         </>
     );
 }
@@ -166,7 +167,7 @@ function DosenNameCell({ item, isOverCapacity, onOpenModal }: {
                 <ContextMenuTrigger>
                     <Tooltip>
                         <TooltipTrigger asChild className='w-full'>
-                            <span className="cursor-pointer" onClick={() => onOpenModal("jadwalModal", { dosenId: item.id, currentTotalSKS: item.totalSKS, maxSks: item.maxSks })}>{item.nama}</span>
+                            <span className="cursor-pointer" onClick={() => onOpenModal("jadwalModal", { dosenId: item.id, currentTotalSKS: item.totalSKS.toFixed(1), maxSks: item.maxSks })}>{item.nama}</span>
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>Klik kanan untuk tambah jadwal</p>
@@ -174,7 +175,7 @@ function DosenNameCell({ item, isOverCapacity, onOpenModal }: {
                     </Tooltip>
                 </ContextMenuTrigger>
                 <ContextMenuContent>
-                    <ContextMenuItem onClick={() => onOpenModal("jadwalModal", { dosenId: item.id, currentTotalSKS: item.totalSKS, maxSks: item.maxSks })}>
+                    <ContextMenuItem onClick={() => onOpenModal("jadwalModal", { dosenId: item.id, currentTotalSKS: item.totalSKS.toFixed(1), maxSks: item.maxSks })}>
                         Tambah Jadwal
                     </ContextMenuItem>
                 </ContextMenuContent>
@@ -182,17 +183,4 @@ function DosenNameCell({ item, isOverCapacity, onOpenModal }: {
             <p className="text-xs text-muted-foreground font-normal">{item.homebase}</p>
         </div>
     );
-}
-
-// Custom hook for capacity calculation
-/* eslint-disable */
-function useCapacityCheck(item: any, pengaturan: any) {
-    const settings = pengaturan?.data?.find((p: any) => p.jenisDosen === item.status);
-    const minSks = settings?.minSks;
-    const maxSks = settings?.maxSks;
-
-    const isOverCapacity = maxSks ? item.totalSKS >= maxSks : false;
-    const capacityStyle = isOverCapacity ? "bg-rose-100 dark:bg-rose-900" : "bg-green-100 dark:bg-green-900";
-
-    return { capacityStyle, isOverCapacity, minSks, maxSks };
 }

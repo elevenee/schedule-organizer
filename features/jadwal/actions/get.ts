@@ -122,13 +122,6 @@ export async function GET_PAGINATE({
     const [dosenList, jadwalData, total] = await Promise.all([
         prisma.dosen.findMany({
             where: where,
-            // select: {
-            //     id: true,
-            //     nama: true,
-            //     nidn: true,
-            //     status: true,
-            //     Fakultas: {
-            // },
             include: {
                 Fakultas: {
                     select: {
@@ -198,11 +191,11 @@ export async function GET_PAGINATE({
             homebase: dosen.Jurusan?.nama || "-",
             tahunAkademik: findTahunAkademik?.name.replace(/_/g, '/') || "" + " - SMT " + findTahunAkademik?.semester,
             totalJadwal: jadwalDosen.length,
-            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks * j.kelas.length), 0),
+            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
             jadwal: jadwalDosen.map((j: any) => ({
                 id: j.id,
                 matakuliah: j.matakuliah,
-                sks: j.sks,
+                sks: j.sks?.toString(),
                 kelas: j.kelas,
                 semester: j.semester,
                 keterangan: j.keterangan,

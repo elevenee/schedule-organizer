@@ -41,8 +41,6 @@ export async function GET_PAGINATE({
         ...withDeleted,
         ...fakultasFilter
     };
-    console.log("############### ID ################",where, search);
-    
     const [data, total] = await Promise.all([
         prisma.dosen.findMany({
             skip,

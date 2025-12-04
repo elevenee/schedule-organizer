@@ -16,6 +16,7 @@ interface DosenTableRowProps {
 
 export function DosenTableRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
     const hasMultipleJadwal = item?.jadwal?.length > 1;
+    
     if (hasMultipleJadwal) {
         return <MultipleJadwalRow item={item} index={index} pengaturan={pengaturan} onOpenModal={onOpenModal} />;
     }
@@ -139,8 +140,8 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
             <TableCell className='border text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
             <TableCell className='border'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
             <TableCell className='border text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
-            <TableCell className='border text-center'>{jadwal.sks}</TableCell>
             <TableCell className='border text-center'>{jadwal.kelas?.length || 0}</TableCell>
+            <TableCell className='border text-center'>{jadwal.sks}</TableCell>
         </>
     );
 }

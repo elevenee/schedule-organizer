@@ -51,7 +51,7 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
             },
         });
 
-        const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
+        const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks.toNumber() * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
         if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
             return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
         }
@@ -59,12 +59,12 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
         const data = {
             tahunAkademikId: BigInt(tahunAkademik?.id || 0),
             matakuliah,
-            sks: Number(sks),
+            sks: sks.toNumber(),
             semester: Number(semester),
             dosenId: Number(dosenId),
             fakultasId: Number(fakultasId),
             jurusanId: Number(jurusanId),
-            totalSks: Number(sks) * kelas.length,
+            totalSks: sks.toNumber() * kelas.length,
             kelas
         }
         const [updated, created] = await Promise.all([
@@ -79,8 +79,6 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
                 data: data
             })
         ]);
-        console.log(created);
-        
 
         return { success: true, data: updated, created: created ? true : false };
     } else {

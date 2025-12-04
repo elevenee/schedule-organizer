@@ -128,8 +128,8 @@ model Jadwal {
   matakuliah      String
   dosenId         BigInt
   kelas           String[]
-  sks             Int
-  totalSks        Int?          @default(0) @db.SmallInt
+  sks             Decimal       @db.Decimal(3, 1)
+  totalSks        Decimal?      @default(0) @db.Decimal(3, 1)
   keterangan      String?
   semester        Int           @db.SmallInt
   TahunAkademik   TahunAkademik @relation(fields: [tahunAkademikId], references: [id])
@@ -151,8 +151,8 @@ model JadwalRequest {
   matakuliah      String
   dosenId         BigInt
   kelas           String[]
-  sks             Int
-  totalSks        Int?                @default(0) @db.SmallInt
+  sks             Decimal             @db.Decimal(3, 1)
+  totalSks        Decimal?            @default(0) @db.Decimal(3, 1)
   keterangan      String?
   semester        Int                 @db.SmallInt
   TahunAkademik   TahunAkademik       @relation(fields: [tahunAkademikId], references: [id])

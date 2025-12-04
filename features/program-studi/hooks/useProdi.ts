@@ -10,6 +10,7 @@ import { SYNC } from "../actions/sync";
 interface StoreOptions extends MutationOptions { }
 
 interface GetAllProps extends DataTableOptions {
+    search?: string,
     name?: string,
     fakultas?: number
 }

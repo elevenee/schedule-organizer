@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Jurusan } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { useGetDosen } from '@/features/dosen/hooks/useDosen';
@@ -23,9 +23,9 @@ interface Props {
 }
 export function JadwalForm({ form, onSubmit }: Props) {
     const session = useSession();
-    const userFakultas = session.data?.user?.fakultasId;
     const [availableSemester, setAvailableSemester] = useState<{ value: string; label: string }[]>([]);
     const [searchDosen, setSearchDosen] = useState('')
+    const [searchJurusan, setSearchJurusan] = useState('')
     const {
         formState: { errors },
         reset,
@@ -33,10 +33,11 @@ export function JadwalForm({ form, onSubmit }: Props) {
         setValue,
     } = form;
 
-    const { data: listJurusan } = useGetProdi({
+    const { data: listJurusan, isLoading: isLoadingJurusan } = useGetProdi({
         page: 1,
         remove_pagination: true,
         fakultas: form.watch().fakultasId ?? undefined,
+        search: searchJurusan,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -133,7 +134,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                     isLoading={isLoadingDosen}
                                     onSearch={setSearchDosen}
                                     showSearch={true}
-                                    emptyMessage="No sub-categories found"
+                                    emptyMessage="Dosen tidak ditemukan"
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
                                     placeholder={isLoadingDosen ? "Memuat dosen..." : "Pilih Dosen"}
@@ -151,15 +152,19 @@ export function JadwalForm({ form, onSubmit }: Props) {
                             <FormLabel required>Jurusan</FormLabel>
                             <FormControl>
                                 <Combobox
-                                    options={listJurusan?.data ? listJurusan.data?.map((t: Jurusan) => {
+                                    data={listJurusan && listJurusan?.data ? listJurusan?.data.map((t: Jurusan) => {
                                         return {
-                                            label: t.nama + ` (${t.jenjang})`,
+                                            label: t.nama,
                                             value: t.id.toString()
                                         }
                                     }) : []}
+                                    isLoading={isLoadingJurusan}
+                                    onSearch={setSearchJurusan}
+                                    showSearch={true}
+                                    emptyMessage="Jurusan tidak ditemukan"
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
-                                    placeholder="Pilih Jurusan"
+                                    placeholder={isLoadingJurusan ? "Memuat jurusan..." : "Pilih Jurusan"}
                                 />
                             </FormControl>
                             <FormMessage />
@@ -201,6 +206,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="1">1</SelectItem>
+                                        <SelectItem value="1.5">1.5</SelectItem>
                                         <SelectItem value="2">2</SelectItem>
                                         <SelectItem value="3">3</SelectItem>
                                         <SelectItem value="4">4</SelectItem>

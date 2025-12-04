@@ -109,8 +109,8 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                         <TableHead className="border">Matakuliah</TableHead>
                         <TableHead className="border">Jurusan</TableHead>
                         <TableHead className="border">SMT/Kelas</TableHead>
-                        <TableHead className="border">SKS</TableHead>
                         <TableHead className="border">Jumlah Kelas</TableHead>
+                        <TableHead className="border">SKS</TableHead>
                         <TableHead className="border">Total SKS</TableHead>
                         <TableHead className="border">KJM</TableHead>
                     </TableRow>

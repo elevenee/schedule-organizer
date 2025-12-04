@@ -34,7 +34,7 @@ export async function create(formData: jadwalFormValues) {
     },
   });
 
-  const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
+  const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks.toNumber() * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
   if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
     return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
   }
