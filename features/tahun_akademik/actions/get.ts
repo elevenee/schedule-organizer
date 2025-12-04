@@ -14,8 +14,7 @@ export async function GET_PAGINATE({
     limit = 10,
     search = "",
     sort = { field: "createdAt", orderBy: "DESC" },
-    remove_pagination = false
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean }) {
+}: { page?: number, limit?: number, search?: string, sort?: SortProp}) {
     const skip = (page - 1) * limit;
     const searchTahun = search
         ? { tahun: { contains: search, mode: Prisma.QueryMode.insensitive } }
@@ -39,7 +38,7 @@ export async function GET_PAGINATE({
             skip,
             take: limit,
             where,
-            orderBy: { [sort.field]: sort.orderBy },
+            orderBy: { "status": "asc" },
         }),
         prisma.tahunAkademik.count({ where }),
     ]);

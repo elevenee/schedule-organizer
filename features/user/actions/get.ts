@@ -59,6 +59,14 @@ export async function GET_PAGINATE({
             take: limit,
             where,
             orderBy: { [sort.field]: sort.orderBy },
+            include: {
+                Fakultas: {
+                    select:{
+                        id: true,
+                        nama: true
+                    }
+                }
+            }
         }),
         prisma.user.count({ where }),
     ]);

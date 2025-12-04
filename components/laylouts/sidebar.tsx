@@ -100,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar {...props}>
             <SidebarHeader className="flex flex-row gap-2 items-center justify-center">
-                <Logo width={47} /> <span className="text-2xl font-bold">SCHD UINMA</span>
+                <Logo width={47} /> <span className="text-2xl font-bold">OFFERING</span>
             </SidebarHeader>
             <Separator />
             <SidebarContent className="gap-0 px-2 text-2xl">
