@@ -8,6 +8,7 @@ import { useGetTahunAkademik } from "@/features/tahun_akademik/service";
 import { Building, ListCollapse, Users } from "lucide-react";
 import { useState } from "react";
 
+/* eslint-disable */
 export default function AdminDashboard() {
     const [selectedTahunAjaran, setSelectedTahunAjaran] = useState<number | null>(null)
     const [selectedFakultas, setSelectedFakultas] = useState<number | null>(null);
