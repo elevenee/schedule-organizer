@@ -5,11 +5,11 @@ module.exports = {
             name: 'offering',           // Nama aplikasi di PM2
             cwd: './.next/standalone',  // 🎯 Working directory
             script: 'server.js',        // Entry point
-            instances: 'max',           // Cluster mode
-            exec_mode: 'cluster',       // Mode cluster
+            instances: '1',           // Cluster mode
+            exec_mode: 'fork',       // Mode fork
             autorestart: true,          // Auto restart jika crash
             watch: false,               // Jangan watch (kecuali development)
-            max_memory_restart: '1G',   // Restart jika memory > 1GB
+            max_memory_restart: '512M',   // Restart jika memory > 512MB
             env: {
                 NODE_ENV: 'production',
                 PORT: 3001,               // Port aplikasi
