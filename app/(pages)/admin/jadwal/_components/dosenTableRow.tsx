@@ -48,7 +48,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                         </>
                     )}
 
-                    <ActionButtons item={jadwal} hasActions={true} onOpenModal={onOpenModal} />
+                    <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={true} onOpenModal={onOpenModal} />
                     <JadwalDataCell jadwal={jadwal} />
 
                     {/* Total SKS only in first row */}
@@ -82,7 +82,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
                     onOpenModal={onOpenModal}
                 />
             </TableCell>
-            <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} />
+            <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={hasJadwal} onOpenModal={onOpenModal} />
             <JadwalDataCell jadwal={jadwal} />
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
@@ -92,7 +92,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
 // Helper component for action buttons
 /* eslint-disable */
-function ActionButtons({ item, hasActions, onOpenModal }: { item: Jadwal; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
+function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenModal }: { item: Jadwal; currentTotalSks?: number; pengaturan?: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
     if (!hasActions) return <TableCell className='border'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
@@ -104,8 +104,10 @@ function ActionButtons({ item, hasActions, onOpenModal }: { item: Jadwal; hasAct
         dosenId: item?.dosenId ? Number(item.dosenId) : undefined,
         fakultasId: item?.fakultasId ? Number(item.fakultasId) : undefined,
         jurusanId: item?.jurusanId ? Number(item.jurusanId) : undefined,
+        currentTotalSKS: currentTotalSks,
+        maxSks: pengaturan?.maxSks,
     } as any;
-
+    
     const handleEdit = () => {
         onOpenModal("jadwalModal", itemEdit);
     }

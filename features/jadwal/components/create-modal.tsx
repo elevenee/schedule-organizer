@@ -70,12 +70,12 @@ export function JadwalModal() {
 
     useEffect(() => {
         const subscription = form.watch((value) => {
-            const sks = value.sks ? Number(value.sks) : 0;
+            const sks = value.sks ? parseFloat(value.sks) : 0;
             const kelasCount = value.kelas ? value.kelas.length : 0;
-            const totalSKS = sks * kelasCount;
+            const isEditing = jadwal?.id ? parseFloat(jadwal.sks) * jadwal.kelas.length : 0;
+            const totalSKS = (sks * kelasCount ) - isEditing;
             const currentTotalSKS = jadwal?.currentTotalSKS ? Number(jadwal.currentTotalSKS) : 0;
             const maxSks = jadwal?.maxSks ? Number(jadwal.maxSks) : 0;
-            console.log({ currentTotalSKS, totalSKS, maxSks });
             
             setIsMaximumReached((currentTotalSKS + totalSKS) > maxSks);
         });
