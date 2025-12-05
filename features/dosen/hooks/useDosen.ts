@@ -14,6 +14,7 @@ interface GetAllProps extends DataTableOptions {
     nama?: string,
     status?: string,
     fakultasId?: number,
+    jurusanId?: number,
     id?: number
 }
 export const useGetDosen = (params: GetAllProps) => {

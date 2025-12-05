@@ -33,7 +33,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                         <TableHead>#</TableHead>
                         <TableHead>Fakultas</TableHead>
                         <TableHead>Matakuliah</TableHead>
-                        <TableHead>Jurusan</TableHead>
+                        <TableHead>Prodi</TableHead>
                         <TableHead>SMT/Kelas</TableHead>
                         <TableHead>SKS</TableHead>
                         <TableHead>Jumlah Kelas</TableHead>

@@ -68,6 +68,11 @@ export async function GET_PAGINATE({
 
     const whereJadwal = {
         tahunAkademikId: selectedTahunAkademik,
+        // ...programStudiFilter,
+        // ...matakuliahFilter,
+    };
+    const whereJadwalRequest = {
+        tahunAkademikId: selectedTahunAkademik,
         ...fakultasFilter,
         ...programStudiFilter,
         ...matakuliahFilter,
@@ -104,7 +109,7 @@ export async function GET_PAGINATE({
             ]
         }),
         prisma.jadwalRequest.findMany({
-            where: { ...whereJadwal, ...statusFilter },
+            where: { ...whereJadwalRequest, ...statusFilter },
             select: {
                 id: true,
                 dosenId: true,

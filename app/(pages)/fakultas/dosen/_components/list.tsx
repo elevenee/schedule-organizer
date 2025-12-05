@@ -8,15 +8,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DosenModal } from "@/features/dosen/components/create-modal";
 import { DeleteDosen } from "@/features/dosen/components/delete-dialog";
 import { useGetDosen, useSyncDosen } from "@/features/dosen/hooks/useDosen";
-import { useGetFakultas } from "@/features/fakultas/service";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Plus, Recycle, RecycleIcon } from "lucide-react";
-import React, { useMemo } from "react";
+import { Plus, RecycleIcon } from "lucide-react";
+import { useSession } from "next-auth/react";
+import React, { useEffect, useMemo } from "react";
 
 export default function List() {
+    const session = useSession();
     const { open } = useModalManager()
     const syncronMutation = useSyncDosen();
     const [selectedJenisDosen, setSelectedJenisDosen] = React.useState<string | null>(null);
@@ -62,16 +63,10 @@ export default function List() {
                 return (
                     <div className='flex flex-wrap gap-2'>
                         {
-                            !row.original.deletedAt && (
-                                <Button variant={"outline"} onClick={() => open("dosenModal", row.original)}><Edit /> <span className="hidden md:flex">Edit</span></Button>
+                            row.original.status === 'TIDAK_TETAP' && (
+                                <DeleteDosen id={row.original.id} />
                             )
                         }
-                        {
-                            row.original.deletedAt && (
-                                <Button variant={"outline"}><Recycle /> Restore</Button>
-                            )
-                        }
-                        <DeleteDosen id={row.original.id} custom_text={row.original.deletedAt ? 'Hapus Permanent' : 'Hapus'} />
                     </div>
                 )
             },
@@ -102,16 +97,6 @@ export default function List() {
         jurusanId: selectedProdi ?? undefined,
     });
 
-    const { data: fakultasList } = useGetFakultas({
-        page: 1,
-        remove_pagination: true,
-        limit: 100,
-        sort: {
-            field: "nama",
-            orderBy: 'asc'
-        }
-    })
-
     const { data: prodiList, isLoading: isLoadingProdi } = useGetProdi({
         page: 1,
         fakultas: selectedFakultas ?? 99999,
@@ -123,13 +108,6 @@ export default function List() {
         }
     })
 
-    const fakultasOptions = useMemo(() =>
-        fakultasList && fakultasList?.data?.map((item: any) => ({
-            label: item.nama,
-            value: item.id.toString(),
-        })) || [],
-        [fakultasList]
-    );
     const prodiOptions = useMemo(() =>
         prodiList && selectedFakultas && prodiList?.data?.map((item: any) => ({
             label: item.nama,
@@ -141,6 +119,12 @@ export default function List() {
     const handleSync = async () => {
         const sync = await syncronMutation.mutateAsync()
     }
+
+    useEffect(() => {
+        if (session.data?.user?.role === 'FAKULTAS') {
+            setSelectedFakultas(session.data.user.fakultasId ?? null)
+        }
+    }, [session]);
     return (
         <div className="w-full">
             <div className="flex gap-2 flex-col md:flex-row md:items-center md:flex-column md:justify-between mb-4">
@@ -163,15 +147,6 @@ export default function List() {
                             ))}
                         </SelectContent>
                     </Select>
-                </div>
-                <div className="flex flex-col gap-2">
-                    <Label>Fakultas</Label>
-                    <Combobox
-                        options={fakultasOptions}
-                        value={selectedFakultas !== undefined && selectedFakultas !== null ? String(selectedFakultas) : ""}
-                        onChange={(value) => setSelectedFakultas(value ? Number(value) : null)}
-                        placeholder="Pilih Fakultas"
-                    />
                 </div>
                 <div className="flex flex-col gap-2">
                     <Label>Program Studi</Label>

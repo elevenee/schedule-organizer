@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, Role, StatusUser } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 type SortProp = {
@@ -31,17 +31,17 @@ export async function GET_PAGINATE({
         : {};
 
     const statusFilter = status && status !== ''
-        ? { status: status } : {};
+        ? { status: status as StatusUser } : {};
     const roleFilter = role && role !== ''
-        ? { role: role } : {};
+        ? { role: role as Role } : {};
     const fakultasFilter = fakultasId
         ? { fakultasId: fakultasId } : {};
 
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
 
-    let withDeleted = { deleted_at: null } as any;
-    if (user?.user?.role !== 'SUPER_ADMIN') {
+    let withDeleted = {deletedAt: null} as any;
+    if (user?.user?.role === 'ADMIN') {
         withDeleted = {};
     }
 

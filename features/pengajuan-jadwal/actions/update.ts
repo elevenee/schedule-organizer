@@ -34,7 +34,7 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
     if (!tahunAkademik) {
         throw new Error("Tahun akademik tidak ditemukan")
     }
-    
+
     if (formData.status === 'APPROVED') {
         const { matakuliah, sks, dosenId, semester, kelas, fakultasId, jurusanId } = find;
         const getCurrent = await prisma.jadwal.findMany({
@@ -80,7 +80,7 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
             })
         ]);
 
-        return { success: true, data: updated, created: created ? true : false };
+        return { success: true, data: { ...updated, sks: updated.sks.toNumber(), totalSks: updated.totalSks?.toNumber() }, created: created ? true : false };
     } else {
         const updated = await prisma.jadwalRequest.update({
             where: { id },

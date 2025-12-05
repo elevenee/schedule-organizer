@@ -11,6 +11,7 @@ import { statusJadwalFormValues, statusJadwalSchema } from '../validations';
 import toast from 'react-hot-toast';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
+import { QueryClient, useQueryClient } from '@tanstack/react-query';
 
 export function StatusJadwalRequestModal() {
     const { isOpen, getData, close } = useModalManager();
@@ -38,6 +39,8 @@ export function StatusJadwalRequestModal() {
         } finally {
             setIsSubmitting(false);
             close("statusJadwalRequestModal");
+            const queryClient = useQueryClient();
+            await queryClient.invalidateQueries({ queryKey: ["jadwal"] })
         }
     };
 

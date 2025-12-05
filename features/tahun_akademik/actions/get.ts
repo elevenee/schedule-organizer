@@ -17,15 +17,15 @@ export async function GET_PAGINATE({
 }: { page?: number, limit?: number, search?: string, sort?: SortProp}) {
     const skip = (page - 1) * limit;
     const searchTahun = search
-        ? { tahun: { contains: search, mode: Prisma.QueryMode.insensitive } }
+        ? { name: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};
     
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
 
-    let withDeleted = { deleted_at: null } as any;
-    if (user?.user?.role !== 'SUPER_ADMIN') {
-        withDeleted = {};
+   let withDeleted = { deletedAt: null } as any;
+    if (user?.user?.role === 'ADMIN') {
+        withDeleted = {  } as any;
     }
 
     const where = {

@@ -50,9 +50,10 @@ export async function create(formData: jadwalFormValues) {
     kelas
   }
   try {
-    return await prisma.jadwalRequest.create({
+    const create = await prisma.jadwalRequest.create({
       data: data
     });
+    return {...create, sks: create.sks.toNumber(), totalSks: create.totalSks?.toNumber()}
   } catch (error: any) {
     console.error("Error creating jadwal:", error.code);
     return { errors_message: 'Gagal membuat jadwal. Mungkin jadwal dengan data yang sama sudah ada.' };

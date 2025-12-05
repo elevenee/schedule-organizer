@@ -19,5 +19,5 @@ export async function update(id: number, formData: jadwalFormValues) {
         data: updateData,
     });
 
-    return { success: true, data: updated };
+    return { success: true, data: { ...updated, sks: updated.sks.toNumber(), totalSks: updated.totalSks?.toNumber() } };
 }

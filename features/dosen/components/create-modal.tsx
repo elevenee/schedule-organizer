@@ -24,6 +24,7 @@ export function DosenModal() {
             nidn: dosen?.nidn ?? '',
             fakultasId: dosen?.fakultasId ? Number(dosen.fakultasId) : undefined,
             jurusanId: dosen?.jurusanId ? Number(dosen.jurusanId) : undefined,
+            status: dosen?.status ?? undefined,
         }
     });
     const storedosen = useStoreDosen()
@@ -54,6 +55,7 @@ export function DosenModal() {
                 nidn: dosen?.nidn ?? '',
                 fakultasId: dosen?.fakultasId ? Number(dosen.fakultasId) : undefined,
                 jurusanId: dosen?.jurusanId ? Number(dosen.jurusanId) : undefined,
+                status: dosen?.status ?? undefined,
             });
         }
     }, [open, dosen, form]);

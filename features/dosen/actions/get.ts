@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
+import { Prisma, TypeDosen } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 type SortProp = {
@@ -16,31 +16,35 @@ export async function GET_PAGINATE({
     sort = { field: "createdAt", orderBy: "DESC" },
     status = "",
     fakultasId,
+    jurusanId,
     id,
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, id?: number }) {
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, jurusanId?: number, id?: number }) {
     const skip = (page - 1) * limit;
     const searchNama = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};
-    const statusFilter = status ? { status } : {};
+    const statusFilter = status ? { status: status as TypeDosen  } : {};
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
 
-    let withDeleted = { deletedAt: null } as any;
-    if (user?.user?.role !== 'ADMIN') {
-        withDeleted = {};
+     let withDeleted = { deletedAt: null } as any;
+    if (user?.user?.role === 'ADMIN') {
+        withDeleted = {  } as any;
     }
 
     const fakultasFilter = fakultasId ? { fakultasId } : {};
+    const jurusanFilter = jurusanId ? { jurusanId } : {};
     const idFilter = id ? { id } : {};
 
     const where = {
         ...idFilter,
         ...searchNama,
         ...statusFilter,
-        ...withDeleted,
-        ...fakultasFilter
+        ...fakultasFilter,
+        ...jurusanFilter,
+        ...withDeleted
     };
+    // prisma.user.findMany({ withDeleted: true })
     const [data, total] = await Promise.all([
         prisma.dosen.findMany({
             skip,

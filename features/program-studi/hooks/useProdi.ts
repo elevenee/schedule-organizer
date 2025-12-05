@@ -11,8 +11,9 @@ interface StoreOptions extends MutationOptions { }
 
 interface GetAllProps extends DataTableOptions {
     search?: string,
-    name?: string,
-    fakultas?: number
+    nama?: string,
+    fakultas?: number,
+    id?: number,
 }
 export const useGetProdi = (params: GetAllProps) => {
     return handleFetchData(

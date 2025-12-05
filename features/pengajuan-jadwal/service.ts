@@ -21,7 +21,7 @@ export const useGetJadwal = (params: GetAllProps) => {
     return handleFetchData(
         () => GET_PAGINATE(params as any),
         [
-            "pengajuan-pengajuan-jadwal",
+            "pengajuan-jadwal",
             {
                 params,
             },

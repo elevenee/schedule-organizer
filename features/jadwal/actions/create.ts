@@ -10,7 +10,7 @@ export async function create(formData: jadwalFormValues) {
   if (!tahunAkademik) {
     throw new Error("Tahun akademik tidak ditemukan")
   }
-  
+
   const { matakuliah, sks, dosenId, semester, kelas, fakultasId, jurusanId } = formData;
   const getCurrent = await prisma.jadwal.findMany({
     where: {
@@ -30,7 +30,7 @@ export async function create(formData: jadwalFormValues) {
   if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
     return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
   }
-  
+
   const data = {
     tahunAkademikId: BigInt(tahunAkademik?.id || 0),
     matakuliah,
@@ -42,9 +42,11 @@ export async function create(formData: jadwalFormValues) {
     kelas
   }
   try {
-    return await prisma.jadwal.create({
+    const create = await prisma.jadwal.create({
       data: data
     });
+    return { ...create, sks: create.sks.toNumber(), totalSks: create.totalSks?.toNumber() }
+
   } catch (error: any) {
     console.error("Error creating jadwal:", error.code);
     return { errors_message: 'Gagal membuat jadwal. Mungkin jadwal dengan data yang sama sudah ada.' };

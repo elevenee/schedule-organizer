@@ -15,7 +15,8 @@ export async function GET_PAGINATE({
     search = "",
     fakultas = "",
     sort = { field: "createdAt", orderBy: "DESC" },
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, fakultas?: string }) {
+    id,
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, fakultas?: string, id?: number }) {
     const skip = (page - 1) * limit;
 
     const searchFilters = {
@@ -30,14 +31,17 @@ export async function GET_PAGINATE({
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
 
-    let withDeleted = { deletedAcreatedAt: null } as any;
-    if (user?.user?.role !== 'SUPER_ADMIN') {
-        withDeleted = {};
+     let withDeleted = { deletedAt: null } as any;
+    if (user?.user?.role === 'ADMIN') {
+        withDeleted = {  } as any;
     }
+
+    const idFilter = id ? { id: Number(id) } : {};
 
     const where = {
         ...(search ? searchFilters : {}),
         ...fakultasFilter,
+        ...idFilter,
         ...withDeleted
     };    
 

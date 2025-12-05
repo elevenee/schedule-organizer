@@ -12,6 +12,7 @@ type Context = {
 };
 
 // Soft delete handler
+/* eslint-disable */
 function softDeleteHandlers() {
     return {
         async findMany({
@@ -19,13 +20,11 @@ function softDeleteHandlers() {
             query,
             ctx,
         }: {
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             args: any;
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             query: (args: any) => Promise<any>;
             ctx?: Context;
-        }) {
-            if (ctx?.user?.role === 'SUPERADMIN') {
+        }) {            
+            if (ctx?.user?.role === 'ADMIN') {
                 return query(args);
             }
 
@@ -41,15 +40,13 @@ function softDeleteHandlers() {
             query,
             ctx,
         }: {
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             args: any;
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             query: (args: any) => Promise<any>;
             ctx?: Context;
         }) {
-            const showDeleted = args?.showDeleted === true;
-            if (ctx?.user?.role === 'SUPERADMIN' || showDeleted) {
-                delete args.showDeleted;
+            const withDeleted = args?.withDeleted === true;
+            if (ctx?.user?.role === 'ADMIN' || withDeleted) {
+                delete args.withDeleted;
                 return query(args);
             }
 
@@ -65,15 +62,13 @@ function softDeleteHandlers() {
             query,
             ctx,
         }: {
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             args: any;
-             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             query: (args: any) => Promise<any>;
             ctx?: Context;
         }) {
-            const showDeleted = args?.showDeleted === true;
-            if (ctx?.user?.role === 'SUPERADMIN' || showDeleted) {
-                delete args.showDeleted;
+            const withDeleted = args?.withDeleted === true;
+            if (ctx?.user?.role === 'ADMIN' || withDeleted) {
+                delete args.withDeleted;
                 return query(args);
             }
 
@@ -81,9 +76,10 @@ function softDeleteHandlers() {
                 ...args.where,
                 deletedAt: null,
             };
+            
             return query(args);
         },
-    };
+    };    
 }
 
 // Extend Prisma client with soft delete logic

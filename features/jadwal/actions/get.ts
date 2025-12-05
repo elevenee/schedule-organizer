@@ -64,61 +64,6 @@ export async function GET_PAGINATE({
         ...matakuliahFilter,
     };
 
-    // const [data, total] = await Promise.all([
-    //     prisma.jadwal.findMany({
-    //         where,
-    //         include: {
-    //             Dosen: {
-    //                 select: {
-    //                     id: true,
-    //                     nama: true,
-    //                     nidn: true,
-    //                 }
-    //             }
-    //         },
-    //         orderBy: [
-    //             { tahunAkademik: 'desc' },
-    //             { Dosen: { nama: 'asc' } },
-    //             { semester: 'asc' }
-    //         ],
-    //         skip,
-    //         take: limit,
-    //     }),
-    //     prisma.jadwal.count({ where }),
-    // ]);
-
-    // // Single pass grouping - most efficient
-    // const groupedData = data.reduce((acc:any, jadwal:any) => {
-    //     const key = `${jadwal.dosenId}-${jadwal.tahunAkademik}`;
-
-    //     if (!acc[key]) {
-    //         acc[key] = {
-    //             id: jadwal.Dosen.id,
-    //             nama: jadwal.Dosen.nama,
-    //             nidn: jadwal.Dosen.nidn,
-    //             tahunAkademik: jadwal.tahunAkademik.replace(/_/g, '/'),
-    //             jadwal: [],
-    //             totalJadwal: 0,
-    //             totalSKS: 0
-    //         };
-    //     }
-
-    //     acc[key].jadwal.push({
-    //         matakuliah: jadwal.matakuliah,
-    //         sks: jadwal.sks,
-    //         kelas: jadwal.kelas,
-    //         semester: jadwal.semester,
-    //         keterangan: jadwal.keterangan
-    //     });
-    //     acc[key].totalJadwal += 1;
-    //     acc[key].totalSKS += jadwal.sks;
-
-    //     return acc;
-    // }, {});
-
-    // const resultData = Object.values(groupedData);
-    // return { data:resultData, total };
-
     const [dosenList, jadwalData, total] = await Promise.all([
         prisma.dosen.findMany({
             where: where,
