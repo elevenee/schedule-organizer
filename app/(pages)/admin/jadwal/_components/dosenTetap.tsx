@@ -27,6 +27,8 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const [selectedDosen, setSelectedDosen] = useState<number | null>(null);
     const [selectedFakultas, setSelectedFakultas] = useState<number | null>(null);
     const [selectedProdi, setSelectedProdi] = useState<number | null>(null);
+    const [selectedBaseFakultas, setSelectedBaseFakultas] = useState<number | null>(null);
+    const [selectedBaseProdi, setSelectedBaseProdi] = useState<number | null>(null);
     const [selectedMatkul, setSelectedMatkul] = useState<string | null>(null);
     const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
     const [selectedKelas, setSelectedKelas] = useState<string[]>([]);
@@ -39,6 +41,8 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         sort: { field: 'matakuliah', orderBy: 'asc' },
         fakultas: selectedFakultas ?? null,
         programStudi: selectedProdi ?? null,
+        fakultasBase: selectedBaseFakultas ?? null,
+        programStudiBase: selectedBaseProdi ?? null,
         matakuliah: selectedMatkul ?? null,
         dosen: selectedDosen ?? null,
         semester: selectedSemester ?? null,
@@ -64,6 +68,15 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const { data: prodiList } = useGetProdi({
         page: 1,
         fakultas: selectedFakultas ?? undefined,
+        remove_pagination: true,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+    const { data: prodiListBase } = useGetProdi({
+        page: 1,
+        fakultas: selectedBaseFakultas ?? undefined,
         remove_pagination: true,
         sort: {
             field: "nama",
@@ -96,11 +109,20 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         })) || [],
         [prodiList, selectedFakultas]
     );
+    const prodiOptionsBase = useMemo(() =>
+        prodiListBase && selectedBaseFakultas && prodiListBase?.data?.map((item: any) => ({
+            label: item.nama,
+            value: item.id.toString(),
+        })) || [],
+        [prodiListBase, selectedBaseFakultas]
+    );    
 
     const resetFilter = () => {
         setSelectedDosen(null)
         setSelectedFakultas(null)
         setSelectedProdi(null)
+        setSelectedBaseFakultas(null)
+        setSelectedBaseProdi(null)
         setSelectedMatkul(null)
         setSelectedSemester(null)
     }
@@ -199,6 +221,24 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                                 searchPlaceholder="Cari kelas..."
                                 emptyMessage="Kelas tidak ditemukan"
                                 maxCount={10}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Base Fakultas</Label>
+                            <Combobox
+                                options={fakultasOptions}
+                                value={selectedBaseFakultas !== undefined && selectedBaseFakultas !== null ? String(selectedBaseFakultas) : ""}
+                                onChange={(value) => setSelectedBaseFakultas(value ? Number(value) : null)}
+                                placeholder="Pilih Fakultas"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Base Program Studi</Label>
+                            <Combobox
+                                options={prodiOptionsBase}
+                                value={selectedBaseProdi !== undefined && selectedBaseProdi !== null ? String(selectedBaseProdi) : ""}
+                                onChange={(value) => setSelectedBaseProdi(value ? Number(value) : null)}
+                                placeholder="Pilih Program Studi"
                             />
                         </div>
                     </div>

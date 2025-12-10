@@ -20,6 +20,8 @@ interface PropsPaginate {
     tahunAkademik?: number | null;
     fakultas?: number | null;
     programStudi?: number | null;
+    fakultasBase?: number | null;
+    programStudiBase?: number | null;
     matakuliah?: string | null;
     dosen?: number | null,
     semester?: string | null,
@@ -35,6 +37,8 @@ export async function GET_PAGINATE({
     tahunAkademik = null,
     fakultas = null,
     programStudi = null,
+    fakultasBase = null,
+    programStudiBase = null,
     matakuliah = null,
     dosen = null,
     semester = null,
@@ -61,6 +65,12 @@ export async function GET_PAGINATE({
     const programStudiFilter = programStudi ? {
         jurusanId: programStudi
     } : {}
+    const fakultasBaseFilter = fakultasBase ? {
+        fakultasId: fakultasBase
+    } : {}
+    const programStudiBaseFilter = programStudiBase ? {
+        jurusanId: programStudiBase
+    } : {}
     const semesterFilter = semester ? {
         semester: Number(semester)
     } : {}
@@ -83,8 +93,13 @@ export async function GET_PAGINATE({
     const where = {
         ...searchFilter,
         ...jenisDosenFilter,
+        ...fakultasBaseFilter,
+        ...programStudiBaseFilter,
         id: dosen ? dosen : {}
     };
+
+    console.log(fakultasBaseFilter, programStudiBaseFilter);
+    
 
     const whereJadwal = {
         tahunAkademikId: selectedTahunAkademik,

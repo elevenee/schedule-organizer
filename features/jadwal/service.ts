@@ -14,12 +14,15 @@ interface GetAllProps extends DataTableOptions {
     tahunAkademik?: number | null,
     fakultas?: number | null,
     programStudi?: number | null,
+    fakultasBase?: number | null,
+    programStudiBase?: number | null,
     matakuliah?: string | null,
     dosen?: number | null,
     semester?: string | null,
     kelas?: string[]
 }
 export const useGetJadwal = (params: GetAllProps) => {
+    
     return handleFetchData(
         () => GET_PAGINATE(params as any),
         [
