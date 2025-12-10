@@ -11,16 +11,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Jurusan } from '@prisma/client';
 import { useSession } from 'next-auth/react';
 import { useGetDosen } from '@/features/dosen/hooks/useDosen';
+import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
 
 interface Props {
     form: UseFormReturn<jadwalFormValues>;
     onSubmit: (values: jadwalFormValues) => Promise<void>;
     isSubmitting?: boolean;
 }
+/* eslint-disable */
 export function JadwalForm({ form, onSubmit }: Props) {
     const session = useSession();
     const [availableSemester, setAvailableSemester] = useState<{ value: string; label: string }[]>([]);
@@ -54,6 +56,40 @@ export function JadwalForm({ form, onSubmit }: Props) {
         }
     })
 
+    const { data: listMatakuliah } = useGetMataKuliah({
+        page: 1,
+        remove_pagination: true,
+        jurusanId: form.watch().jurusanId ?? 9999999,
+        semester: form.watch().semester ?? 0,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+
+    const matkulOptions = useMemo(() => {
+        const data = listMatakuliah?.data?.map((item: any) => ({
+            label: item.nama.replace(/\s+/g, ' ').trim(),
+            value: item.id.toString(),
+            sks: item.sks
+        })) || [];
+        const resultMap = new Map();
+        
+        for (const item of data) {
+            const normalizedLabel = item.label.toLowerCase().trim();
+            const existing = resultMap.get(normalizedLabel);
+            const currentValue = parseInt(item.value);
+
+            if (!existing || currentValue > parseInt(existing.value)) {
+                resultMap.set(normalizedLabel, item);
+            }
+        }
+
+        const unique = Array.from(resultMap.values());
+
+        return unique;
+    }, [listMatakuliah]) as { label: string; value: string; sks: number }[];
+    
     const availableKelas = [
         { value: "A", nama: "Kelas A" },
         { value: "B", nama: "Kelas B" },
@@ -173,21 +209,39 @@ export function JadwalForm({ form, onSubmit }: Props) {
                 />
                 <FormField
                     control={form.control}
+                    name="semester"
+                    render={({ field }) => (
+                        <FormItem className='flex flex-col col-span-12'>
+                            <FormLabel required>Semester</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    options={availableSemester ?? []}
+                                    value={field.value ? field.value.toString() : ""}
+                                    onChange={(val) => setValue('semester', val)}
+                                    placeholder="Pilih Semester"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="matakuliah"
                     render={({ field }) => (
-                        <FormItem className='col-span-12'>
+                        <FormItem className='col-span-12 md:col-span-6'>
                             <FormLabel required>Nama Matakuliah</FormLabel>
                             <FormControl>
-                                <Input placeholder="Input nama matakuliah" {...field} />
-                                {/* <SearchInput
-                                    suggestions={COUNTRIES}
-                                    value={country}
-                                    onChange={setCountry}
-                                    onSelect={handleCountrySelect}
-                                    placeholder="Search countries..."
-                                    emptyMessage="No countries found."
-                                    maxSuggestions={5}
-                                /> */}
+                                <Combobox
+                                    options={matkulOptions?.length ? matkulOptions : []}
+                                    value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                                    onChange={(value) => {
+                                        field.onChange(Number(value));
+                                        const sks = matkulOptions.filter((v: any) => v.value === value);
+                                        setValue('sks', sks && sks.length ? sks[0]?.sks.toString() : "")
+                                    }}
+                                    placeholder="Pilih Matakuliah"
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -212,24 +266,6 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                         <SelectItem value="4">4</SelectItem>
                                     </SelectContent>
                                 </Select>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="semester"
-                    render={({ field }) => (
-                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
-                            <FormLabel required>Semester</FormLabel>
-                            <FormControl>
-                                <Combobox
-                                    options={availableSemester ?? []}
-                                    value={field.value ? field.value.toString() : ""}
-                                    onChange={(val) => setValue('semester', val)}
-                                    placeholder="Pilih Semester"
-                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

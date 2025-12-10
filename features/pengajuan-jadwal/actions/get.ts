@@ -9,6 +9,19 @@ type SortProp = {
     field: string,
     orderBy: string | "ASC" | "DESC"
 }
+interface PaginateProps {
+    page?: number, 
+    limit?: number, 
+    search?: string, 
+    sort?: SortProp, 
+    remove_pagination?: boolean, 
+    jenisDosen?: string, 
+    tahunAkademik?: number | null, 
+    programStudi?: number | null, 
+    matakuliah?: string | null, 
+    status?: string | null,
+    dosen?: number | null
+}
 export async function GET_PAGINATE({
     page = 1,
     limit = 10,
@@ -18,8 +31,9 @@ export async function GET_PAGINATE({
     tahunAkademik = null,
     programStudi = null,
     matakuliah = null,
+    dosen = null,
     status,
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean, jenisDosen?: string, tahunAkademik?: number | null, programStudi?: number | null, matakuliah?: string | null, status?: string | null }) {
+}: PaginateProps) {
     const skip = (page - 1) * limit;
 
     const session = await getServerSession(authOptions);
@@ -34,6 +48,9 @@ export async function GET_PAGINATE({
             matakuliah: { contains: search, mode: Prisma.QueryMode.insensitive },
         }
         : {};
+    const dosenFilter = dosen ? {
+        dosenId: dosen
+    } : {}
     const statusFilter = status ? {
         status: status as StatusJadwalRequest
     } : {}
@@ -60,22 +77,18 @@ export async function GET_PAGINATE({
         })
         : null;
 
-    const where = {
-        ...searchFilter,
-        ...fakultasFilter,
-        ...jenisDosenFilter,
-    };
-
     const whereJadwal = {
         tahunAkademikId: selectedTahunAkademik,
-        // ...programStudiFilter,
-        // ...matakuliahFilter,
+        ...programStudiFilter,
+        ...matakuliahFilter,
+        ...dosenFilter
     };
     const whereJadwalRequest = {
         tahunAkademikId: selectedTahunAkademik,
         ...fakultasFilter,
         ...programStudiFilter,
         ...matakuliahFilter,
+        ...dosenFilter
     };
 
     const [jadwalData, jadwalDataRequest, total] = await Promise.all([
@@ -154,20 +167,6 @@ export async function GET_PAGINATE({
         }),
         prisma.dosen.count(),
     ]);
-    // const listDosenx = Array.from(
-    //     new Map(
-    //         jadwalDataRequest.map(j => [
-    //             j.dosenId,
-    //             {
-    //                 id: j.dosenId,
-    //                 nama: j.Dosen?.nama,
-    //                 nidn: j.Dosen?.nidn,
-    //                 status: j.Dosen?.status,
-    //                 homebase: j.Dosen?.Jurusan?.nama || "-",
-    //             }
-    //         ])
-    //     ).values()
-    // );
 
     const uniqueDosen = jadwalDataRequest.reduce((acc, j) => {
         if (!j.dosenId || !j.Dosen) return acc;
@@ -215,6 +214,37 @@ export async function GET_PAGINATE({
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
         const jadwalRequestDosen = jadwalRequestByDosen[dosen.id.toString()] || [];
 
+        const listRequest = jadwalRequestDosen.map((j: any) => ({
+            id: j.id,
+            matakuliah: j.matakuliah,
+            sks: j.sks?.toNumber(),
+            kelas: j.kelas,
+            semester: j.semester,
+            keterangan: j.keterangan,
+            fakultas: j.Fakultas?.nama,
+            jurusan: j.Jurusan?.nama,
+            fakultasId: j.Fakultas?.id,
+            jurusanId: j.Jurusan?.id,
+            dosenId: j.dosenId,
+            status: j.status,
+            keteranganAdmin: j.keteranganAdmin,
+        }));
+        const listJadwal = jadwalDosen.map((j: any) => ({
+            id: j.id,
+            matakuliah: j.matakuliah,
+            sks: j.sks?.toNumber(),
+            kelas: j.kelas,
+            semester: j.semester,
+            keterangan: j.keterangan,
+            fakultas: j.Fakultas?.nama,
+            jurusan: j.Jurusan?.nama,
+            fakultasId: j.Fakultas?.id,
+            jurusanId: j.Jurusan?.id,
+            dosenId: j.dosenId,
+            keteranganAdmin: j.keteranganAdmin,
+        }));
+        const merged = mergeJadwalLists(listRequest, listJadwal);
+
         return {
             id: dosen.id,
             nama: dosen.nama,
@@ -225,24 +255,50 @@ export async function GET_PAGINATE({
             totalJadwal: jadwalDosen.length,
             totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
             totalSKSRequest: jadwalRequestDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
-            jadwal: jadwalRequestDosen.map((j: any) => ({
-                id: j.id,
-                matakuliah: j.matakuliah,
-                sks: j.sks?.toNumber(),
-                kelas: j.kelas,
-                semester: j.semester,
-                keterangan: j.keterangan,
-                fakultas: j.Fakultas?.nama,
-                jurusan: j.Jurusan?.nama + ` (${j.Jurusan?.jenjang})`,
-                fakultasId: j.Fakultas?.id,
-                jurusanId: j.Jurusan?.id,
-                dosenId: j.dosenId,
-                status: j.status,
-                keteranganAdmin: j.keteranganAdmin,
-            }))
+            jadwal: merged
         };
     });
     return { data, total };
+}
+
+function mergeJadwalLists(requests: any, jadwals: any) {
+    const createKey = (item: any) =>
+        `${item.fakultasId}|${item.jurusanId}|${item.matakuliah?.trim().toLowerCase()}|${item.dosenId}|${item.semester}`;
+
+    const jadwalMap = new Map();
+    const mergedMap = new Map();
+
+    // Build index of jadwal items
+    for (const item of jadwals) {
+        jadwalMap.set(createKey(item), item);
+    }
+
+    // Merge requests into jadwals
+    for (const request of requests) {
+        const key = createKey(request);
+        const existing = jadwalMap.get(key);
+
+        if (existing) {
+            // Merge with request taking precedence
+            mergedMap.set(key, {
+                ...existing,
+                ...request,
+                status: request.status,
+                totalKelasDiterima: existing.kelas,
+                semesterDiterima: existing.semester,
+            });
+            jadwalMap.delete(key);
+        } else {
+            mergedMap.set(key, request);
+        }
+    }
+
+    // Add remaining jadwal items
+    for (const [key, item] of jadwalMap) {
+        mergedMap.set(key, item);
+    }
+
+    return Array.from(mergedMap.values());
 }
 
 export default async function GET_ALL() {

@@ -1,8 +1,8 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
-import { jadwalFormValues } from "../validations";
-export async function update(id: number, formData: jadwalFormValues) {
+import { sisaSksFormValues } from "../validations";
+export async function update(id: number, formData: sisaSksFormValues) {
     const find = await prisma.jadwal.findUnique({ where: { id } });
     if (!find) return { error: 'Jadwal tidak ditemukan' };
 

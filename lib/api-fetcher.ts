@@ -40,7 +40,6 @@ export async function apiFetcher<T = any>(
     const session = await getServerSession(authOptions);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let token: any = null;
-    console.log(session);
     
     if (session?.user?.accessToken) {
       token = session.user.accessToken;

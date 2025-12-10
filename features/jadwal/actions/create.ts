@@ -12,6 +12,32 @@ export async function create(formData: jadwalFormValues) {
   }
 
   const { matakuliah, sks, dosenId, semester, kelas, fakultasId, jurusanId } = formData;
+
+  const isExists = await prisma.jadwal.findFirst({
+    where: {
+      tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+      jurusanId: jurusanId,
+      fakultasId: fakultasId,
+      semester: Number(semester),
+      matakuliah: matakuliah,
+      kelas: { hasSome: kelas },
+    },
+    include:{
+      Jurusan: {
+        select:{
+          id: true,
+          nama: true,
+          jenjang: true
+        }
+      }
+    }
+  });
+
+  if (isExists) {
+    if (isExists.Jurusan?.jenjang == 'S1') {
+      return { errors_message: `Jadwal kelas pada matakuliah ${matakuliah} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
+    }
+  }
   const getCurrent = await prisma.jadwal.findMany({
     where: {
       tahunAkademikId: BigInt(tahunAkademik?.id || 0),

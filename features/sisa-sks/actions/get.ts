@@ -21,9 +21,7 @@ interface PropsPaginate {
     fakultas?: number | null;
     programStudi?: number | null;
     matakuliah?: string | null;
-    dosen?: number | null,
-    semester?: string | null,
-    kelas?: string[]
+    dosen?: number | null
 }
 export async function GET_PAGINATE({
     page = 1,
@@ -36,9 +34,7 @@ export async function GET_PAGINATE({
     fakultas = null,
     programStudi = null,
     matakuliah = null,
-    dosen = null,
-    semester = null,
-    kelas = []
+    dosen = null
 }: PropsPaginate) {
     const skip = (page - 1) * limit;
     const searchFilter = search
@@ -61,12 +57,6 @@ export async function GET_PAGINATE({
     const programStudiFilter = programStudi ? {
         jurusanId: programStudi
     } : {}
-    const semesterFilter = semester ? {
-        semester: Number(semester)
-    } : {}
-    const kelasFilter = kelas.length ? {
-        kelas: { hasSome: kelas}
-    } : {}
     const matakuliahFilter = matakuliah ? {
         matakuliah: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
     } : {}
@@ -86,17 +76,15 @@ export async function GET_PAGINATE({
         id: dosen ? dosen : {}
     };
 
-    const whereJadwal = {
+    const whereSisaSks = {
         tahunAkademikId: selectedTahunAkademik,
         ...fakultasFilter,
         ...programStudiFilter,
         ...matakuliahFilter,
-        ...dosenFilter,
-        ...semesterFilter,
-        ...kelasFilter
+        ...dosenFilter
     };
 
-    const [dosenList, jadwalData, total] = await Promise.all([
+    const [dosenList, sisaSksData, total] = await Promise.all([
         prisma.dosen.findMany({
             where: where,
             include: {
@@ -115,8 +103,8 @@ export async function GET_PAGINATE({
             },
             orderBy: { nama: 'asc' },
         }),
-        prisma.jadwal.findMany({
-            where: whereJadwal,
+        prisma.sisaSks.findMany({
+            where: whereSisaSks,
             select: {
                 id: true,
                 dosenId: true,
@@ -148,17 +136,17 @@ export async function GET_PAGINATE({
     ]);
 
     // Group jadwal by dosenId untuk mapping
-    const jadwalByDosen = jadwalData.reduce((acc, jadwal) => {
+    const sisaSksByDosen = sisaSksData.reduce((acc, jadwal) => {
         const dosenIdStr = jadwal.dosenId.toString(); // Convert bigint to string
         if (!acc[dosenIdStr]) {
             acc[dosenIdStr] = [];
         }
         acc[dosenIdStr].push(jadwal);
         return acc;
-    }, {} as Record<string, typeof jadwalData>);
+    }, {} as Record<string, typeof sisaSksData>);
 
     const data = dosenList.map(dosen => {
-        const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
+        const jadwalDosen = sisaSksByDosen[dosen.id.toString()] || [];
 
         return {
             id: dosen.id,

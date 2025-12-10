@@ -4,9 +4,9 @@ import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Check, Edit, InfoIcon } from 'lucide-react';
-import { DeleteJadwal } from '@/features/pengajuan-jadwal/components/delete-dialog';
-import { JadwalRequest } from '@prisma/client';
+import { Edit } from 'lucide-react';
+import { DeleteJadwal } from '@/features/jadwal/components/delete-dialog';
+import { Jadwal } from '@prisma/client';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
 
 /* eslint-disable */
@@ -17,10 +17,8 @@ interface DosenTableRowProps {
     onOpenModal: (modal: string, data: any) => void;
 }
 
-/* eslint-disable */
 export function DosenTableRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
     const hasMultipleJadwal = item?.jadwal?.length > 1;
-    
     if (hasMultipleJadwal) {
         return <MultipleJadwalRow item={item} index={index} pengaturan={pengaturan} onOpenModal={onOpenModal} />;
     }
@@ -29,6 +27,7 @@ export function DosenTableRow({ item, index, pengaturan, onOpenModal }: DosenTab
 }
 
 // Helper component for multiple jadwal
+/* eslint-disable */
 function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
     const { capacityStyle, isOverCapacity } = useCapacityCheck(item, pengaturan);
     return (
@@ -49,15 +48,12 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                         </>
                     )}
 
-                    <ActionButtons item={jadwal} hasActions={true} onOpenModal={onOpenModal} />
+                    <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={true} onOpenModal={onOpenModal} />
                     <JadwalDataCell jadwal={jadwal} />
 
                     {/* Total SKS only in first row */}
                     {jadwalIndex === 0 && (
                         <>
-                            <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border ${capacityStyle}`}>
-                                {item.totalSKSRequest}
-                            </TableCell>
                             <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border ${capacityStyle}`}>
                                 {item.totalSKS}
                             </TableCell>
@@ -86,9 +82,8 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
                     onOpenModal={onOpenModal}
                 />
             </TableCell>
-            <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} />
+            <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={hasJadwal} onOpenModal={onOpenModal} />
             <JadwalDataCell jadwal={jadwal} />
-            <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKSRequest}</TableCell>
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
         </TableRow>
@@ -97,7 +92,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
 // Helper component for action buttons
 /* eslint-disable */
-function ActionButtons({ item, hasActions, onOpenModal }: { item: JadwalRequest; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
+function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenModal }: { item: Jadwal; currentTotalSks?: number; pengaturan?: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
     if (!hasActions) return <TableCell className='border'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
@@ -109,51 +104,21 @@ function ActionButtons({ item, hasActions, onOpenModal }: { item: JadwalRequest;
         dosenId: item?.dosenId ? Number(item.dosenId) : undefined,
         fakultasId: item?.fakultasId ? Number(item.fakultasId) : undefined,
         jurusanId: item?.jurusanId ? Number(item.jurusanId) : undefined,
+        currentTotalSKS: currentTotalSks,
+        maxSks: pengaturan?.maxSks,
     } as any;
-
+    
     const handleEdit = () => {
-        onOpenModal("jadwalRequestModal", itemEdit);
+        onOpenModal("sisaSksModal", itemEdit);
     }
 
     return (
         <TableCell className='border'>
             <div className="flex gap-2">
-                {
-                    item?.status && item.status !== "APPROVED" && (
-                        <>
-                            <Button variant="outline" onClick={handleEdit}>
-                                <Edit className="text-sky-500 h-4 w-4" />
-                            </Button>
-                            <DeleteJadwal id={Number(item.id)} />
-                        </>
-                    )
-                }
-                {
-                    item?.status && item.status === "REJECTED" && (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="destructive">
-                                    <InfoIcon />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{item.keteranganAdmin}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    )
-                }
-                {
-                    item?.status && item.status === "APPROVED" && (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="outline"><Check className='text-emerald-500' /></Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Jadwal disetujui</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    )
-                }
+                <Button variant="outline" onClick={handleEdit}>
+                    <Edit className="text-sky-500 h-4 w-4" />
+                </Button>
+                <DeleteJadwal id={Number(item.id)} />
             </div>
         </TableCell>
     );
@@ -174,7 +139,7 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
             </>
         );
     }
-
+    
     return (
         <>
             <TableCell className='border'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>
@@ -183,7 +148,6 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
             <TableCell className='border text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
             <TableCell className='border text-center'>{jadwal.kelas?.length || 0}</TableCell>
             <TableCell className='border text-center'>{jadwal.sks}</TableCell>
-            <TableCell className='border text-center'>{jadwal?.semesterDiterima ? jadwal.semesterDiterima + "/" + jadwal.totalKelasDiterima?.join(',') : jadwal.kelas?.join(',')}</TableCell>
         </>
     );
 }
@@ -205,7 +169,7 @@ function DosenNameCell({ item, isOverCapacity, onOpenModal }: {
                 <ContextMenuTrigger>
                     <Tooltip>
                         <TooltipTrigger asChild className='w-full'>
-                            <span className="cursor-pointer" onClick={() => onOpenModal("jadwalRequestModal", { dosenId: item.id, currentTotalSKS: item.totalSKS, maxSks: item.maxSks })}>{item.nama}</span>
+                            <span className="cursor-pointer" onClick={() => onOpenModal("sisaSksModal", { dosenId: item.id, currentTotalSKS: item.totalSKS.toFixed(1), maxSks: item.maxSks })}>{item.nama}</span>
                         </TooltipTrigger>
                         <TooltipContent>
                             <p>Klik kanan untuk tambah jadwal</p>
@@ -213,7 +177,7 @@ function DosenNameCell({ item, isOverCapacity, onOpenModal }: {
                     </Tooltip>
                 </ContextMenuTrigger>
                 <ContextMenuContent>
-                    <ContextMenuItem onClick={() => onOpenModal("jadwalRequestModal", { dosenId: item.id, currentTotalSKS: item.totalSKS, maxSks: item.maxSks })}>
+                    <ContextMenuItem onClick={() => onOpenModal("sisaSksModal", { dosenId: item.id, currentTotalSKS: item.totalSKS.toFixed(1), maxSks: item.maxSks })}>
                         Tambah Jadwal
                     </ContextMenuItem>
                 </ContextMenuContent>

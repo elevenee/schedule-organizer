@@ -1,10 +1,9 @@
 'use client';
 
 import { UseFormReturn } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/combobox';
-import { jadwalFormValues } from '../validations';
+import { sisaSksFormValues } from '../validations';
 import { useGetDosen } from '@/features/dosen/hooks/useDosen';
 import { Dosen } from '@/features/dosen/types';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,12 +14,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
 import { useEffect, useMemo, useState } from 'react';
 import { Jurusan } from '@prisma/client';
-import { InputSuggestion } from '@/components/ui/input-suggestion';
 import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
 
 interface Props {
-    form: UseFormReturn<jadwalFormValues>;
-    onSubmit: (values: jadwalFormValues) => Promise<void>;
+    form: UseFormReturn<sisaSksFormValues>;
+    onSubmit: (values: sisaSksFormValues) => Promise<void>;
     isSubmitting?: boolean;
 }
 export function JadwalForm({ form, onSubmit }: Props) {
@@ -72,19 +70,17 @@ export function JadwalForm({ form, onSubmit }: Props) {
     const matkulOptions = useMemo(() => {
         const data = listMatakuliah?.data?.map((item: any) => ({
             label: item.nama.replace(/\s+/g, ' ').trim(),
-            value: item.nama.replace(/\s+/g, ' ').trim(),
-            id: item.id,
+            value: item.id.toString(),
             sks: item.sks
         })) || [];
-        
         const resultMap = new Map();
 
         for (const item of data) {
             const normalizedLabel = item.label.toLowerCase().trim();
             const existing = resultMap.get(normalizedLabel);
-            const currentValue = parseInt(item.id);
+            const currentValue = parseInt(item.value);
 
-            if (!existing || currentValue > parseInt(existing.id)) {
+            if (!existing || currentValue > parseInt(existing.value)) {
                 resultMap.set(normalizedLabel, item);
             }
         }
@@ -93,7 +89,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
 
         return unique;
     }, [listMatakuliah]) as { label: string; value: string; sks: number }[];
-    
+
     const availableKelas = [
         { value: "A", nama: "Kelas A" },
         { value: "B", nama: "Kelas B" },
@@ -144,7 +140,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
             }
         }
 
-    }, [tahunAkademik.data, setValue]);    
+    }, [tahunAkademik.data, setValue]);
 
     return (
         <Form {...form}>
@@ -247,7 +243,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                     options={matkulOptions}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => {
-                                        field.onChange(value);
+                                        field.onChange(Number(value));
                                         const sks = matkulOptions.filter((v: any) => v.value === value);
                                         setValue('sks', sks && sks.length ? sks[0]?.sks.toString(): "")
                                     }}

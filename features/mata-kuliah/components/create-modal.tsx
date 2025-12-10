@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button"
 import { mataKuliahFormValues, mataKuliahSchema } from '../validations';
-import { useStoreMataKuliah, useUpdateMataKuliah } from '../service';
+import { useStoreMataKuliah, useUpdateMataKuliah } from '../hooks/matkul.hook';
 import { MataKuliahForm } from './create-form';
 import { useModalManager } from '@/hooks/modal-manager';
 import BaseModal from '@/components/ui/modal';

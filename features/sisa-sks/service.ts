@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { jadwalSchema } from "./validations";
+import { SisaSksSchema } from "./validations";
 import { create } from "./actions/create";
 import { update } from "./actions/update";
 import { destroy } from "./actions/delete";
@@ -15,15 +15,13 @@ interface GetAllProps extends DataTableOptions {
     fakultas?: number | null,
     programStudi?: number | null,
     matakuliah?: string | null,
-    dosen?: number | null,
-    semester?: string | null,
-    kelas?: string[]
+    dosen?: number | null
 }
-export const useGetJadwal = (params: GetAllProps) => {
+export const useGetSisaSks = (params: GetAllProps) => {
     return handleFetchData(
         () => GET_PAGINATE(params as any),
         [
-            "jadwal",
+            "sisa-sks",
             {
                 params,
             },
@@ -31,12 +29,12 @@ export const useGetJadwal = (params: GetAllProps) => {
 }
 
 const handleValidation = (formData: any) => {
-    const validationErrors = validateForm(jadwalSchema, formData);
+    const validationErrors = validateForm(SisaSksSchema, formData);
     
     if (validationErrors) throw { ...validationErrors };
 };
 
-const createJadwal = async (formData: any, showProccessAlert: boolean) => {
+const createSisaSks = async (formData: any, showProccessAlert: boolean) => {
     handleValidation(formData);
     return handleMutation(
         () => (create(formData)),
@@ -46,7 +44,7 @@ const createJadwal = async (formData: any, showProccessAlert: boolean) => {
     );
 };
 
-const updateJadwal = async (id: number, formData: any, showProccessAlert: boolean) => {
+const updateSisaSks = async (id: number, formData: any, showProccessAlert: boolean) => {
     handleValidation(formData);
     return handleMutation(
         () => (update(id, formData)),
@@ -56,30 +54,30 @@ const updateJadwal = async (id: number, formData: any, showProccessAlert: boolea
     );
 };
 
-export const useStoreJadwal = async (options: StoreOptions = {}) => {
+export const useStoreSisaSks = async (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
-        mutationFn: (data: any) => createJadwal(data, showProccessAlert),
-        onSettled: async (_, error) => handleSettled(error, queryClient, ["jadwal"], showAlert),
-        onError: (error: any) => handleMutationError(error, showAlert, "Jadwal gagal disimpan"),
+        mutationFn: (data: any) => createSisaSks(data, showProccessAlert),
+        onSettled: async (_, error) => handleSettled(error, queryClient, ["sisa-sks"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Sisa Sks gagal disimpan"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert),
     });
 };
 
-export const useUpdateJadwal = async (options: MutationOptions = {}) => {
+export const useUpdateSisaSks = async (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
     return useMutation({
-        mutationFn: ({ id, data }: { id: number; data: any }) => updateJadwal(id, data, showProccessAlert),
-        onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["jadwal"], showAlert),
-        onError: (error: any) => handleMutationError(error, showAlert, "Jadwal gagal disimpan"),
+        mutationFn: ({ id, data }: { id: number; data: any }) => updateSisaSks(id, data, showProccessAlert),
+        onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["sisa-sks"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Sisa Sks gagal disimpan"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert),
     });
 };
 
-const deleteJadwal = async (id: number | null, action: () => Promise<any>, alertTitle: string) => {
+const deleteSisaSks = async (id: number | null, action: () => Promise<any>, alertTitle: string) => {
     try {
         showProcessAlert(alertTitle, "Data sedang diproses..");
         const response = await action();
@@ -93,14 +91,14 @@ const deleteJadwal = async (id: number | null, action: () => Promise<any>, alert
     }
 };
 
-export const useDeleteJadwal = (id: number, options: MutationOptions = {}) => {
+export const useDeleteSisaSks = (id: number, options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showAlert = true } = { showAlert: true, ...options };
 
     return useMutation({
-        mutationFn: () => deleteJadwal(id, () => destroy(id), "Deleting Data"),
-        onSettled: async (_, error) => handleSettled(error, queryClient, ["jadwal"], showAlert),
-        onError: (error: any) => handleMutationError(error, showAlert, "Jadwal gagal dihapus"),
-        onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Jadwal berhasil dihapus"),
+        mutationFn: () => deleteSisaSks(id, () => destroy(id), "Deleting Data"),
+        onSettled: async (_, error) => handleSettled(error, queryClient, ["sisa-sks"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Sisa Sks gagal dihapus"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Sisa Sks berhasil dihapus"),
     });
 };

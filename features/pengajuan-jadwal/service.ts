@@ -16,6 +16,7 @@ interface GetAllProps extends DataTableOptions {
     programStudi?: number | null,
     matakuliah?: string | null,
     status?: string | null,
+    dosen?: number | null
 }
 export const useGetJadwal = (params: GetAllProps) => {
     return handleFetchData(

@@ -43,7 +43,7 @@ export const authOptions: NextAuthOptions = {
                     },
                 });
                 } catch (error) {
-                    console.log("");
+                    console.log(error);
                 }
                 
                 return {

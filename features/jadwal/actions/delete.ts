@@ -9,9 +9,50 @@ export async function destroy(id: number) {
         where: { id }
     });
     if (!jadwal) throw new Error("Jadwal not found");
+
+    const findSisaSks = await prisma.sisaSks.findFirst({
+        where: {
+            fakultasId: jadwal?.fakultasId,
+            jurusanId: jadwal?.jurusanId,
+            dosenId: jadwal?.dosenId,
+            matakuliah: jadwal?.matakuliah,
+            semester: jadwal?.semester,
+            tahunAkademikId: jadwal?.tahunAkademikId
+        },
+    })
+    const kelasChanges = [...new Set([...jadwal.kelas, ...findSisaSks?.kelas ?? []])]
     await prisma.jadwal.delete({
         where: { id }
     });
+
+    if (findSisaSks) {
+        await prisma.sisaSks.update({
+            where: { id: findSisaSks.id },
+            data: {
+                tahunAkademikId: jadwal?.tahunAkademikId,
+                matakuliah: jadwal.matakuliah,
+                sks: jadwal.sks,
+                semester: jadwal.semester,
+                dosenId: jadwal.dosenId,
+                fakultasId: jadwal.fakultasId,
+                jurusanId: jadwal.jurusanId,
+                kelas: kelasChanges
+            }
+        })
+    } else {
+        await prisma.sisaSks.create({
+            data: {
+                tahunAkademikId: jadwal?.tahunAkademikId,
+                matakuliah: jadwal.matakuliah,
+                sks: jadwal.sks,
+                semester: jadwal.semester,
+                dosenId: jadwal.dosenId,
+                fakultasId: jadwal.fakultasId,
+                jurusanId: jadwal.jurusanId,
+                kelas: kelasChanges
+            }
+        })
+    }
 
     return true;
 }

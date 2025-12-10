@@ -1,22 +1,33 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { mataKuliahSchema } from "./validations";
-import { create } from "./actions/create";
-import { update } from "./actions/update";
-import { destroy } from "./actions/delete";
-import { GET } from "./actions/get";
+import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
+import { mataKuliahSchema } from "../validations";
+import { create } from "../actions/create";
+import { update } from "../actions/update";
+import { destroy } from "../actions/delete";
+import { GET_PAGINATE, GET_STATISTIC } from "../actions/get";
+import { SYNC } from "../actions/sync";
 
 interface StoreOptions extends MutationOptions { }
 
-interface GetAllProps {
-    NAMA_MATAKULIAH?: string,
-    jenjang?: string,
-    offset?: number,
-    limit?: number
+interface GetAllProps extends DataTableOptions {
+    search?: string,
+    jenjang?: string | null,
+    semester?: string | null,
+    jurusanId?: number | null,
 }
 export const useGetMataKuliah = (params: GetAllProps) => {
     return handleFetchData(
-        () => GET(params as any),
+        () => GET_STATISTIC(params as any),
+        [
+            "mata-kuliah",
+            {
+                params,
+            },
+        ])
+}
+export const useGetStatMataKuliah = (params: GetAllProps) => {
+    return handleFetchData(
+        () => GET_STATISTIC(params as any),
         [
             "mata-kuliah",
             {
@@ -27,7 +38,7 @@ export const useGetMataKuliah = (params: GetAllProps) => {
 
 const handleValidation = (formData: any) => {
     const validationErrors = validateForm(mataKuliahSchema, formData);
-    
+
     if (validationErrors) throw { ...validationErrors };
 };
 
@@ -97,5 +108,31 @@ export const useDeleteMataKuliah = (id: number, options: MutationOptions = {}) =
         onSettled: async (_, error) => handleSettled(error, queryClient, ["mata-kuliah"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Mata Kuliah gagal dihapus"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Mata Kuliah berhasil dihapus"),
+    });
+};
+
+const syncMatkul = async (action: () => Promise<any>, alertTitle: string) => {
+    try {
+        showProcessAlert(alertTitle, "Proses syncronisasi data..");
+        const response = await action();
+        if (response) {
+            return response;
+        } else {
+            throw new Error(`Data gagal diproses: ${response.statusText}`);
+        }
+    } catch (error) {
+        throw new Error(`Data gagal diproses: ${error}`);
+    }
+};
+
+export const useSyncMatkul = (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showAlert = true } = { showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: () => syncMatkul(() => SYNC(), "Syncroning Data"),
+        onSettled: async (_, error) => handleSettled(error, queryClient, ["mata-kuliah"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Mata Kuliah gagal disingkronkan"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Mata Kuliah berhasil disingkronkan"),
     });
 };
