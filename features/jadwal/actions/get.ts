@@ -97,10 +97,6 @@ export async function GET_PAGINATE({
         ...programStudiBaseFilter,
         id: dosen ? dosen : {}
     };
-
-    console.log(fakultasBaseFilter, programStudiBaseFilter);
-    
-
     const whereJadwal = {
         tahunAkademikId: selectedTahunAkademik,
         ...fakultasFilter,

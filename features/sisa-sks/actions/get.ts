@@ -20,8 +20,12 @@ interface PropsPaginate {
     tahunAkademik?: number | null;
     fakultas?: number | null;
     programStudi?: number | null;
+    fakultasBase?: number | null;
+    programStudiBase?: number | null;
     matakuliah?: string | null;
-    dosen?: number | null
+    dosen?: number | null,
+    semester?: string | null,
+    kelas?: string[]
 }
 export async function GET_PAGINATE({
     page = 1,
@@ -33,8 +37,12 @@ export async function GET_PAGINATE({
     tahunAkademik = null,
     fakultas = null,
     programStudi = null,
+    fakultasBase = null,
+    programStudiBase = null,
     matakuliah = null,
-    dosen = null
+    dosen = null,
+    semester = null,
+    kelas = []
 }: PropsPaginate) {
     const skip = (page - 1) * limit;
     const searchFilter = search
@@ -57,6 +65,18 @@ export async function GET_PAGINATE({
     const programStudiFilter = programStudi ? {
         jurusanId: programStudi
     } : {}
+    const fakultasBaseFilter = fakultasBase ? {
+        fakultasId: fakultasBase
+    } : {}
+    const programStudiBaseFilter = programStudiBase ? {
+        jurusanId: programStudiBase
+    } : {}
+    const semesterFilter = semester ? {
+        semester: Number(semester)
+    } : {}
+    const kelasFilter = kelas.length ? {
+        kelas: { hasSome: kelas}
+    } : {}
     const matakuliahFilter = matakuliah ? {
         matakuliah: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
     } : {}
@@ -73,6 +93,8 @@ export async function GET_PAGINATE({
     const where = {
         ...searchFilter,
         ...jenisDosenFilter,
+         ...fakultasBaseFilter,
+        ...programStudiBaseFilter,
         id: dosen ? dosen : {}
     };
 
@@ -81,7 +103,9 @@ export async function GET_PAGINATE({
         ...fakultasFilter,
         ...programStudiFilter,
         ...matakuliahFilter,
-        ...dosenFilter
+        ...dosenFilter,
+        ...semesterFilter,
+        ...kelasFilter
     };
 
     const [dosenList, sisaSksData, total] = await Promise.all([

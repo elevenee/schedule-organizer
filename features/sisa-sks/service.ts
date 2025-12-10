@@ -14,8 +14,12 @@ interface GetAllProps extends DataTableOptions {
     tahunAkademik?: number | null,
     fakultas?: number | null,
     programStudi?: number | null,
+    fakultasBase?: number | null,
+    programStudiBase?: number | null,
     matakuliah?: string | null,
-    dosen?: number | null
+    dosen?: number | null,
+    semester?: string | null,
+    kelas?: string[]
 }
 export const useGetSisaSks = (params: GetAllProps) => {
     return handleFetchData(
@@ -30,7 +34,7 @@ export const useGetSisaSks = (params: GetAllProps) => {
 
 const handleValidation = (formData: any) => {
     const validationErrors = validateForm(SisaSksSchema, formData);
-    
+
     if (validationErrors) throw { ...validationErrors };
 };
 

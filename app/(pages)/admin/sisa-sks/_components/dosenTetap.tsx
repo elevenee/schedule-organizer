@@ -10,10 +10,12 @@ import { Combobox } from "@/components/ui/combobox";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ListCheck } from "lucide-react";
 import { useGetDosen } from "@/features/dosen/hooks/useDosen";
 import { SearchCommand } from "@/components/ui/search-command";
 import { useGetSisaSks } from "@/features/sisa-sks/service";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multiple-select";
 
 /* eslint-disable */
 interface Props {
@@ -25,8 +27,12 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const [selectedDosen, setSelectedDosen] = useState<number | null>(null);
     const [selectedFakultas, setSelectedFakultas] = useState<number | null>(null);
     const [selectedProdi, setSelectedProdi] = useState<number | null>(null);
+    const [selectedBaseFakultas, setSelectedBaseFakultas] = useState<number | null>(null);
+    const [selectedBaseProdi, setSelectedBaseProdi] = useState<number | null>(null);
     const [selectedMatkul, setSelectedMatkul] = useState<string | null>(null);
-    const [searchDosen, setSearchDosen] = useState<string | null>(null)
+    const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
+    const [selectedKelas, setSelectedKelas] = useState<string[]>([]);
+    const [searchDosen, setSearchDosen] = useState<string | null>(null);
     const { data, isLoading } = useGetSisaSks({
         page: 1,
         search: "",
@@ -35,8 +41,12 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         sort: { field: 'matakuliah', orderBy: 'asc' },
         fakultas: selectedFakultas ?? null,
         programStudi: selectedProdi ?? null,
+        fakultasBase: selectedBaseFakultas ?? null,
+        programStudiBase: selectedBaseProdi ?? null,
         matakuliah: selectedMatkul ?? null,
-        dosen: selectedDosen ?? null
+        dosen: selectedDosen ?? null,
+        semester: selectedSemester ?? null,
+        kelas: selectedKelas
     });
     const { data: dosenList, isLoading: isLoadingDosen } = useGetDosen({
         page: 1,
@@ -58,6 +68,15 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const { data: prodiList } = useGetProdi({
         page: 1,
         fakultas: selectedFakultas ?? undefined,
+        remove_pagination: true,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+    const { data: prodiListBase } = useGetProdi({
+        page: 1,
+        fakultas: selectedBaseFakultas ?? undefined,
         remove_pagination: true,
         sort: {
             field: "nama",
@@ -90,21 +109,45 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         })) || [],
         [prodiList, selectedFakultas]
     );
+    const prodiOptionsBase = useMemo(() =>
+        prodiListBase && selectedBaseFakultas && prodiListBase?.data?.map((item: any) => ({
+            label: item.nama,
+            value: item.id.toString(),
+        })) || [],
+        [prodiListBase, selectedBaseFakultas]
+    );
 
     const resetFilter = () => {
         setSelectedDosen(null)
         setSelectedFakultas(null)
         setSelectedProdi(null)
+        setSelectedBaseFakultas(null)
+        setSelectedBaseProdi(null)
         setSelectedMatkul(null)
-    }    
+        setSelectedSemester(null)
+    }
+
+    const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
+    const availableKelas = [
+        { value: "A", label: "Kelas A" },
+        { value: "B", label: "Kelas B" },
+        { value: "C", label: "Kelas C" },
+        { value: "D", label: "Kelas D" },
+        { value: "E", label: "Kelas E" },
+        { value: "F", label: "Kelas F" },
+        { value: "G", label: "Kelas G" },
+        { value: "H", label: "Kelas H" },
+        { value: "I", label: "Kelas I" },
+        { value: "J", label: "Kelas J" },
+        { value: "K", label: "Kelas K" },
+    ];
 
     return (
         <>
             <div className="py-4 border-t border-gray-200  flex gap-2 justify-center md:justify-between">
-                <Button variant="default" onClick={() => open("listRequestModal")}><ListCheck /> List Pengajuan Jadwal</Button>
                 <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 mb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-gray-200">
                 <div className="flex flex-col gap-2">
                     <Label>Dosen</Label>
                     <Combobox
@@ -140,12 +183,66 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                     <Label>Matakuliah</Label>
                     <Input
                         value={selectedMatkul ?? ""}
-                        disabled={!selectedProdi}
                         onChange={(e) => setSelectedMatkul(e.target.value || null)}
                         placeholder="Ketik Matakuliah"
                     />
                 </div>
             </div>
+            <Collapsible>
+                <CollapsibleTrigger><span className="cursor-pointer">Show more filter</span></CollapsibleTrigger>
+                <CollapsibleContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-b border-gray-200 mb-4">
+                        <div className="space-y-2">
+                            <Label>Semester</Label>
+                            <Select
+                                value={selectedSemester ?? ""}
+                                onValueChange={setSelectedSemester}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Pilih Semester" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {
+                                        SEMESTER.map((item: any) => (
+                                            <SelectItem key={item} value={item}>{item}</SelectItem>
+                                        ))
+                                    }
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Kelas</Label>
+                            <MultiSelect
+                                options={availableKelas}
+                                selected={selectedKelas}
+                                onChange={setSelectedKelas}
+                                placeholder="Pilih kelas..."
+                                searchPlaceholder="Cari kelas..."
+                                emptyMessage="Kelas tidak ditemukan"
+                                maxCount={10}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Base Fakultas</Label>
+                            <Combobox
+                                options={fakultasOptions}
+                                value={selectedBaseFakultas !== undefined && selectedBaseFakultas !== null ? String(selectedBaseFakultas) : ""}
+                                onChange={(value) => setSelectedBaseFakultas(value ? Number(value) : null)}
+                                placeholder="Pilih Fakultas"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Base Program Studi</Label>
+                            <Combobox
+                                options={prodiOptionsBase}
+                                value={selectedBaseProdi !== undefined && selectedBaseProdi !== null ? String(selectedBaseProdi) : ""}
+                                onChange={(value) => setSelectedBaseProdi(value ? Number(value) : null)}
+                                placeholder="Pilih Program Studi"
+                            />
+                        </div>
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -164,7 +261,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                 </TableHeader>
                 <TableBody>
                     {
-                       isLoading ? (
+                        isLoading ? (
                             <TableRow>
                                 <TableCell className="border text-center" colSpan={12}>Memuat...</TableCell>
                             </TableRow>
@@ -194,7 +291,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                     value: item.id,
                     description: item?.Fakultas?.nama ?? "-"
                 }))}
-                onSearch={setSearchDosen}    
+                onSearch={setSearchDosen}
                 isLoading={isLoadingDosen}
                 hotkey="ctrl+k"
                 onSelect={(item) => setSelectedDosen(Number(item.value))}

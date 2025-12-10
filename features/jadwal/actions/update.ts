@@ -7,6 +7,32 @@ export async function update(id: number, formData: jadwalFormValues) {
     if (!find) return { error: 'Jadwal tidak ditemukan' };
 
     const { matakuliah, sks, dosenId, semester, kelas } = formData;
+    const isExists = await prisma.jadwal.findFirst({
+        where: {
+            tahunAkademikId: find.tahunAkademikId,
+            jurusanId: find.jurusanId,
+            fakultasId: find.fakultasId,
+            semester: Number(semester),
+            matakuliah: matakuliah,
+            dosenId: { notIn: [dosenId]},
+            kelas: { hasSome: kelas },
+        },
+        include: {
+            Jurusan: {
+                select: {
+                    id: true,
+                    nama: true,
+                    jenjang: true
+                }
+            }
+        }
+    });
+
+    if (isExists) {
+        if (isExists.Jurusan?.jenjang == 'S1') {
+            return { errors_message: `Jadwal kelas pada matakuliah ${matakuliah} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
+        }
+    }
     const updateData = {
         matakuliah,
         sks: Number(sks),
