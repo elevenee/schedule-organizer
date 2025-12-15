@@ -10,7 +10,6 @@ import { Combobox } from "@/components/ui/combobox";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SearchCommand } from "@/components/ui/search-command";
 import { useGetSisaSks } from "@/features/sisa-sks/service";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
