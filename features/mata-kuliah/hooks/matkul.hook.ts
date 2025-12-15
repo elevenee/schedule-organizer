@@ -17,7 +17,7 @@ interface GetAllProps extends DataTableOptions {
 }
 export const useGetMataKuliah = (params: GetAllProps) => {
     return handleFetchData(
-        () => GET_STATISTIC(params as any),
+        () => GET_PAGINATE(params as any),
         [
             "mata-kuliah",
             {

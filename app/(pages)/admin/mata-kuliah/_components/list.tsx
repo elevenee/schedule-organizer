@@ -142,7 +142,6 @@ export default function List() {
     const handleSync = async () => {
         return syncronMutation.mutateAsync()
     }
-    
 
     return (
         <div className="w-full">

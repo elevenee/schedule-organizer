@@ -72,26 +72,11 @@ export function JadwalForm({ form, onSubmit }: Props) {
     const matkulOptions = useMemo(() => {
         const data = listMatakuliah?.data?.map((item: any) => ({
             label: item.nama.replace(/\s+/g, ' ').trim(),
-            value: item.nama.replace(/\s+/g, ' ').trim(),
+            value: Number(item.id)?.toString(),
             id: item.id,
             sks: item.sks
         })) || [];
-        
-        const resultMap = new Map();
-
-        for (const item of data) {
-            const normalizedLabel = item.label.toLowerCase().trim();
-            const existing = resultMap.get(normalizedLabel);
-            const currentValue = parseInt(item.id);
-
-            if (!existing || currentValue > parseInt(existing.id)) {
-                resultMap.set(normalizedLabel, item);
-            }
-        }
-
-        const unique = Array.from(resultMap.values());
-
-        return unique;
+        return data;
     }, [listMatakuliah]) as { label: string; value: string; sks: number }[];
     
     const availableKelas = [
@@ -144,8 +129,8 @@ export function JadwalForm({ form, onSubmit }: Props) {
             }
         }
 
-    }, [tahunAkademik.data, setValue]);    
-
+    }, [tahunAkademik?.data, setValue]);    
+    
     return (
         <Form {...form}>
             <form id="form-jadwal" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">
@@ -205,7 +190,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                 <Combobox
                                     options={listJurusan?.data ? listJurusan.data?.map((t: Jurusan) => {
                                         return {
-                                            label: t.nama + ` (${t.jenjang})`,
+                                            label: t.nama,
                                             value: t.id.toString()
                                         }
                                     }) : []}
@@ -247,7 +232,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                     options={matkulOptions}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => {
-                                        field.onChange(value);
+                                        field.onChange(value);        
                                         const sks = matkulOptions.filter((v: any) => v.value === value);
                                         setValue('sks', sks && sks.length ? sks[0]?.sks.toString(): "")
                                     }}

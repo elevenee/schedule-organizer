@@ -14,7 +14,7 @@ export async function update(id: number, formData: jadwalFormValues) {
             fakultasId: find.fakultasId,
             semester: Number(semester),
             matakuliah: matakuliah,
-            dosenId: { notIn: [dosenId]},
+            dosenId: { notIn: [dosenId] },
             kelas: { hasSome: kelas },
         },
         include: {
@@ -50,7 +50,17 @@ export async function update(id: number, formData: jadwalFormValues) {
             tahunAkademikId: find?.tahunAkademikId
         },
     })
-    let kelasChanges = [...new Set([...kelas, ...findSisaSks?.kelas ?? []])];
+    let kelasChanges = [];
+    const kelasFind = find.kelas.length ? find.kelas : [];
+    
+    if (kelas.length < kelasFind.length) {
+        const set1 = new Set(kelas);
+        kelasChanges = kelasFind.filter(item => !set1.has(item));
+    }else{
+        const set1 = new Set(kelasFind);
+        kelasChanges = kelas.filter(item => !set1.has(item));
+    }
+    
     const updated = await prisma.jadwal.update({
         where: { id },
         data: updateData,

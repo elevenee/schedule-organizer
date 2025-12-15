@@ -75,10 +75,12 @@ export async function GET_PAGINATE({
         semester: Number(semester)
     } : {}
     const kelasFilter = kelas.length ? {
-        kelas: { hasSome: kelas}
+        kelas: { hasSome: kelas }
     } : {}
     const matakuliahFilter = matakuliah ? {
-        matakuliah: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
+        Matakuliah: {
+            nama: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
+        }
     } : {}
 
     const user = await getServerSession(authOptions);
@@ -131,7 +133,7 @@ export async function GET_PAGINATE({
             select: {
                 id: true,
                 dosenId: true,
-                matakuliah: true,
+                matakuliahId: true,
                 sks: true,
                 kelas: true,
                 semester: true,
@@ -152,7 +154,7 @@ export async function GET_PAGINATE({
             },
             orderBy: [
                 { semester: 'asc' },
-                { matakuliah: 'asc' }
+                { MataKuliah: { id: 'asc' } }
             ]
         }),
         prisma.dosen.count(),

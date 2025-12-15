@@ -19,7 +19,7 @@ export async function create(formData: jadwalFormValues) {
       jurusanId: jurusanId,
       fakultasId: fakultasId,
       semester: Number(semester),
-      matakuliah: matakuliah,
+      matakuliahId: Number(matakuliah),
       kelas: { hasSome: kelas },
     },
     include:{
@@ -59,12 +59,12 @@ export async function create(formData: jadwalFormValues) {
 
   const data = {
     tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-    matakuliah,
     sks: Number(sks),
     semester: Number(semester),
     dosenId: Number(dosenId),
     fakultasId: Number(fakultasId),
     jurusanId: Number(jurusanId),
+    matakuliahId: Number(matakuliah),
     kelas
   }
   try {

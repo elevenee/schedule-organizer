@@ -73,8 +73,9 @@ export const handleFetchData = (
     const fetchData = async () => {
         try {
             const result = await action()
+            
             if (!result) {
-                throw new Error(`${result.message}`);
+                throw new Error(`${result?.message}`);
             }
             return result;
         } catch (error) {
