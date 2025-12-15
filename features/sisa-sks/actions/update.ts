@@ -18,7 +18,6 @@ export async function update(id: number, formData: sisaSksFormValues) {
         where: {
             fakultasId: find?.fakultasId,
             jurusanId: find?.jurusanId,
-            dosenId: find?.dosenId,
             matakuliahId: find?.matakuliahId,
             semester: find?.semester,
             tahunAkademikId: find?.tahunAkademikId
@@ -38,7 +37,6 @@ export async function update(id: number, formData: sisaSksFormValues) {
                 matakuliahId: find.matakuliahId,
                 sks: find.sks,
                 semester: find.semester,
-                dosenId: find.dosenId,
                 fakultasId: find.fakultasId,
                 jurusanId: find.jurusanId,
                 kelas: kelasChanges
@@ -51,7 +49,6 @@ export async function update(id: number, formData: sisaSksFormValues) {
                 matakuliahId: find.matakuliahId,
                 sks: find.sks,
                 semester: find.semester,
-                dosenId: find.dosenId,
                 fakultasId: find.fakultasId,
                 jurusanId: find.jurusanId,
                 kelas: kelasChanges
