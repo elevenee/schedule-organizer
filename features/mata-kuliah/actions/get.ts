@@ -247,11 +247,11 @@ export async function GET_STATISTIC({
                     jenjang: true
                 }
             },
-            MataKuliah: true
+            Matakuliah: true
         },
         orderBy: [
             { semester: 'asc' },
-            { MataKuliah: {nama: 'asc'} }
+            { Matakuliah: {nama: 'asc'} }
         ]
     })
 
