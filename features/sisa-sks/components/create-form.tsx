@@ -104,6 +104,8 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
         { value: "K", nama: "Kelas K" },
     ];
 
+    const filterKelas = availableKelas.filter((k)=> form.watch().kelas.includes(k.value))
+
     const kelasValue = form.watch("kelas");
 
     // Select All / Deselect All
@@ -306,7 +308,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
                                             )
                                         }}
                                     ></FormField>
-                                    {availableKelas.map((kelas) => (
+                                    {filterKelas.map((kelas) => (
                                         <FormField
                                             key={kelas.value}
                                             control={form.control}

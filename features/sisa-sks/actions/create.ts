@@ -19,6 +19,9 @@ export async function create(formData: sisaSksFormValues) {
       semester: Number(formData.semester),
       matakuliahId: Number(formData.matakuliahId),
       dosenId: Number(formData.dosenId),
+      kelas: {
+        hasSome: formData.kelas
+      }
     },
     include: {
       Jurusan: {
