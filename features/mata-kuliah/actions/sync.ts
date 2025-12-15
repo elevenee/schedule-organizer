@@ -37,6 +37,7 @@ export async function SYNC() {
                 const itemName = item.NAMA_MATAKULIAH.toLowerCase();
                 return !texts.some(keyword => itemName.includes(keyword.toLowerCase()));
             });
+        
         if (allData) {
             for (const r of allData) {
                 const prodi = await findByKode(r.KODE_PRODI);

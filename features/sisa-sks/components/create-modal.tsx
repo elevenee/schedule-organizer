@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button } from "@/components/ui/button"
 import { sisaSksFormValues, SisaSksSchema } from '../validations';
 import { useStoreSisaSks, useUpdateSisaSks } from '../service';
-import { JadwalForm } from './create-form';
+import { SisaJadwalForm } from './create-form';
 import { useModalManager } from '@/hooks/modal-manager';
 import BaseModal from '@/components/ui/modal';
 
@@ -33,20 +33,11 @@ export function SisaSksModal() {
         }
     });
     const storejadwal = useStoreSisaSks()
-    const updatejadwal = useUpdateSisaSks()
 
     const onSubmit = async (values: sisaSksFormValues) => {
         setIsSubmitting(true);
         try {
-            if (jadwal?.id) {
-                if (values.id) {
-                    await (await updatejadwal).mutateAsync({ id: values.id, data: values });
-                } else {
-                    console.error("ID is undefined. Cannot update.");
-                }
-            } else {
-                await (await storejadwal).mutateAsync(values);
-            }
+            await (await storejadwal).mutateAsync(values);
         } finally {
             setIsSubmitting(false);
         }
@@ -68,20 +59,6 @@ export function SisaSksModal() {
         }
     }, [open, jadwal, form]);
 
-    useEffect(() => {
-        const subscription = form.watch((value) => {
-            const sks = value.sks ? parseFloat(value.sks) : 0;
-            const kelasCount = value.kelas ? value.kelas.length : 0;
-            const isEditing = jadwal?.id ? parseFloat(jadwal.sks) * jadwal.kelas.length : 0;
-            const totalSKS = (sks * kelasCount ) - isEditing;
-            const currentTotalSKS = jadwal?.currentTotalSKS ? Number(jadwal.currentTotalSKS) : 0;
-            const maxSks = jadwal?.maxSks ? Number(jadwal.maxSks) : 0;
-            
-            setIsMaximumReached((currentTotalSKS + totalSKS) > maxSks);
-        });
-
-        return () => subscription.unsubscribe();
-    }, [form, jadwal]);
 
     return (
         <>
@@ -94,7 +71,7 @@ export function SisaSksModal() {
                 </BaseModal.Header>
 
                 <BaseModal.Body>
-                    <JadwalForm
+                    <SisaJadwalForm
                         form={form}
                         onSubmit={onSubmit}
                     />
@@ -107,7 +84,7 @@ export function SisaSksModal() {
                         onClick={form.handleSubmit(onSubmit)}
                         disabled={isSubmitting || isMaximumReached}
                     >
-                        {isSubmitting ? 'Processing..' : jadwal?.id ? 'Simpan Perubahan' : 'Simpan'}
+                        {isSubmitting ? 'Processing..' : 'Simpan'}
                     </Button>
                 </BaseModal.Footer>
             </BaseModal>

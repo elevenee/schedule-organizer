@@ -129,8 +129,6 @@ export function JadwalForm({ form, onSubmit }: Props) {
 
     }, [tahunAkademik?.data, setValue]);    
     
-    console.log(form.getValues());
-    
     return (
         <Form {...form}>
             <form id="form-jadwal" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">

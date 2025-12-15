@@ -25,10 +25,6 @@ export function MataKuliahForm({ form, onSubmit }: Props) {
         page: 1,
         remove_pagination: true
     })
-
-    console.log(listJurusan);
-    
-
     return (
         <Form {...form}>
             <form id="form-mata-kuliah" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">

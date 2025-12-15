@@ -21,7 +21,7 @@ interface Props {
     onSubmit: (values: sisaSksFormValues) => Promise<void>;
     isSubmitting?: boolean;
 }
-export function JadwalForm({ form, onSubmit }: Props) {
+export function SisaJadwalForm({ form, onSubmit }: Props) {
     const [availableSemester, setAvailableSemester] = useState<{ value: string; label: string }[]>([]);
     const {
         formState: { errors },

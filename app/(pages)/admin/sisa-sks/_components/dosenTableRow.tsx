@@ -42,9 +42,9 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 /* eslint-disable */
 function ActionButtons({ item, currentTotalSks, pengaturan, onOpenModal }: { item: Jadwal; currentTotalSks?: number; pengaturan?: any; onOpenModal: (modal: string, data: any) => void; }) {
     const itemEdit = {
-        id: item?.id ? Number(item.id) : undefined,
-        matakuliahId: item?.matakuliahId ?? '',
-        sks: item?.sks ? item.sks : undefined,
+        id: item?.id ? Number(item.id): undefined,
+        matakuliahId: Number(item?.matakuliahId) ?? '',
+        sks: item?.sks ? item.sks?.toString() : undefined,
         kelas: item?.kelas ?? [],
         keterangan: item?.keterangan ?? '',
         semester: item?.semester ? item.semester.toString() : undefined,
@@ -56,7 +56,7 @@ function ActionButtons({ item, currentTotalSks, pengaturan, onOpenModal }: { ite
     } as any;
     
     const handleEdit = () => {
-        onOpenModal("jadwalModal", itemEdit);
+        onOpenModal("sisaSksModal", itemEdit);
     }
 
     return (
