@@ -18,7 +18,7 @@ export async function create(formData: jadwalFormValues) {
     throw new Error("Tahun akademik tidak ditemukan")
   }
 
-  const { matakuliah, sks, dosenId, semester, kelas, jurusanId } = formData;
+  const { matakuliahId, sks, dosenId, semester, kelas, jurusanId } = formData;
 
   const getCurrent = await prisma.jadwal.findMany({
     where: {
@@ -40,7 +40,7 @@ export async function create(formData: jadwalFormValues) {
   }
   const data = {
     tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-    matakuliah,
+    matakuliahId,
     sks: Number(sks),
     semester: Number(semester),
     dosenId: Number(dosenId),

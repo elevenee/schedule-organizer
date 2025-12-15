@@ -96,7 +96,7 @@ function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenMo
     if (!hasActions) return <TableCell className='border'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
-        matakuliah: item?.matakuliah ?? '',
+        matakuliahId: item?.matakuliahId ?? '',
         sks: item?.sks ? item.sks.toString() : undefined,
         kelas: item?.kelas ?? [],
         keterangan: item?.keterangan ?? '',

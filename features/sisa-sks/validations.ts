@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const SisaSksSchema = z.object({
     id: z.number().optional(),
-    matakuliah: z.string().min(1, "Matakuliah harus diisi"),
+    matakuliahId: z.number().min(1, "Matakuliah harus diisi"),
     sks: z.string().min(1, "SKS harus diisi"),
     semester: z.string().min(1, "Semester harus diisi"),
     kelas: z.array(z.string()).min(1, "Minimal satu kelas harus diisi"),

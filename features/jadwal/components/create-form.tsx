@@ -1,7 +1,6 @@
 'use client';
 
 import { UseFormReturn } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/combobox';
 import { jadwalFormValues } from '../validations';
@@ -15,7 +14,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
 import { useEffect, useMemo, useState } from 'react';
 import { Jurusan } from '@prisma/client';
-import { InputSuggestion } from '@/components/ui/input-suggestion';
 import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
 
 interface Props {
@@ -223,7 +221,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                 />
                 <FormField
                     control={form.control}
-                    name="matakuliah"
+                    name="matakuliahId"
                     render={({ field }) => (
                         <FormItem className='col-span-12 md:col-span-6'>
                             <FormLabel required>Nama Matakuliah</FormLabel>

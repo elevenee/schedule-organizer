@@ -150,6 +150,14 @@ export async function GET_PAGINATE({
                         nama: true,
                         jenjang: true
                     }
+                },
+                MataKuliah: {
+                    select:{
+                        id: true,
+                        nama: true,
+                        semester: true,
+                        sks: true
+                    }
                 }
             },
             orderBy: [
@@ -184,7 +192,7 @@ export async function GET_PAGINATE({
             totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
             jadwal: jadwalDosen.map((j: any) => ({
                 id: j.id,
-                matakuliah: j.matakuliah,
+                matakuliah: j.MataKuliah?.nama,
                 sks: j.sks?.toString(),
                 kelas: j.kelas,
                 semester: j.semester,
@@ -193,7 +201,8 @@ export async function GET_PAGINATE({
                 jurusan: j.Jurusan?.nama,
                 fakultasId: j.Fakultas?.id,
                 jurusanId: j.Jurusan?.id,
-                dosenId: j.dosenId
+                dosenId: j.dosenId,
+                matakuliahId: j.matakuliahId
             }))
         };
     });

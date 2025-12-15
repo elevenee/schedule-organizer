@@ -22,7 +22,7 @@ export function SisaSksModal() {
         resolver: zodResolver(SisaSksSchema),
         defaultValues: {
             id: jadwal?.id ? Number(jadwal.id) : undefined,
-            matakuliah: jadwal?.matakuliah ?? '',
+            matakuliahId: jadwal?.matakuliahId ?? '',
             sks: jadwal?.sks ? jadwal.sks : undefined,
             kelas: jadwal?.kelas ?? [],
             keterangan: jadwal?.keterangan ?? '',
@@ -56,7 +56,7 @@ export function SisaSksModal() {
         if (open) {
             form.reset({
                 id: jadwal?.id ? Number(jadwal.id) : undefined,
-                matakuliah: jadwal?.matakuliah ?? '',
+                matakuliahId: jadwal?.matakuliahId ?? '',
                 sks: jadwal?.sks ? jadwal.sks : undefined,
                 kelas: jadwal?.kelas ?? [],
                 keterangan: jadwal?.keterangan ?? '',

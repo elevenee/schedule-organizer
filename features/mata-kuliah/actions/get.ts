@@ -113,7 +113,6 @@ export async function GET_PAGINATE({
 
     const totalUnique = totalUniqueGroups.length;
     const totalPages = Math.ceil(totalUnique / limit);
-    console.log(matkulOptions);
     
     return { data: matkulOptions, total: totalPages };
 }
@@ -230,7 +229,7 @@ export async function GET_STATISTIC({
         select: {
             id: true,
             dosenId: true,
-            matakuliah: true,
+            matakuliahId: true,
             sks: true,
             kelas: true,
             semester: true,
@@ -247,16 +246,17 @@ export async function GET_STATISTIC({
                     nama: true,
                     jenjang: true
                 }
-            }
+            },
+            MataKuliah: true
         },
         orderBy: [
             { semester: 'asc' },
-            { matakuliah: 'asc' }
+            { MataKuliah: {nama: 'asc'} }
         ]
     })
 
     const jadwalByMatkul = jadwalData.reduce((acc, jadwal) => {
-        const matkuls = jadwal.matakuliah.toString();
+        const matkuls = jadwal.matakuliahId.toString();
         if (!acc[matkuls]) {
             acc[matkuls] = [];
         }

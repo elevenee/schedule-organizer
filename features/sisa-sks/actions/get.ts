@@ -132,7 +132,7 @@ export async function GET_PAGINATE({
             select: {
                 id: true,
                 dosenId: true,
-                matakuliah: true,
+                matakuliahId: true,
                 sks: true,
                 kelas: true,
                 semester: true,
@@ -149,11 +149,12 @@ export async function GET_PAGINATE({
                         nama: true,
                         jenjang: true
                     }
-                }
+                },
+                MataKuliah: true
             },
             orderBy: [
                 { semester: 'asc' },
-                { matakuliah: 'asc' }
+                { MataKuliah: {nama: 'asc'} }
             ]
         }),
         prisma.dosen.count(),

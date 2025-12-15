@@ -234,7 +234,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                 />
                 <FormField
                     control={form.control}
-                    name="matakuliah"
+                    name="matakuliahId"
                     render={({ field }) => (
                         <FormItem className='col-span-12 md:col-span-6'>
                             <FormLabel required>Nama Matakuliah</FormLabel>

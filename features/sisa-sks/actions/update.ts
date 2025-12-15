@@ -6,9 +6,9 @@ export async function update(id: number, formData: sisaSksFormValues) {
     const find = await prisma.jadwal.findUnique({ where: { id } });
     if (!find) return { error: 'Jadwal tidak ditemukan' };
 
-    const { matakuliah, sks, dosenId, semester, kelas } = formData;
+    const { matakuliahId, sks, dosenId, semester, kelas } = formData;
     const updateData = {
-        matakuliah,
+        matakuliahId,
         sks: Number(sks),
         semester: Number(semester),
         dosenId: Number(dosenId),
@@ -19,7 +19,7 @@ export async function update(id: number, formData: sisaSksFormValues) {
             fakultasId: find?.fakultasId,
             jurusanId: find?.jurusanId,
             dosenId: find?.dosenId,
-            matakuliah: find?.matakuliah,
+            matakuliahId: find?.matakuliahId,
             semester: find?.semester,
             tahunAkademikId: find?.tahunAkademikId
         },
@@ -35,7 +35,7 @@ export async function update(id: number, formData: sisaSksFormValues) {
             where: { id: findSisaSks.id },
             data: {
                 tahunAkademikId: find?.tahunAkademikId,
-                matakuliah: find.matakuliah,
+                matakuliahId: find.matakuliahId,
                 sks: find.sks,
                 semester: find.semester,
                 dosenId: find.dosenId,
@@ -48,7 +48,7 @@ export async function update(id: number, formData: sisaSksFormValues) {
         await prisma.sisaSks.create({
             data: {
                 tahunAkademikId: find?.tahunAkademikId,
-                matakuliah: find.matakuliah,
+                matakuliahId: find.matakuliahId,
                 sks: find.sks,
                 semester: find.semester,
                 dosenId: find.dosenId,

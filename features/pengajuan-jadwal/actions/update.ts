@@ -8,9 +8,9 @@ export async function update(id: number, formData: jadwalFormValues) {
     const find = await prisma.jadwalRequest.findUnique({ where: { id } });
     if (!find) return { error: 'Jadwal tidak ditemukan' };
 
-    const { matakuliah, sks, dosenId, semester, kelas } = formData;
+    const { matakuliahId, sks, dosenId, semester, kelas } = formData;
     const updateData = {
-        matakuliah,
+        matakuliahId,
         sks: Number(sks),
         semester: Number(semester),
         dosenId: Number(dosenId),
@@ -36,7 +36,7 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
     }
 
     if (formData.status === 'APPROVED') {
-        const { matakuliah, sks, dosenId, semester, kelas, fakultasId, jurusanId } = find;
+        const { matakuliahId, sks, dosenId, semester, kelas, fakultasId, jurusanId } = find;
         const getCurrent = await prisma.jadwal.findMany({
             where: {
                 tahunAkademikId: BigInt(tahunAkademik?.id || 0),
@@ -58,7 +58,7 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
 
         const data = {
             tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-            matakuliah,
+            matakuliahId,
             sks: sks.toNumber(),
             semester: Number(semester),
             dosenId: Number(dosenId),

@@ -11,7 +11,7 @@ export async function create(formData: jadwalFormValues) {
     throw new Error("Tahun akademik tidak ditemukan")
   }
 
-  const { matakuliah, sks, dosenId, semester, kelas, fakultasId, jurusanId } = formData;
+  const { matakuliahId, sks, dosenId, semester, kelas, fakultasId, jurusanId } = formData;
 
   const isExists = await prisma.jadwal.findFirst({
     where: {
@@ -19,23 +19,24 @@ export async function create(formData: jadwalFormValues) {
       jurusanId: jurusanId,
       fakultasId: fakultasId,
       semester: Number(semester),
-      matakuliahId: Number(matakuliah),
+      matakuliahId: Number(matakuliahId),
       kelas: { hasSome: kelas },
     },
-    include:{
+    include: {
       Jurusan: {
-        select:{
+        select: {
           id: true,
           nama: true,
           jenjang: true
         }
-      }
+      },
+      MataKuliah: true
     }
   });
 
   if (isExists) {
     if (isExists.Jurusan?.jenjang == 'S1') {
-      return { errors_message: `Jadwal kelas pada matakuliah ${matakuliah} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
+      return { errors_message: `Jadwal kelas pada matakuliah ${isExists?.MataKuliah.nama} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
     }
   }
   const getCurrent = await prisma.jadwal.findMany({
@@ -64,7 +65,7 @@ export async function create(formData: jadwalFormValues) {
     dosenId: Number(dosenId),
     fakultasId: Number(fakultasId),
     jurusanId: Number(jurusanId),
-    matakuliahId: Number(matakuliah),
+    matakuliahId: Number(matakuliahId),
     kelas
   }
   try {

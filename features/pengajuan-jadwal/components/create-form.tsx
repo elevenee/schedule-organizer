@@ -24,7 +24,6 @@ interface Props {
 }
 /* eslint-disable */
 export function JadwalForm({ form, onSubmit }: Props) {
-    const session = useSession();
     const [availableSemester, setAvailableSemester] = useState<{ value: string; label: string }[]>([]);
     const [searchDosen, setSearchDosen] = useState('')
     const [searchJurusan, setSearchJurusan] = useState('')
@@ -227,7 +226,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                 />
                 <FormField
                     control={form.control}
-                    name="matakuliah"
+                    name="matakuliahId"
                     render={({ field }) => (
                         <FormItem className='col-span-12 md:col-span-6'>
                             <FormLabel required>Nama Matakuliah</FormLabel>

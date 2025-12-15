@@ -10,15 +10,15 @@ type SortProp = {
     orderBy: string | "ASC" | "DESC"
 }
 interface PaginateProps {
-    page?: number, 
-    limit?: number, 
-    search?: string, 
-    sort?: SortProp, 
-    remove_pagination?: boolean, 
-    jenisDosen?: string, 
-    tahunAkademik?: number | null, 
-    programStudi?: number | null, 
-    matakuliah?: string | null, 
+    page?: number,
+    limit?: number,
+    search?: string,
+    sort?: SortProp,
+    remove_pagination?: boolean,
+    jenisDosen?: string,
+    tahunAkademik?: number | null,
+    programStudi?: number | null,
+    matakuliah?: string | null,
     status?: string | null,
     dosen?: number | null
 }
@@ -65,7 +65,9 @@ export async function GET_PAGINATE({
         jurusanId: programStudi
     } : {}
     const matakuliahFilter = matakuliah ? {
-        matakuliah: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
+        matakuliah: {
+            nama: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
+        }
     } : {}
 
     const user = await getServerSession(authOptions);
@@ -97,7 +99,7 @@ export async function GET_PAGINATE({
             select: {
                 id: true,
                 dosenId: true,
-                matakuliah: true,
+                matakuliahId: true,
                 sks: true,
                 kelas: true,
                 semester: true,
@@ -114,11 +116,19 @@ export async function GET_PAGINATE({
                         nama: true,
                         jenjang: true
                     }
+                },
+                MataKuliah: {
+                    select: {
+                        id: true,
+                        nama: true,
+                        semester: true,
+                        sks: true
+                    }
                 }
             },
             orderBy: [
                 { semester: 'asc' },
-                { matakuliah: 'asc' }
+                { MataKuliah: {nama: 'asc'} }
             ]
         }),
         prisma.jadwalRequest.findMany({
@@ -126,7 +136,7 @@ export async function GET_PAGINATE({
             select: {
                 id: true,
                 dosenId: true,
-                matakuliah: true,
+                matakuliahId: true,
                 sks: true,
                 kelas: true,
                 semester: true,
@@ -158,11 +168,19 @@ export async function GET_PAGINATE({
                         nama: true,
                         jenjang: true
                     }
+                },
+                MataKuliah: {
+                    select: {
+                        id: true,
+                        nama: true,
+                        semester: true,
+                        sks: true
+                    }
                 }
             },
             orderBy: [
                 { semester: 'asc' },
-                { matakuliah: 'asc' }
+                { MataKuliah: {nama: 'asc'} }
             ]
         }),
         prisma.dosen.count(),
@@ -216,7 +234,7 @@ export async function GET_PAGINATE({
 
         const listRequest = jadwalRequestDosen.map((j: any) => ({
             id: j.id,
-            matakuliah: j.matakuliah,
+            matakuliah: j.Matakuliah?.nama,
             sks: j.sks?.toNumber(),
             kelas: j.kelas,
             semester: j.semester,
@@ -228,10 +246,11 @@ export async function GET_PAGINATE({
             dosenId: j.dosenId,
             status: j.status,
             keteranganAdmin: j.keteranganAdmin,
+            matakuliahId: j.matakuliahId
         }));
         const listJadwal = jadwalDosen.map((j: any) => ({
             id: j.id,
-            matakuliah: j.matakuliah,
+            matakuliah: j.Matakuliah?.nama,
             sks: j.sks?.toNumber(),
             kelas: j.kelas,
             semester: j.semester,
@@ -242,6 +261,7 @@ export async function GET_PAGINATE({
             jurusanId: j.Jurusan?.id,
             dosenId: j.dosenId,
             keteranganAdmin: j.keteranganAdmin,
+            matakuliahId: j.matakuliahId
         }));
         const merged = mergeJadwalLists(listRequest, listJadwal);
 

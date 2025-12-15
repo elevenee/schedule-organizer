@@ -15,7 +15,7 @@ export async function destroy(id: number) {
             fakultasId: jadwal?.fakultasId,
             jurusanId: jadwal?.jurusanId,
             dosenId: jadwal?.dosenId,
-            matakuliah: jadwal?.matakuliah,
+            matakuliahId: jadwal?.matakuliahId,
             semester: jadwal?.semester,
             tahunAkademikId: jadwal?.tahunAkademikId
         },
@@ -30,7 +30,7 @@ export async function destroy(id: number) {
             where: { id: findSisaSks.id },
             data: {
                 tahunAkademikId: jadwal?.tahunAkademikId,
-                matakuliah: jadwal.matakuliah,
+                matakuliahId: jadwal.matakuliahId,
                 sks: jadwal.sks,
                 semester: jadwal.semester,
                 dosenId: jadwal.dosenId,
@@ -43,7 +43,7 @@ export async function destroy(id: number) {
         await prisma.sisaSks.create({
             data: {
                 tahunAkademikId: jadwal?.tahunAkademikId,
-                matakuliah: jadwal.matakuliah,
+                matakuliahId: jadwal.matakuliahId,
                 sks: jadwal.sks,
                 semester: jadwal.semester,
                 dosenId: jadwal.dosenId,
