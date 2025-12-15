@@ -10,6 +10,14 @@ export async function create(formData: sisaSksFormValues) {
   if (!tahunAkademik) {
     throw new Error("Tahun akademik tidak ditemukan")
   }
+  const findSisaSks = await prisma.sisaSks.findUnique({
+    where: {
+      id: formData.id ?? undefined
+    }
+  })
+  if (!findSisaSks) {
+    throw new Error("Sisa SKS tidak ditemukan")
+  }
 
   const isExists = await prisma.jadwal.findFirst({
     where: {
@@ -75,9 +83,18 @@ export async function create(formData: sisaSksFormValues) {
     const create = await prisma.jadwal.create({
       data
     })
-    await prisma.sisaSks.delete({
-      where: { id: formData.id }
-    })
+    if (findSisaSks.kelas.length !== formData.kelas.length) {
+      await prisma.sisaSks.update({
+        where: { id: findSisaSks.id },
+        data: {
+          kelas: findSisaSks?.kelas.filter(item => !formData.kelas.includes(item))
+        }
+      })
+    } else {
+      await prisma.sisaSks.delete({
+        where: { id: formData.id }
+      })
+    }
     return { success: true, data: { ...create, sks: create.sks.toNumber(), totalSks: create.totalSks?.toNumber() } };
   } catch (error) {
     console.log(error);
