@@ -22,7 +22,7 @@ export function JadwalModal() {
         resolver: zodResolver(jadwalSchema),
         defaultValues: {
             id: jadwal?.id ? Number(jadwal.id) : undefined,
-            matakuliahId: jadwal?.matakuliahId ?? '',
+            matakuliahId: jadwal?.matakuliahId ?? undefined,
             sks: jadwal?.sks ? jadwal.sks : undefined,
             kelas: jadwal?.kelas ?? [],
             keterangan: jadwal?.keterangan ?? '',
@@ -56,7 +56,7 @@ export function JadwalModal() {
         if (open) {
             form.reset({
                 id: jadwal?.id ? Number(jadwal.id) : undefined,
-                matakuliahId: jadwal?.matakuliahId ?? '',
+                matakuliahId: jadwal?.matakuliahId ?? undefined,
                 sks: jadwal?.sks ? jadwal.sks : undefined,
                 kelas: jadwal?.kelas ?? [],
                 keterangan: jadwal?.keterangan ?? '',

@@ -10,35 +10,25 @@ export async function destroy(id: number) {
     });
     if (!jadwal) throw new Error("Jadwal not found");
 
-    const findSisaSks = await prisma.sisaSks.findFirst({
+    const findSisaSks = await prisma.sisaSks.findMany({
         where: {
             fakultasId: jadwal?.fakultasId,
             jurusanId: jadwal?.jurusanId,
-            dosenId: jadwal?.dosenId,
             matakuliahId: jadwal?.matakuliahId,
             semester: jadwal?.semester,
-            tahunAkademikId: jadwal?.tahunAkademikId
+            tahunAkademikId: jadwal?.tahunAkademikId,
+            kelas: {
+                hasSome: jadwal.kelas
+            }
         },
     })
-    const kelasChanges = [...new Set([...jadwal.kelas, ...findSisaSks?.kelas ?? []])]
     await prisma.jadwal.delete({
         where: { id }
     });
-
-    if (findSisaSks) {
-        await prisma.sisaSks.update({
-            where: { id: findSisaSks.id },
-            data: {
-                tahunAkademikId: jadwal?.tahunAkademikId,
-                matakuliahId: jadwal.matakuliahId,
-                sks: jadwal.sks,
-                semester: jadwal.semester,
-                dosenId: jadwal.dosenId,
-                fakultasId: jadwal.fakultasId,
-                jurusanId: jadwal.jurusanId,
-                kelas: kelasChanges
-            }
-        })
+    
+    if (findSisaSks.length > 0) {
+        const ids = findSisaSks.map(item => item.id);
+        await prisma.sisaSks.deleteMany({ where: {id: {in: ids}}})
     } else {
         await prisma.sisaSks.create({
             data: {
@@ -46,10 +36,9 @@ export async function destroy(id: number) {
                 matakuliahId: jadwal.matakuliahId,
                 sks: jadwal.sks,
                 semester: jadwal.semester,
-                dosenId: jadwal.dosenId,
                 fakultasId: jadwal.fakultasId,
                 jurusanId: jadwal.jurusanId,
-                kelas: kelasChanges
+                kelas: jadwal.kelas
             }
         })
     }

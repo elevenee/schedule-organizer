@@ -2,7 +2,7 @@
 
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
-import { Prisma, TypeDosen } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { getServerSession } from "next-auth";
 
 type SortProp = {
@@ -16,12 +16,9 @@ interface PropsPaginate {
     search?: string;
     sort?: SortProp;
     remove_pagination?: boolean;
-    jenisDosen?: string;
     tahunAkademik?: number | null;
     fakultas?: number | null;
     programStudi?: number | null;
-    fakultasBase?: number | null;
-    programStudiBase?: number | null;
     matakuliah?: string | null;
     dosen?: number | null,
     semester?: string | null,
@@ -33,43 +30,19 @@ export async function GET_PAGINATE({
     search = "",
     sort = { field: "createdAt", orderBy: "DESC" },
     remove_pagination = false,
-    jenisDosen = "",
     tahunAkademik = null,
     fakultas = null,
     programStudi = null,
-    fakultasBase = null,
-    programStudiBase = null,
     matakuliah = null,
-    dosen = null,
     semester = null,
     kelas = []
 }: PropsPaginate) {
     const skip = (page - 1) * limit;
-    const searchFilter = search
-        ? {
-            Dosen: {
-                nama: { contains: search, mode: Prisma.QueryMode.insensitive }
-            },
-            matakuliah: { contains: search, mode: Prisma.QueryMode.insensitive },
-        }
-        : {};
-    const dosenFilter = dosen ? {
-        dosenId: dosen
-    } : {}
-    const jenisDosenFilter = jenisDosen ? {
-        status: jenisDosen as TypeDosen
-    } : {}
     const fakultasFilter = fakultas ? {
         fakultasId: fakultas
     } : {}
     const programStudiFilter = programStudi ? {
         jurusanId: programStudi
-    } : {}
-    const fakultasBaseFilter = fakultasBase ? {
-        fakultasId: fakultasBase
-    } : {}
-    const programStudiBaseFilter = programStudiBase ? {
-        jurusanId: programStudiBase
     } : {}
     const semesterFilter = semester ? {
         semester: Number(semester)
@@ -90,114 +63,52 @@ export async function GET_PAGINATE({
         })
         : null;
 
-    const where = {
-        ...searchFilter,
-        ...jenisDosenFilter,
-         ...fakultasBaseFilter,
-        ...programStudiBaseFilter,
-        id: dosen ? dosen : {}
-    };
-
     const whereSisaSks = {
         tahunAkademikId: selectedTahunAkademik,
         ...fakultasFilter,
         ...programStudiFilter,
         ...matakuliahFilter,
-        ...dosenFilter,
         ...semesterFilter,
         ...kelasFilter
     };
-
-    const [dosenList, sisaSksData, total] = await Promise.all([
-        prisma.dosen.findMany({
-            where: where,
-            include: {
-                Fakultas: {
-                    select: {
-                        id: true,
-                        nama: true
-                    }
-                },
-                Jurusan: {
-                    select: {
-                        id: true,
-                        nama: true
-                    }
-                },
-            },
-            orderBy: { nama: 'asc' },
-        }),
+    const [data, total] = await Promise.all([
         prisma.sisaSks.findMany({
+            skip,
+            take: limit,
             where: whereSisaSks,
-            select: {
-                id: true,
-                dosenId: true,
-                matakuliahId: true,
-                sks: true,
-                kelas: true,
-                semester: true,
-                keterangan: true,
-                Fakultas: {
-                    select: {
+            include: {
+                Fakultas:{
+                    select:{
                         id: true,
                         nama: true
                     }
                 },
-                Jurusan: {
-                    select: {
+                Jurusan:{
+                    select:{
+                        id: true,
+                        nama: true
+                    }
+                },
+                Matakuliah:{
+                    select:{
                         id: true,
                         nama: true,
-                        jenjang: true
+                        semester: true,
+                        sks: true
                     }
-                },
-                MataKuliah: true
-            },
-            orderBy: [
-                { semester: 'asc' },
-                { MataKuliah: {nama: 'asc'} }
-            ]
+                }
+            }
         }),
-        prisma.dosen.count(),
+        prisma.sisaSks.count({ where: whereSisaSks }),
     ]);
-
-    // Group jadwal by dosenId untuk mapping
-    const sisaSksByDosen = sisaSksData.reduce((acc, jadwal) => {
-        const dosenIdStr = jadwal.dosenId.toString(); // Convert bigint to string
-        if (!acc[dosenIdStr]) {
-            acc[dosenIdStr] = [];
-        }
-        acc[dosenIdStr].push(jadwal);
-        return acc;
-    }, {} as Record<string, typeof sisaSksData>);
-
-    const data = dosenList.map(dosen => {
-        const jadwalDosen = sisaSksByDosen[dosen.id.toString()] || [];
-
+    const listData = data.map((d:any)=>{
         return {
-            id: dosen.id,
-            nama: dosen.nama,
-            nidn: dosen.nidn,
-            status: dosen.status,
-            homebase: dosen.Jurusan?.nama || "-",
-            tahunAkademik: findTahunAkademik?.name.replace(/_/g, '/') || "" + " - SMT " + findTahunAkademik?.semester,
-            totalJadwal: jadwalDosen.length,
-            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
-            jadwal: jadwalDosen.map((j: any) => ({
-                id: j.id,
-                matakuliah: j.matakuliah,
-                sks: j.sks?.toString(),
-                kelas: j.kelas,
-                semester: j.semester,
-                keterangan: j.keterangan,
-                fakultas: j.Fakultas?.nama,
-                jurusan: j.Jurusan?.nama,
-                fakultasId: j.Fakultas?.id,
-                jurusanId: j.Jurusan?.id,
-                dosenId: j.dosenId
-            }))
-        };
-    });
-    return { data, total };
+            ...d,
+            sks: d.sks.toNumber(),
+            totalSks: d.sks.toNumber() * d.kelas.length
+        }
+    })
+    return { data: listData, total };
 }
 
 export default async function GET_ALL() {

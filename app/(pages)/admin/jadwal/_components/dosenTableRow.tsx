@@ -96,7 +96,7 @@ function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenMo
     if (!hasActions) return <TableCell className='border'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
-        matakuliahId: item?.matakuliahId ?? '',
+        matakuliahId: Number(item?.matakuliahId) ?? undefined,
         sks: item?.sks ? item.sks.toString() : undefined,
         kelas: item?.kelas ?? [],
         keterangan: item?.keterangan ?? '',
@@ -107,7 +107,6 @@ function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenMo
         currentTotalSKS: currentTotalSks,
         maxSks: pengaturan?.maxSks,
     } as any;
-    
     const handleEdit = () => {
         onOpenModal("jadwalModal", itemEdit);
     }

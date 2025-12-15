@@ -117,7 +117,7 @@ export async function GET_PAGINATE({
                         jenjang: true
                     }
                 },
-                MataKuliah: {
+                Matakuliah: {
                     select: {
                         id: true,
                         nama: true,
@@ -128,7 +128,7 @@ export async function GET_PAGINATE({
             },
             orderBy: [
                 { semester: 'asc' },
-                { MataKuliah: {nama: 'asc'} }
+                { Matakuliah: {nama: 'asc'} }
             ]
         }),
         prisma.jadwalRequest.findMany({
@@ -169,7 +169,7 @@ export async function GET_PAGINATE({
                         jenjang: true
                     }
                 },
-                MataKuliah: {
+                Matakuliah: {
                     select: {
                         id: true,
                         nama: true,
@@ -180,7 +180,7 @@ export async function GET_PAGINATE({
             },
             orderBy: [
                 { semester: 'asc' },
-                { MataKuliah: {nama: 'asc'} }
+                { Matakuliah: {nama: 'asc'} }
             ]
         }),
         prisma.dosen.count(),

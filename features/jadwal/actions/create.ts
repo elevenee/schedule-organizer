@@ -30,13 +30,13 @@ export async function create(formData: jadwalFormValues) {
           jenjang: true
         }
       },
-      MataKuliah: true
+      Matakuliah: true
     }
   });
 
   if (isExists) {
     if (isExists.Jurusan?.jenjang == 'S1') {
-      return { errors_message: `Jadwal kelas pada matakuliah ${isExists?.MataKuliah.nama} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
+      return { errors_message: `Jadwal kelas pada matakuliah ${isExists?.Matakuliah.nama} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
     }
   }
   const getCurrent = await prisma.jadwal.findMany({

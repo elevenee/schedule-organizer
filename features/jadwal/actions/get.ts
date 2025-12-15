@@ -151,7 +151,7 @@ export async function GET_PAGINATE({
                         jenjang: true
                     }
                 },
-                MataKuliah: {
+                Matakuliah: {
                     select:{
                         id: true,
                         nama: true,
@@ -162,7 +162,7 @@ export async function GET_PAGINATE({
             },
             orderBy: [
                 { semester: 'asc' },
-                { MataKuliah: { id: 'asc' } }
+                { Matakuliah: { id: 'asc' } }
             ]
         }),
         prisma.dosen.count(),

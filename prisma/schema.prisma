@@ -104,7 +104,6 @@ model Dosen {
   updatedAt     DateTime        @updatedAt
   deletedAt     DateTime?
   JadwalRequest JadwalRequest[]
-  sisaSks       SisaSks[]
 }
 
 model MataKuliah {
@@ -140,7 +139,7 @@ model Jadwal {
   keterangan      String?
   semester        Int           @db.SmallInt
   TahunAkademik   TahunAkademik @relation(fields: [tahunAkademikId], references: [id])
-  MataKuliah      MataKuliah    @relation(fields: [matakuliahId], references: [id])
+  Matakuliah      MataKuliah    @relation(fields: [matakuliahId], references: [id])
   Dosen           Dosen         @relation(fields: [dosenId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
@@ -164,7 +163,7 @@ model JadwalRequest {
   semester        Int                 @db.SmallInt
   TahunAkademik   TahunAkademik       @relation(fields: [tahunAkademikId], references: [id])
   Dosen           Dosen               @relation(fields: [dosenId], references: [id])
-  MataKuliah      MataKuliah          @relation(fields: [matakuliahId], references: [id])
+  Matakuliah      MataKuliah          @relation(fields: [matakuliahId], references: [id])
   status          StatusJadwalRequest @default(PENDING)
   keteranganAdmin String?
   createdAt       DateTime            @default(now())
@@ -181,21 +180,19 @@ model SisaSks {
   fakultasId      BigInt?
   jurusanId       BigInt?
   matakuliahId    BigInt
-  dosenId         BigInt
   kelas           String[]
   sks             Decimal       @db.Decimal(3, 1)
   totalSks        Decimal?      @default(0) @db.Decimal(3, 1)
   keterangan      String?
   semester        Int           @db.SmallInt
   TahunAkademik   TahunAkademik @relation(fields: [tahunAkademikId], references: [id])
-  Dosen           Dosen         @relation(fields: [dosenId], references: [id])
-  MataKuliah      MataKuliah    @relation(fields: [matakuliahId], references: [id])
+  Matakuliah      MataKuliah    @relation(fields: [matakuliahId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   Fakultas        Fakultas?     @relation(fields: [fakultasId], references: [id])
   Jurusan         Jurusan?      @relation(fields: [jurusanId], references: [id])
 
-  @@unique([tahunAkademikId, matakuliahId, fakultasId, jurusanId, dosenId, semester, kelas])
+  @@unique([tahunAkademikId, matakuliahId, fakultasId, jurusanId, semester, kelas])
 }
 
 enum StatusJadwalRequest {

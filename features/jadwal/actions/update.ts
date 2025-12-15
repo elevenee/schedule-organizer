@@ -25,13 +25,13 @@ export async function update(id: number, formData: jadwalFormValues) {
                     jenjang: true
                 }
             },
-            MataKuliah: true
+            Matakuliah: true
         }
     });
 
     if (isExists) {
         if (isExists.Jurusan?.jenjang == 'S1') {
-            return { errors_message: `Jadwal kelas pada matakuliah ${isExists?.MataKuliah?.nama} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
+            return { errors_message: `Jadwal kelas pada matakuliah ${isExists?.Matakuliah?.nama} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
         }
     }
     const updateData = {
@@ -45,12 +45,15 @@ export async function update(id: number, formData: jadwalFormValues) {
         where: {
             fakultasId: find?.fakultasId,
             jurusanId: find?.jurusanId,
-            dosenId: find?.dosenId,
             matakuliahId: find?.matakuliahId,
             semester: find?.semester,
-            tahunAkademikId: find?.tahunAkademikId
+            tahunAkademikId: find?.tahunAkademikId,
+            kelas: {
+                hasSome: find.kelas
+            }
         },
-    })
+    });
+
     let kelasChanges = [];
     const kelasFind = find.kelas.length ? find.kelas : [];
     
@@ -75,7 +78,6 @@ export async function update(id: number, formData: jadwalFormValues) {
                 matakuliahId: find.matakuliahId,
                 sks: find.sks,
                 semester: find.semester,
-                dosenId: find.dosenId,
                 fakultasId: find.fakultasId,
                 jurusanId: find.jurusanId,
                 kelas: kelasChanges
@@ -88,7 +90,6 @@ export async function update(id: number, formData: jadwalFormValues) {
                 matakuliahId: find.matakuliahId,
                 sks: find.sks,
                 semester: find.semester,
-                dosenId: find.dosenId,
                 fakultasId: find.fakultasId,
                 jurusanId: find.jurusanId,
                 kelas: kelasChanges
