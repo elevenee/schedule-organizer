@@ -34,7 +34,9 @@ export default function List() {
                     <p className="text-gray-400">Tahun Akademik: {tahunAkademik ? tahunAkademik?.name + ` - SMT ${tahunAkademik?.semester}` : "Tidak Diketahui"}</p>
                 </div>
                 <div>
-                    <Button variant="default">
+                    <Button variant="default" onClick={() => {
+                        window.location.href = "/api/export/jadwal"
+                    }}>
                         <Download /> Export Excel
                     </Button>
                 </div>
@@ -56,8 +58,8 @@ export default function List() {
                 </div>
             </div>
             <JadwalModal />
-            <ListPengajuanModal/>
-            <StatusJadwalRequestModal/>
+            <ListPengajuanModal />
+            <StatusJadwalRequestModal />
         </div>
     );
 }

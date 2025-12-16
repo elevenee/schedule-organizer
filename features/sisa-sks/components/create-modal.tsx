@@ -38,6 +38,7 @@ export function SisaSksModal() {
         setIsSubmitting(true);
         try {
             await (await storejadwal).mutateAsync(values);
+            close('sisaSksModal')
         } finally {
             setIsSubmitting(false);
         }

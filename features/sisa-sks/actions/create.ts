@@ -68,7 +68,17 @@ export async function create(formData: sisaSksFormValues) {
     return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
   }
 
-  const data = {
+  const isExistsMatkul = await prisma.jadwal.findFirst({
+    where: {
+      tahunAkademikId: tahunAkademik?.id,
+      jurusanId: formData.jurusanId,
+      fakultasId: formData.fakultasId,
+      semester: Number(formData.semester),
+      matakuliahId: Number(formData.matakuliahId),
+      dosenId: Number(formData.dosenId),
+    }
+  })
+  let data = {
     tahunAkademikId: BigInt(tahunAkademik?.id || 0),
     sks: Number(sks),
     semester: Number(semester),
@@ -76,13 +86,35 @@ export async function create(formData: sisaSksFormValues) {
     fakultasId: Number(fakultasId),
     jurusanId: Number(jurusanId),
     matakuliahId: Number(matakuliahId),
-    kelas: isExists ? [...formData.kelas, ...isExists.kelas] : formData.kelas
+    kelas: formData.kelas
+  }
+  if (isExists) {
+    data = {
+      ...data,
+      kelas: isExists ? [...formData.kelas, ...isExists.kelas] : formData.kelas
+    }
+  } else if (isExistsMatkul) {
+    data = {
+      ...data,
+      kelas: [...formData.kelas, ...isExistsMatkul.kelas]
+    }
   }
 
   try {
-    const create = await prisma.jadwal.create({
-      data
-    })
+    let create;
+    if (isExistsMatkul) {
+      create = await prisma.jadwal.update({
+        where: { id: isExistsMatkul.id },
+        data: {
+          kelas: data.kelas
+        }
+      })
+    } else {
+      create = await prisma.jadwal.create({
+        data
+      })
+    }
+
     if (findSisaSks.kelas.length !== formData.kelas.length) {
       await prisma.sisaSks.update({
         where: { id: findSisaSks.id },
