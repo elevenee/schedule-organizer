@@ -97,11 +97,12 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
 // Helper component for action buttons
 /* eslint-disable */
-function ActionButtons({ item, hasActions, onOpenModal }: { item: JadwalRequest; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
+function ActionButtons({ item, hasActions, onOpenModal }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
     if (!hasActions) return <TableCell className='border'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
         matakuliahId: Number(item?.matakuliahId) ?? undefined,
+        kurikulumId: Number(item?.kurikulumId) ?? undefined,
         sks: item?.sks ? item.sks.toString() : undefined,
         kelas: item?.kelas ?? [],
         keterangan: item?.keterangan ?? '',

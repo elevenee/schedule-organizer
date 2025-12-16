@@ -122,7 +122,8 @@ export async function GET_PAGINATE({
                         id: true,
                         nama: true,
                         semester: true,
-                        sks: true
+                        sks: true,
+                        kurikulumId: true
                     }
                 }
             },
@@ -174,7 +175,8 @@ export async function GET_PAGINATE({
                         id: true,
                         nama: true,
                         semester: true,
-                        sks: true
+                        sks: true,
+                        kurikulumId: true
                     }
                 }
             },
@@ -246,7 +248,8 @@ export async function GET_PAGINATE({
             dosenId: j.dosenId,
             status: j.status,
             keteranganAdmin: j.keteranganAdmin,
-            matakuliahId: j.matakuliahId
+            matakuliahId: j.matakuliahId,
+            kurikulumId: j.Matakuliah?.kurikulumId,
         }));
         const listJadwal = jadwalDosen.map((j: any) => ({
             id: j.id,
@@ -261,7 +264,8 @@ export async function GET_PAGINATE({
             jurusanId: j.Jurusan?.id,
             dosenId: j.dosenId,
             keteranganAdmin: j.keteranganAdmin,
-            matakuliahId: j.matakuliahId
+            matakuliahId: j.matakuliahId,
+            kurikulumId: j.Matakuliah?.kurikulumId,
         }));
         const merged = mergeJadwalLists(listRequest, listJadwal);
 

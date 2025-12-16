@@ -30,6 +30,7 @@ export function SisaSksModal() {
             dosenId: jadwal?.dosenId ? Number(jadwal.dosenId) : undefined,
             fakultasId: jadwal?.fakultasId ? Number(jadwal.fakultasId) : undefined,
             jurusanId: jadwal?.jurusanId ? Number(jadwal.jurusanId) : undefined,
+            kurikulumId: jadwal?.kurikulumId ? Number(jadwal.kurikulumId) : undefined,
         }
     });
     const storejadwal = useStoreSisaSks()
@@ -56,6 +57,7 @@ export function SisaSksModal() {
                 dosenId: jadwal?.dosenId ? Number(jadwal.dosenId) : undefined,
                 fakultasId: jadwal?.fakultasId ? Number(jadwal.fakultasId) : undefined,
                 jurusanId: jadwal?.jurusanId ? Number(jadwal.jurusanId) : undefined,
+                kurikulumId: jadwal?.kurikulumId ? Number(jadwal.kurikulumId) : undefined,
             });
         }
     }, [open, jadwal, form]);

@@ -13,9 +13,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
 import { useEffect, useMemo, useState } from 'react';
 import { Jurusan } from '@prisma/client';
-import { useSession } from 'next-auth/react';
 import { useGetDosen } from '@/features/dosen/hooks/useDosen';
 import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
+import { useGetKurikulumAktif } from '@/features/kurikulum/service';
+import { Kurikulum } from '@/features/kurikulum/types';
 
 interface Props {
     form: UseFormReturn<jadwalFormValues>;
@@ -55,11 +56,22 @@ export function JadwalForm({ form, onSubmit }: Props) {
         }
     })
 
+    const { data: listKurikulum, isLoading: isLoadingKurikulum } = useGetKurikulumAktif({
+        page: 1,
+        remove_pagination: true,
+        jurusanId: form.watch().jurusanId ?? 9999999,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+
     const { data: listMatakuliah } = useGetMataKuliah({
         page: 1,
         remove_pagination: true,
         jurusanId: form.watch().jurusanId ?? 9999999,
-        semester: form.watch().semester ?? 0,
+        semester: form.watch().semester ?? 999999,
+        kurikulumId: form.watch().kurikulumId ?? 999999,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -73,7 +85,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
             sks: item.sks
         })) || [];
         const resultMap = new Map();
-        
+
         for (const item of data) {
             const normalizedLabel = item.label.toLowerCase().trim();
             const existing = resultMap.get(normalizedLabel);
@@ -88,7 +100,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
 
         return unique;
     }, [listMatakuliah]) as { label: string; value: string; sks: number }[];
-    
+
     const availableKelas = [
         { value: "A", nama: "Kelas A" },
         { value: "B", nama: "Kelas B" },
@@ -208,9 +220,35 @@ export function JadwalForm({ form, onSubmit }: Props) {
                 />
                 <FormField
                     control={form.control}
+                    name="kurikulumId"
+                    render={({ field }) => (
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
+                            <FormLabel required>Kurikulum</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    className='w-full'
+                                    options={listKurikulum ? listKurikulum?.map((t: Kurikulum) => {
+                                        return {
+                                            label: t.nama,
+                                            value: t.id.toString()
+                                        }
+                                    }) : []}
+                                    isLoading={isLoadingKurikulum}
+                                    value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                                    onChange={(value) => field.onChange(Number(value))}
+                                    loadingMessage='Memuat data kurikulum'
+                                    placeholder="Pilih Kurikulum"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="semester"
                     render={({ field }) => (
-                        <FormItem className='flex flex-col col-span-12'>
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
                             <FormLabel required>Semester</FormLabel>
                             <FormControl>
                                 <Combobox

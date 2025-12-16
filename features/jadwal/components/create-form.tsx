@@ -15,6 +15,8 @@ import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
 import { useEffect, useMemo, useState } from 'react';
 import { Jurusan } from '@prisma/client';
 import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
+import { useGetKurikulumAktif } from '@/features/kurikulum/service';
+import { Kurikulum } from '@/features/kurikulum/types';
 
 interface Props {
     form: UseFormReturn<jadwalFormValues>;
@@ -30,7 +32,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
         setValue,
     } = form;
 
-    const { data: listDosen } = useGetDosen({
+    const { data: listDosen, isLoading: isLoadingDosen } = useGetDosen({
         page: 1,
         remove_pagination: true,
         limit: 1000,
@@ -39,7 +41,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
             orderBy: 'asc'
         }
     })
-    const { data: listFakultas } = useGetFakultas({
+    const { data: listFakultas, isLoading: isLoadingFakultas } = useGetFakultas({
         page: 1,
         remove_pagination: true,
         sort: {
@@ -47,7 +49,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
             orderBy: 'asc'
         }
     })
-    const { data: listJurusan } = useGetProdi({
+    const { data: listJurusan, isLoading: isLoadingJurusan } = useGetProdi({
         page: 1,
         remove_pagination: true,
         fakultas: form.watch().fakultasId ?? 9999999,
@@ -56,11 +58,22 @@ export function JadwalForm({ form, onSubmit }: Props) {
             orderBy: 'asc'
         }
     })
-    const { data: listMatakuliah } = useGetMataKuliah({
+    const { data: listKurikulum, isLoading: isLoadingKurikulum } = useGetKurikulumAktif({
         page: 1,
         remove_pagination: true,
         jurusanId: form.watch().jurusanId ?? 9999999,
-        semester: form.watch().semester,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+
+    const { data: listMatakuliah, isLoading: isLoadingMatakuliah } = useGetMataKuliah({
+        page: 1,
+        remove_pagination: true,
+        jurusanId: form.watch().jurusanId ?? 9999999,
+        semester: form.watch().semester ?? 99999,
+        kurikulumId: form.watch().kurikulumId ?? 99999,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -76,7 +89,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
         })) || [];
         return data;
     }, [listMatakuliah]) as { label: string; value: string; sks: number }[];
-    
+
     const availableKelas = [
         { value: "A", nama: "Kelas A" },
         { value: "B", nama: "Kelas B" },
@@ -111,7 +124,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
     const { data: tahunAkademik } = useGetTahunAkademikAktif();
 
     const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
-    
+
     useEffect(() => {
         if (tahunAkademik) {
             if (tahunAkademik?.semester === 'GENAP') {
@@ -127,8 +140,8 @@ export function JadwalForm({ form, onSubmit }: Props) {
             }
         }
 
-    }, [tahunAkademik?.data, setValue]);    
-    
+    }, [tahunAkademik?.data, setValue]);
+
     return (
         <Form {...form}>
             <form id="form-jadwal" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">
@@ -146,8 +159,10 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                             value: t.id.toString()
                                         }
                                     }) : []}
+                                    isLoading={isLoadingDosen}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
+                                    loadingMessage='Memuat data dosen..'
                                     placeholder="Pilih Dosen"
                                 />
                             </FormControl>
@@ -169,8 +184,10 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                             value: t.id.toString()
                                         }
                                     }) : []}
+                                    isLoading={isLoadingFakultas}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
+                                    loadingMessage='Memuat data fakultas..'
                                     placeholder="Pilih Fakultas"
                                 />
                             </FormControl>
@@ -192,9 +209,37 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                             value: t.id.toString()
                                         }
                                     }) : []}
+                                    isLoading={isLoadingJurusan}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
+                                    loadingMessage='Memuat data jurusan..'
                                     placeholder="Pilih Jurusan"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="kurikulumId"
+                    render={({ field }) => (
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
+                            <FormLabel required>Kurikulum</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    className='w-full'
+                                    options={listKurikulum ? listKurikulum?.map((t: Kurikulum) => {
+                                        return {
+                                            label: t.nama,
+                                            value: t.id.toString()
+                                        }
+                                    }) : []}
+                                    isLoading={isLoadingKurikulum}
+                                    value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                                    onChange={(value) => field.onChange(Number(value))}
+                                    loadingMessage='Memuat data kurikulum'
+                                    placeholder="Pilih Kurikulum"
                                 />
                             </FormControl>
                             <FormMessage />
@@ -205,7 +250,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                     control={form.control}
                     name="semester"
                     render={({ field }) => (
-                        <FormItem className='flex flex-col col-span-12'>
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
                             <FormLabel required>Semester</FormLabel>
                             <FormControl>
                                 <Combobox
@@ -219,6 +264,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
                         </FormItem>
                     )}
                 />
+
                 <FormField
                     control={form.control}
                     name="matakuliahId"
@@ -230,10 +276,12 @@ export function JadwalForm({ form, onSubmit }: Props) {
                                     options={matkulOptions}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => {
-                                        field.onChange(value);        
+                                        field.onChange(value);
                                         const sks = matkulOptions.filter((v: any) => v.value === value);
-                                        setValue('sks', sks && sks.length ? sks[0]?.sks.toString(): "")
+                                        setValue('sks', sks && sks.length ? sks[0]?.sks.toString() : "")
                                     }}
+                                    isLoading={isLoadingMatakuliah}
+                                    loadingMessage='Memuat data matakuliah..'
                                     placeholder="Pilih Matakuliah"
                                 />
                             </FormControl>

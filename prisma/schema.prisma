@@ -122,8 +122,16 @@ model MataKuliah {
   jadwals       Jadwal[]
   jadwalRequest JadwalRequest[]
   sisaSks       SisaSks[]
+  kurikulum     Kurikulum?       @relation(fields: [kurikulumId], references: [id])
 
   @@unique([kode, jurusanId, semester, jenjang])
+}
+
+model Kurikulum {
+  id          Int          @id @default(autoincrement())
+  nama        String
+  status      StatusTahun  @default(ACTIVE)
+  mataKuliahs MataKuliah[]
 }
 
 model Jadwal {

@@ -14,6 +14,7 @@ interface GetAllProps extends DataTableOptions {
     jenjang?: string | null,
     semester?: string | null,
     jurusanId?: number | null,
+    kurikulumId?: number | null
 }
 export const useGetMataKuliah = (params: GetAllProps) => {
     return handleFetchData(

@@ -34,6 +34,7 @@ export function JadwalModal() {
             dosenId: jadwal?.dosenId ? Number(jadwal.dosenId) : undefined,
             fakultasId: jadwal?.fakultasId ? Number(jadwal.fakultasId) : Number(userFakultas),
             jurusanId: jadwal?.jurusanId ? Number(jadwal.jurusanId) : undefined,
+            kurikulumId: jadwal?.kurikulumId  ? Number(jadwal.kurikulumId) : undefined
         }
     });
     const storejadwal = useStoreJadwal()
@@ -68,6 +69,7 @@ export function JadwalModal() {
                 dosenId: jadwal?.dosenId ? Number(jadwal.dosenId) : undefined,
                 fakultasId: jadwal?.fakultasId ? Number(jadwal.fakultasId) : Number(userFakultas),
                 jurusanId: jadwal?.jurusanId ? Number(jadwal.jurusanId) : undefined,
+                kurikulumId: jadwal?.kurikulumId  ? Number(jadwal.kurikulumId) : undefined
             });
         }
     }, [open, jadwal, form]);

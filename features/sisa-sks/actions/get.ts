@@ -57,11 +57,6 @@ export async function GET_PAGINATE({
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
     const selectedTahunAkademik = tahunAkademik ?? undefined;
-    const findTahunAkademik = selectedTahunAkademik
-        ? await prisma.tahunAkademik.findUnique({
-            where: { id: selectedTahunAkademik }
-        })
-        : null;
 
     const whereSisaSks = {
         tahunAkademikId: selectedTahunAkademik,
@@ -94,7 +89,8 @@ export async function GET_PAGINATE({
                         id: true,
                         nama: true,
                         semester: true,
-                        sks: true
+                        sks: true,
+                        kurikulumId: true
                     }
                 }
             }

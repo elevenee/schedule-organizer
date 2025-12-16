@@ -15,6 +15,8 @@ import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
 import { useEffect, useMemo, useState } from 'react';
 import { Jurusan } from '@prisma/client';
 import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
+import { useGetKurikulumAktif } from '@/features/kurikulum/service';
+import { Kurikulum } from '@/features/kurikulum/types';
 
 interface Props {
     form: UseFormReturn<sisaSksFormValues>;
@@ -30,7 +32,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
         setValue,
     } = form;
 
-    const { data: listDosen } = useGetDosen({
+    const { data: listDosen, isLoading: isLoadingDosen } = useGetDosen({
         page: 1,
         remove_pagination: true,
         limit: 1000,
@@ -39,7 +41,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
             orderBy: 'asc'
         }
     })
-    const { data: listFakultas } = useGetFakultas({
+    const { data: listFakultas, isLoading: isLoadingFakultas } = useGetFakultas({
         page: 1,
         remove_pagination: true,
         sort: {
@@ -47,7 +49,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
             orderBy: 'asc'
         }
     })
-    const { data: listJurusan } = useGetProdi({
+    const { data: listJurusan, isLoading: isLoadingJurusan } = useGetProdi({
         page: 1,
         remove_pagination: true,
         fakultas: form.watch().fakultasId ?? 9999999,
@@ -56,11 +58,22 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
             orderBy: 'asc'
         }
     })
-    const { data: listMatakuliah } = useGetMataKuliah({
+    const { data: listKurikulum, isLoading: isLoadingKurikulum } = useGetKurikulumAktif({
         page: 1,
         remove_pagination: true,
         jurusanId: form.watch().jurusanId ?? 9999999,
-        semester: form.watch().semester,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+
+    const { data: listMatakuliah, isLoading: isLoadingMatakuliah } = useGetMataKuliah({
+        page: 1,
+        remove_pagination: true,
+        jurusanId: form.watch().jurusanId ?? 9999999,
+        semester: form.watch().semester ?? 999999,
+        kurikulumId: form.watch().kurikulumId ?? 999999,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -104,7 +117,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
         { value: "K", nama: "Kelas K" },
     ];
 
-    const filterKelas = availableKelas.filter((k)=> form.watch().kelas.includes(k.value))
+    const filterKelas = availableKelas.filter((k) => form.watch().kelas.includes(k.value))
 
     const kelasValue = form.watch("kelas");
 
@@ -126,7 +139,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
     const { data: tahunAkademik } = useGetTahunAkademikAktif();
 
     const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
-    
+
     useEffect(() => {
         if (tahunAkademik) {
             if (tahunAkademik?.semester === 'GENAP') {
@@ -163,6 +176,9 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
                                     }) : []}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
+                                    isLoading={isLoadingDosen}
+                                    loadingMessage='Memuat data dosen'
+                                    emptyMessage='Dosen tidak ditemukan'
                                     placeholder="Pilih Dosen"
                                 />
                             </FormControl>
@@ -186,6 +202,9 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
                                     }) : []}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
+                                    isLoading={isLoadingFakultas}
+                                    loadingMessage='Memuat data fakultas..'
+                                    emptyMessage='Fakultas tidak ditemukan'
                                     placeholder="Pilih Fakultas"
                                 />
                             </FormControl>
@@ -203,13 +222,42 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
                                 <Combobox
                                     options={listJurusan?.data ? listJurusan.data?.map((t: Jurusan) => {
                                         return {
-                                            label: t.nama + ` (${t.jenjang})`,
+                                            label: t.nama,
                                             value: t.id.toString()
                                         }
                                     }) : []}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => field.onChange(Number(value))}
+                                    isLoading={isLoadingJurusan}
+                                    loadingMessage='Memuat data jurusan..'
+                                    emptyMessage='Jurusan tidak ditemukan'
                                     placeholder="Pilih Jurusan"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="kurikulumId"
+                    render={({ field }) => (
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
+                            <FormLabel required>Kurikulum</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    className='w-full'
+                                    options={listKurikulum ? listKurikulum?.map((t: Kurikulum) => {
+                                        return {
+                                            label: t.nama,
+                                            value: t.id.toString()
+                                        }
+                                    }) : []}
+                                    isLoading={isLoadingKurikulum}
+                                    value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                                    onChange={(value) => field.onChange(Number(value))}
+                                    loadingMessage='Memuat data kurikulum'
+                                    placeholder="Pilih Kurikulum"
                                 />
                             </FormControl>
                             <FormMessage />
@@ -220,7 +268,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
                     control={form.control}
                     name="semester"
                     render={({ field }) => (
-                        <FormItem className='flex flex-col col-span-12'>
+                        <FormItem className='flex flex-col col-span-12 md:col-span-6'>
                             <FormLabel required>Semester</FormLabel>
                             <FormControl>
                                 <Combobox
@@ -247,8 +295,11 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
                                     onChange={(value) => {
                                         field.onChange(Number(value));
                                         const sks = matkulOptions.filter((v: any) => v.value === value);
-                                        setValue('sks', sks && sks.length ? sks[0]?.sks.toString(): "")
+                                        setValue('sks', sks && sks.length ? sks[0]?.sks.toString() : "")
                                     }}
+                                    isLoading={isLoadingMatakuliah}
+                                    loadingMessage='Memuat data matakuliah'
+                                    emptyMessage='Matakuliah tidak ditemukan'
                                     placeholder="Pilih Matakuliah"
                                 />
                             </FormControl>

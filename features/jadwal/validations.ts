@@ -10,6 +10,7 @@ export const jadwalSchema = z.object({
     fakultasId: z.number().min(1, "Fakultas harus diisi"),
     jurusanId: z.number().min(1, "Jurusan harus diisi"),
     keterangan: z.string().optional().nullable(),
+    kurikulumId: z.number().optional().nullable(),
 });
 
 export type jadwalFormValues = z.infer<typeof jadwalSchema>;

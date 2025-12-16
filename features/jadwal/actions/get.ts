@@ -156,7 +156,8 @@ export async function GET_PAGINATE({
                         id: true,
                         nama: true,
                         semester: true,
-                        sks: true
+                        sks: true,
+                        kurikulumId: true
                     }
                 }
             },
@@ -202,7 +203,8 @@ export async function GET_PAGINATE({
                 fakultasId: j.Fakultas?.id,
                 jurusanId: j.Jurusan?.id,
                 dosenId: j.dosenId,
-                matakuliahId: j.matakuliahId
+                matakuliahId: j.matakuliahId,
+                kurikulumId: j.Matakuliah?.kurikulumId,
             }))
         };
     });
