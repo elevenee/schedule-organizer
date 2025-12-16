@@ -24,6 +24,7 @@ export async function GET() {
     })
 }
 
+/* eslint-disable */
 async function getDataDosen(status: string): Promise<any[]> {
     const findTahunAkademik = await prisma.tahunAkademik.findFirst({
         where: { status: 'ACTIVE' }
