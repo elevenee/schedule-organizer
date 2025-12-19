@@ -18,7 +18,8 @@ export async function GET_PAGINATE({
     fakultasId,
     jurusanId,
     id,
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, jurusanId?: number, id?: number }) {
+    isActive = true
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, jurusanId?: number, id?: number, isActive?: boolean }) {
     const skip = (page - 1) * limit;
     const searchNama = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
@@ -35,6 +36,7 @@ export async function GET_PAGINATE({
     const fakultasFilter = fakultasId ? { fakultasId } : {};
     const jurusanFilter = jurusanId ? { jurusanId } : {};
     const idFilter = id ? { id } : {};
+    const isActiveFilter = isActive;
 
     const where = {
         ...idFilter,

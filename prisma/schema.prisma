@@ -93,8 +93,10 @@ model Jurusan {
 model Dosen {
   id            BigInt          @id @default(autoincrement())
   nama          String
-  nidn          String?         @unique
+  nidn          String?         
+  nip           String?
   status        TypeDosen       @default(TIDAK_TETAP)
+  isActive      Boolean         @default(true)
   fakultasId    BigInt?
   Fakultas      Fakultas?       @relation(fields: [fakultasId], references: [id])
   jurusanId     BigInt?
@@ -122,7 +124,7 @@ model MataKuliah {
   jadwals       Jadwal[]
   jadwalRequest JadwalRequest[]
   sisaSks       SisaSks[]
-  kurikulum     Kurikulum?       @relation(fields: [kurikulumId], references: [id])
+  kurikulum     Kurikulum?      @relation(fields: [kurikulumId], references: [id])
 
   @@unique([kode, jurusanId, semester, jenjang])
 }

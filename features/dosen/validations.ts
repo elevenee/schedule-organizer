@@ -10,3 +10,26 @@ export const dosenSchema = z.object({
 });
 
 export type dosenFormValues = z.infer<typeof dosenSchema>;
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const ACCEPTED_FILE_TYPES = ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel'];
+
+export const importDosenScheme = z.object({
+    file: z
+        .any()
+        .refine(
+            (files) => {
+                if (!files) return true;
+                if (!(files instanceof File)) return false;
+                return (
+                    files.size <= MAX_FILE_SIZE &&
+                    ACCEPTED_FILE_TYPES.includes(files.type)
+                );
+            },
+            {
+                message: 'Setiap file harus bertipe XLS, atau XLSX dan maksimal 5MB',
+            }
+        )
+});
+
+export type ImportDosenValues = z.infer<typeof importDosenScheme>;

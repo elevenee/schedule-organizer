@@ -97,6 +97,7 @@ export async function GET_PAGINATE({
         ...jenisDosenFilter,
         ...fakultasBaseFilter,
         ...programStudiBaseFilter,
+        isActive: true,
         id: dosen ? dosen : {}
     };
     const whereJadwal = {

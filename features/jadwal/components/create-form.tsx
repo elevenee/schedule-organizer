@@ -36,6 +36,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
         page: 1,
         remove_pagination: true,
         limit: 1000,
+        id: form.watch().dosenId ?? undefined,
         sort: {
             field: "nama",
             orderBy: 'asc'

@@ -28,7 +28,6 @@ export async function SYNC() {
 
         offset += limit; // lanjut ke halaman berikutnya
     }
-    
     try {
         if (allData) {
             for (const r of allData) {
@@ -37,6 +36,7 @@ export async function SYNC() {
                 const prodi = await findByKode(r.KODE_PRODI);
 
                 await upsertDosen({
+                    nip: r.NIP_PNS,
                     nidn: r.NIDN,
                     nama,
                     status: 'TETAP',

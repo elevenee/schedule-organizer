@@ -7,13 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DosenModal } from "@/features/dosen/components/create-modal";
 import { DeleteDosen } from "@/features/dosen/components/delete-dialog";
+import { ImportDosenModal } from "@/features/dosen/components/import-modal";
 import { useGetDosen, useSyncDosen } from "@/features/dosen/hooks/useDosen";
 import { useGetFakultas } from "@/features/fakultas/service";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Plus, Recycle, RecycleIcon } from "lucide-react";
+import { Edit, Import, Plus, Recycle, RecycleIcon } from "lucide-react";
 import React, { useMemo } from "react";
 
 export default function List() {
@@ -147,6 +148,7 @@ export default function List() {
                 <h1 className="text-3xl font-bold order-2 md:order-1">Daftar Dosen</h1>
                 <div className="order-1 md:order-2 flex gap-2">
                     <Button variant={"outline"} onClick={handleSync}><RecycleIcon /> Sync</Button>
+                    <Button variant={"default"} onClick={() => open("importDosenModal")}><Import /> Import</Button>
                     <Button variant={"default"} onClick={() => open("dosenModal")}><Plus /> Tambah</Button>
                 </div>
             </div>
@@ -203,6 +205,7 @@ export default function List() {
                 onSearchChange={onSearchChange}
             />
             <DosenModal />
+            <ImportDosenModal/>
         </div>
     );
 }

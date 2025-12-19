@@ -15,7 +15,8 @@ interface GetAllProps extends DataTableOptions {
     status?: string,
     fakultasId?: number,
     jurusanId?: number,
-    id?: number
+    id?: number,
+    isActive?: boolean
 }
 export const useGetDosen = (params: GetAllProps) => {
     return handleFetchData(
