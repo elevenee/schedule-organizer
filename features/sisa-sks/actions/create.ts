@@ -96,7 +96,7 @@ export async function create(formData: sisaSksFormValues) {
   } else if (isExistsMatkul) {
     data = {
       ...data,
-      kelas: [...formData.kelas, ...isExistsMatkul.kelas]
+      kelas: [...formData.kelas, ...isExistsMatkul.kelas].sort()
     }
   }
 

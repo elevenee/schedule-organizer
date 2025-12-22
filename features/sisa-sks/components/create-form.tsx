@@ -1,22 +1,22 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Combobox } from '@/components/ui/combobox';
-import { sisaSksFormValues } from '../validations';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useGetDosen } from '@/features/dosen/hooks/useDosen';
 import { Dosen } from '@/features/dosen/types';
-import { Textarea } from '@/components/ui/textarea';
-import { Checkbox } from '@/components/ui/checkbox';
 import { useGetFakultas } from '@/features/fakultas/service';
-import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
-import { useEffect, useMemo, useState } from 'react';
-import { Jurusan } from '@prisma/client';
-import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
 import { useGetKurikulumAktif } from '@/features/kurikulum/service';
 import { Kurikulum } from '@/features/kurikulum/types';
+import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
+import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
+import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
+import { Jurusan } from '@prisma/client';
+import { useEffect, useMemo, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { sisaSksFormValues } from '../validations';
 
 interface Props {
     form: UseFormReturn<sisaSksFormValues>;
@@ -156,7 +156,7 @@ export function SisaJadwalForm({ form, onSubmit }: Props) {
         }
 
     }, [tahunAkademik.data, setValue]);
-
+    
     return (
         <Form {...form}>
             <form id="form-jadwal" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">

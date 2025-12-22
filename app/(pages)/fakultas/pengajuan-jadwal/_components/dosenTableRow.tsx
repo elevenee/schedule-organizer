@@ -1,13 +1,11 @@
 'use client'
-import React from 'react';
-import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Check, Edit, InfoIcon } from 'lucide-react';
-import { DeleteJadwal } from '@/features/pengajuan-jadwal/components/delete-dialog';
-import { JadwalRequest } from '@prisma/client';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
+import { DeleteJadwal } from '@/features/pengajuan-jadwal/components/delete-dialog';
+import { Check, Edit, InfoIcon } from 'lucide-react';
 
 /* eslint-disable */
 interface DosenTableRowProps {

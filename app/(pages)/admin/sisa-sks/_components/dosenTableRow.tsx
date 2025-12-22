@@ -1,11 +1,9 @@
 'use client'
-import React from 'react';
-import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
-import { Jadwal } from '@prisma/client';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
 import { DeleteSisaSks } from '@/features/sisa-sks/components/delete-dialog';
+import { Edit } from 'lucide-react';
 
 /* eslint-disable */
 interface DosenTableRowProps {
@@ -44,7 +42,7 @@ function ActionButtons({ item, currentTotalSks, pengaturan, onOpenModal }: { ite
     const itemEdit = {
         id: item?.id ? Number(item.id): undefined,
         matakuliahId: Number(item?.matakuliahId) ?? '',
-        kurikulumId: Number(item?.kurikulumId) ?? '',
+        kurikulumId: Number(item?.Matakuliah?.kurikulumId) ?? '',
         sks: item?.sks ? item.sks?.toString() : undefined,
         kelas: item?.kelas ?? [],
         keterangan: item?.keterangan ?? '',
