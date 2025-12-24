@@ -1,14 +1,14 @@
 'use client';
 
+import { Button } from "@/components/ui/button";
+import BaseModal from '@/components/ui/modal';
+import { useModalManager } from '@/hooks/modal-manager';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from "@/components/ui/button"
+import { useStoreSisaSks } from '../service';
 import { sisaSksFormValues, SisaSksSchema } from '../validations';
-import { useStoreSisaSks, useUpdateSisaSks } from '../service';
 import { SisaJadwalForm } from './create-form';
-import { useModalManager } from '@/hooks/modal-manager';
-import BaseModal from '@/components/ui/modal';
 
 export function SisaSksModal() {
     const { isOpen, getData, close } = useModalManager();
@@ -67,9 +67,9 @@ export function SisaSksModal() {
         <>
             <BaseModal open={open} onOpenChange={(v) => !v && close("sisaSksModal")} size="lg">
                 <BaseModal.Header>
-                    <BaseModal.Title>{jadwal ? 'Edit Jadwal' : 'Tambah Jadwal'}</BaseModal.Title>
+                    <BaseModal.Title>{jadwal?.id ? 'Edit Jadwal' : 'Tambah Jadwal'}</BaseModal.Title>
                     <BaseModal.Description>
-                        Silakan {jadwal ? 'ubah' : 'tambah'} data Jadwal di sini. Klik simpan setelah selesai.
+                        Silakan {jadwal?.id ? 'ubah' : 'tambah'} data Jadwal di sini. Klik simpan setelah selesai.
                     </BaseModal.Description>
                 </BaseModal.Header>
 

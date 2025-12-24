@@ -1,30 +1,30 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Combobox } from '@/components/ui/combobox';
-import { jadwalFormValues } from '../validations';
-import { Dosen } from '@/features/dosen/types';
-import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
+import { Combobox } from '@/components/ui/combobox';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
-import { useEffect, useMemo, useState } from 'react';
-import { Jurusan } from '@prisma/client';
+import { Textarea } from '@/components/ui/textarea';
 import { useGetDosen } from '@/features/dosen/hooks/useDosen';
-import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
+import { Dosen } from '@/features/dosen/types';
 import { useGetKurikulumAktif } from '@/features/kurikulum/service';
 import { Kurikulum } from '@/features/kurikulum/types';
+import { useGetMataKuliah } from '@/features/mata-kuliah/hooks/matkul.hook';
+import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
+import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
+import { Jurusan } from '@prisma/client';
+import { useEffect, useMemo, useState } from 'react';
+import { UseFormReturn } from 'react-hook-form';
+import { jadwalFormValues } from '../validations';
 
 interface Props {
     form: UseFormReturn<jadwalFormValues>;
     onSubmit: (values: jadwalFormValues) => Promise<void>;
     isSubmitting?: boolean;
+    jenisDosen?: "TETAP" | "TIDAK_TETAP"
 }
 /* eslint-disable */
-export function JadwalForm({ form, onSubmit }: Props) {
+export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
     const [availableSemester, setAvailableSemester] = useState<{ value: string; label: string }[]>([]);
     const [searchDosen, setSearchDosen] = useState('')
     const [searchJurusan, setSearchJurusan] = useState('')
@@ -50,6 +50,7 @@ export function JadwalForm({ form, onSubmit }: Props) {
         remove_pagination: true,
         id: form.watch().dosenId ?? undefined,
         search: searchDosen,
+        status: jenisDosen,
         sort: {
             field: "nama",
             orderBy: 'asc'

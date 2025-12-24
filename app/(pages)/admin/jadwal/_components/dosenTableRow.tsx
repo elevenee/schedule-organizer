@@ -1,13 +1,11 @@
 'use client'
-import React from 'react';
-import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Edit } from 'lucide-react';
 import { DeleteJadwal } from '@/features/jadwal/components/delete-dialog';
-import { Jadwal } from '@prisma/client';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
+import { Edit } from 'lucide-react';
 
 /* eslint-disable */
 interface DosenTableRowProps {
@@ -107,6 +105,7 @@ function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenMo
         jurusanId: item?.jurusanId ? Number(item.jurusanId) : undefined,
         currentTotalSKS: currentTotalSks,
         maxSks: pengaturan?.maxSks,
+        jenisDosen: pengaturan?.jenisDosen
     } as any;
     
     const handleEdit = () => {

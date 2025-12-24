@@ -1,19 +1,19 @@
 'use client'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import React, { useEffect, useMemo, useState } from "react";
-import { useModalManager } from "@/hooks/modal-manager";
-import { DosenTableRow } from "./dosenTableRow";
-import { useGetFakultas } from "@/features/fakultas/service";
-import { Label } from "@/components/ui/label";
-import { Combobox } from "@/components/ui/combobox";
-import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
-import { Input } from "@/components/ui/input";
-import { useGetJadwal } from "@/features/pengajuan-jadwal/service";
 import { Button } from "@/components/ui/button";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SearchCommand } from "@/components/ui/search-command";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useGetDosen } from "@/features/dosen/hooks/useDosen";
+import { useGetFakultas } from "@/features/fakultas/service";
+import { useGetJadwal } from "@/features/pengajuan-jadwal/service";
+import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
+import { useModalManager } from "@/hooks/modal-manager";
 import { Plus } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useGetDosen } from "@/features/dosen/hooks/useDosen";
-import { SearchCommand } from "@/components/ui/search-command";
+import { useEffect, useMemo, useState } from "react";
+import { DosenTableRow } from "./dosenTableRow";
 
 /* eslint-disable */
 interface Props {
@@ -108,7 +108,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     return (
         <>
             <div className="py-4 border-t border-gray-200 flex gap-2 justify-center md:justify-between">
-                <Button variant="default" onClick={() => open("jadwalRequestModal")}><Plus /> Tambah Jadwal</Button>
+                <Button variant="default" onClick={() => open("jadwalRequestModal", {jenisDosen: 'TETAP'})}><Plus /> Tambah Jadwal</Button>
                 <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 mb-4">

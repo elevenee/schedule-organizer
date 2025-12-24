@@ -1,14 +1,14 @@
 'use client'
-import { useGetJadwal } from "@/features/pengajuan-jadwal/service";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import React, { useMemo, useState } from "react";
-import { useModalManager } from "@/hooks/modal-manager";
-import { DosenTableRow } from "./dosenTableRow";
-import { useGetFakultas } from "@/features/fakultas/service";
-import { Label } from "@/components/ui/label";
 import { Combobox } from "@/components/ui/combobox";
-import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useGetFakultas } from "@/features/fakultas/service";
+import { useGetJadwal } from "@/features/pengajuan-jadwal/service";
+import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
+import { useModalManager } from "@/hooks/modal-manager";
+import { useMemo, useState } from "react";
+import { DosenTableRow } from "./dosenTableRow";
 
 /* eslint-disable */
 interface Props {
@@ -119,7 +119,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                 <TableCell className="border text-center" colSpan={12}>Memuat...</TableCell>
                             </TableRow>
                         ) : (
-                            data?.data && data.data?.map((item: any, index: number) => (
+                            data?.data && data?.data.length ? data.data?.map((item: any, index: number) => (
                                 <DosenTableRow
                                     key={item.id || index}
                                     item={item}
@@ -127,7 +127,11 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                     pengaturan={pengaturan}
                                     onOpenModal={open}
                                 />
-                            ))
+                            )): (
+                                <TableRow>
+                                    <TableCell className="border text-center" colSpan={12}>Data tidak ditemukan</TableCell>
+                                </TableRow>
+                            )
                         )
                     }
                 </TableBody>

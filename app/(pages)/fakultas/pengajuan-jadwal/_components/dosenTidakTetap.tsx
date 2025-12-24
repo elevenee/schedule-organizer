@@ -1,12 +1,19 @@
 'use client'
-import { useGetJadwal } from "@/features/jadwal/service";
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import React from "react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { SearchCommand } from "@/components/ui/search-command";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useGetDosen } from "@/features/dosen/hooks/useDosen";
+import { useGetFakultas } from "@/features/fakultas/service";
+import { useGetJadwal } from "@/features/pengajuan-jadwal/service";
+import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
+import { Plus } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { useEffect, useMemo, useState } from "react";
+import { DosenTableRow } from "./dosenTableRow";
 
 /* eslint-disable */
 interface Props {
@@ -15,169 +22,193 @@ interface Props {
 }
 /* eslint-disable */
 export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
-    const { open } = useModalManager()
+    const { open } = useModalManager();
+    const session = useSession();
+    const [selectedDosen, setSelectedDosen] = useState<number | null>(session.data?.user?.fakultasId ?? null);
+    const [selectedFakultas, setSelectedFakultas] = useState<number | null>(session.data?.user?.fakultasId ?? null);
+    const [selectedProdi, setSelectedProdi] = useState<number | null>(null);
+    const [selectedMatkul, setSelectedMatkul] = useState<string | null>(null);
+    const [searchDosen, setSearchDosen] = useState<string | null>(null)
     const { data, isLoading } = useGetJadwal({
         page: 1,
         search: "",
         jenisDosen: "TIDAK_TETAP",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
         sort: { field: 'matakuliah', orderBy: 'asc' },
+        fakultas: selectedFakultas ?? null,
+        programStudi: selectedProdi ?? null,
+        matakuliah: selectedMatkul ?? null,
+        dosen: selectedDosen ?? null
     });
+    const { data: dosenList, isLoading: isLoadingDosen } = useGetDosen({
+        page: 1,
+        remove_pagination: true,
+        search: searchDosen ?? "",
+        status: "TIDAK_TETAP",
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+    const { data: fakultasList, isLoading: isLoadingFakultas } = useGetFakultas({
+        page: 1,
+        remove_pagination: true,
+        id: selectedFakultas ?? undefined,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+    const { data: prodiList } = useGetProdi({
+        page: 1,
+        fakultas: selectedFakultas ?? undefined,
+        remove_pagination: true,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
+    })
+
+    const dosenOptions = useMemo(() =>
+        dosenList && dosenList?.data?.map((item: any) => ({
+            label: <div className='flex flex-col gap-0'>
+                <span>{item.nama}</span>
+                <span className='text-xs text-gray-500'>{item.Fakultas?.nama ? item.Fakultas?.nama : ""}</span>
+            </div>,
+            value: item.id.toString(),
+        })) || [],
+        [dosenList, selectedFakultas]
+    );
+    const fakultasOptions = useMemo(() =>
+        fakultasList && fakultasList?.data?.map((item: any) => ({
+            label: item.nama,
+            value: item.id.toString(),
+        })) || [],
+        [fakultasList, selectedFakultas]
+    );
+    const prodiOptions = useMemo(() =>
+        prodiList && selectedFakultas && prodiList?.data?.map((item: any) => ({
+            label: item.nama,
+            value: item.id.toString(),
+        })) || [],
+        [prodiList, selectedFakultas]
+    );
+
+    useEffect(() => {
+        if (session.data?.user?.fakultasId) {
+            setSelectedFakultas(session.data?.user?.fakultasId)
+        }
+    }, [session])
+
+    const resetFilter = () => {
+        setSelectedDosen(null)
+        setSelectedProdi(null)
+        setSelectedMatkul(null)
+    }
+
     return (
         <>
+            <div className="py-4 border-t border-gray-200 flex gap-2 justify-center md:justify-between">
+                <Button variant="default" onClick={() => open("jadwalRequestModal", {jenisDosen: 'TIDAK_TETAP'})}><Plus /> Tambah Jadwal</Button>
+                <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 mb-4">
+                <div className="flex flex-col gap-2">
+                    <Label>Dosen</Label>
+                    <Combobox
+                        data={dosenOptions}
+                        isLoading={isLoadingDosen}
+                        onSearch={setSearchDosen}
+                        showSearch={true}
+                        emptyMessage="Dosen tidak ditemukan"
+                        value={selectedDosen ? selectedDosen.toString() : ""}
+                        onChange={(value) => setSelectedDosen(Number(value))}
+                        placeholder={isLoadingDosen ? "Memuat dosen..." : "Pilih Dosen"}
+                    />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <Label>Fakultas</Label>
+                    <Combobox
+                        options={fakultasOptions}
+                        value={selectedFakultas !== undefined && selectedFakultas !== null ? String(selectedFakultas) : ""}
+                        onChange={(value) => setSelectedFakultas(value ? Number(value) : null)}
+                        placeholder={isLoadingFakultas ? "Memuat..." : "Pilih Fakultas"}
+                    />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <Label>Program Studi</Label>
+                    <Combobox
+                        options={prodiOptions}
+                        value={selectedProdi !== undefined && selectedProdi !== null ? String(selectedProdi) : ""}
+                        onChange={(value) => setSelectedProdi(value ? Number(value) : null)}
+                        placeholder="Pilih Program Studi"
+                    />
+                </div>
+                <div className="flex flex-col gap-2">
+                    <Label>Matakuliah</Label>
+                    <Input
+                        value={selectedMatkul ?? ""}
+                        disabled={!selectedProdi}
+                        onChange={(e) => setSelectedMatkul(e.target.value || null)}
+                        placeholder="Ketik Matakuliah"
+                    />
+                </div>
+            </div>
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead>NO</TableHead>
-                        <TableHead>Nama Dosen</TableHead>
-                        <TableHead>#</TableHead>
-                        <TableHead>Fakultas</TableHead>
-                        <TableHead>Matakuliah</TableHead>
-                        <TableHead>Prodi</TableHead>
-                        <TableHead>SMT/Kelas</TableHead>
-                        <TableHead>SKS</TableHead>
-                        <TableHead>Jumlah Kelas</TableHead>
-                        <TableHead>Total SKS</TableHead>
-                        <TableHead>KJM</TableHead>
+                        <TableHead className="border">NO</TableHead>
+                        <TableHead className="border">Nama Dosen</TableHead>
+                        <TableHead className="border">#</TableHead>
+                        <TableHead className="border">Fakultas</TableHead>
+                        <TableHead className="border">Matakuliah</TableHead>
+                        <TableHead className="border">Prodi</TableHead>
+                        <TableHead className="border">SMT/Kelas</TableHead>
+                        <TableHead className="border">Σ Kelas</TableHead>
+                        <TableHead className="border">SKS</TableHead>
+                        <TableHead className="border">Σ SMT/Kelas Diterima</TableHead>
+                        <TableHead className="border">Σ Pengajuan SKS</TableHead>
+                        <TableHead className="border">Σ SKS</TableHead>
+                        <TableHead className="border">KJM</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {
-                        data?.data && data.data?.map((item: any, index: number) => (
-                            <React.Fragment key={index}>
-                                {
-                                    item?.jadwal?.length > 1 ? (
-                                        <>
-                                            {
-                                                item.jadwal?.map((j: any, index: number) => {
-                                                    if (index === 0) {
-                                                        const set = pengaturan && pengaturan?.data?.filter((p: any) => {
-                                                            return p.jenisDosen === item.status;
-                                                        });
-                                                        const checkCapacity = () => {
-                                                            const minSks = set && set[0].minSks;
-                                                            const maxSks = set && set[0].maxSks;
-                                                            if (item.totalSKS >= maxSks) {
-                                                                return true;
-                                                            }
-                                                            return false;
-                                                        }
-                                                        const capacityStyle = () => {
-                                                            if (checkCapacity()) {
-                                                                return "bg-rose-500";
-                                                            }
-                                                            return "bg-green-100";
-                                                        }
-                                                        return (
-                                                            <TableRow key={index}>
-                                                                <TableCell rowSpan={(item.jadwal?.length ?? 1)}>{index + 1}</TableCell>
-                                                                <TableCell rowSpan={(item.jadwal?.length ?? 1)} className={`font-medium ${capacityStyle()}`}>
-                                                                    {
-                                                                        checkCapacity() ? (
-                                                                            <>{item.nama}</>
-                                                                        ) : (
-                                                                            <ContextMenu>
-                                                                                <ContextMenuTrigger>
-                                                                                    <Tooltip>
-                                                                                        <TooltipTrigger>
-                                                                                            {item.nama}
-                                                                                        </TooltipTrigger>
-                                                                                        <TooltipContent>
-                                                                                            <p>Klik kanan untuk tambah jadwal</p>
-                                                                                        </TooltipContent>
-                                                                                    </Tooltip>
-                                                                                </ContextMenuTrigger>
-                                                                                <ContextMenuContent>
-                                                                                    <ContextMenuItem onClick={() => open("jadwalModal", {
-                                                                                        dosenId: item.id
-                                                                                    })}>Tambah Jadwal</ContextMenuItem>
-                                                                                </ContextMenuContent>
-                                                                            </ContextMenu>
-                                                                        )
-                                                                    }
-                                                                </TableCell>
-                                                                <TableCell className="flex gap-2">
-                                                                    <Button variant={"outline"}><Edit className="text-sky-500" /></Button>
-                                                                    <Button variant={"outline"}><Trash className="text-rose-500" /></Button>
-                                                                </TableCell>
-                                                                <TableCell>{j.fakultas}</TableCell>
-                                                                <TableCell>{j.matakuliah}</TableCell>
-                                                                <TableCell>{j.jurusan}</TableCell>
-                                                                <TableCell>{j.semester + "/" + j.kelas?.join(',')}</TableCell>
-                                                                <TableCell>{j.sks}</TableCell>
-                                                                <TableCell>{j.kelas.length}</TableCell>
-                                                                <TableCell rowSpan={(item.jadwal?.length ?? 1)} className={`text-center font-bold ${capacityStyle()}`}>{item.totalSKS}</TableCell>
-                                                            </TableRow>
-                                                        )
-                                                    }
-                                                    return (
-                                                        <TableRow key={j.id}>
-                                                            <TableCell className="flex gap-2">
-                                                                <Button variant={"outline"}><Edit className="text-sky-500" /></Button>
-                                                                <Button variant={"outline"}><Trash className="text-rose-500" /></Button>
-                                                            </TableCell>
-                                                            <TableCell>{j.fakultas}</TableCell>
-                                                            <TableCell>{j.matakuliah}</TableCell>
-                                                            <TableCell>{j.jurusan}</TableCell>
-                                                            <TableCell>{j.semester + "/" + j.kelas?.join(',')}</TableCell>
-                                                            <TableCell>{j.sks}</TableCell>
-                                                            <TableCell>{j.kelas.length}</TableCell>
-                                                        </TableRow>
-                                                    )
-                                                })
-                                            }
-                                        </>
-                                    ) : (
-                                        <TableRow>
-                                            {
-                                                item.jadwal.length === 1 ? (
-                                                    <TableCell rowSpan={1}>{index + 1}</TableCell>
-                                                ) : (<TableCell>{index + 1}</TableCell>)
-                                            }
-                                            <TableCell className={`font-medium bg-rose-500`}>
-                                                <ContextMenu>
-                                                    <ContextMenuTrigger>
-                                                        <Tooltip>
-                                                            <TooltipTrigger>
-                                                                {item.nama}
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>
-                                                                <p>Klik kanan untuk tambah jadwal</p>
-                                                            </TooltipContent>
-                                                        </Tooltip>
-                                                    </ContextMenuTrigger>
-                                                    <ContextMenuContent>
-                                                        <ContextMenuItem onClick={() => open("jadwalModal", {
-                                                            dosenId: item.id
-                                                        })}>Tambah Jadwal</ContextMenuItem>
-                                                    </ContextMenuContent>
-                                                </ContextMenu>
-                                            </TableCell>
-                                            <TableCell className="flex gap-2">
-                                                {
-                                                    item?.jadwal.length ? (
-                                                        <>
-                                                            <Button variant={"outline"}><Edit className="text-sky-500" /></Button>
-                                                            <Button variant={"outline"}><Trash className="text-rose-500" /></Button>
-                                                        </>
-                                                    ) : (<></>)
-                                                }
-                                            </TableCell>
-                                            <TableCell>{item?.jadwal.length === 1 ? item.jadwal[0].fakultas : ''}</TableCell>
-                                            <TableCell>{item?.jadwal.length === 1 ? item.jadwal[0].matakuliah : ''}</TableCell>
-                                            <TableCell>{item?.jadwal.length === 1 ? item.jadwal[0].jurusan : ''}</TableCell>
-                                            <TableCell>{item?.jadwal.length === 1 ? (item.jadwal[0].semester + item.jadwal[0]?.kelas.join(',')) : ''}</TableCell>
-                                            <TableCell>{item?.jadwal.length === 1 ? item.jadwal[0].sks : ''}</TableCell>
-                                            <TableCell>{item?.jadwal.length === 1 ? item.jadwal[0].kelas.length : ''}</TableCell>
-                                            <TableCell className="bg-rose-500">{item?.totalSKS}</TableCell>
-                                        </TableRow>
-                                    )
-                                }
-                            </React.Fragment>
-                        ))
+                        isLoading ? (
+                            <TableRow>
+                                <TableCell className="border text-center" colSpan={13}>Memuat...</TableCell>
+                            </TableRow>
+                        ) : (
+                            data?.data && data?.data?.length ? data.data?.map((item: any, index: number) => (
+                                <DosenTableRow
+                                    key={item.id || index}
+                                    item={item}
+                                    index={index}
+                                    pengaturan={pengaturan}
+                                    onOpenModal={open}
+                                />
+                            )) : (
+                                <TableRow>
+                                    <TableCell className="border text-center" colSpan={13}>Data tidak ditemukan</TableCell>
+                                </TableRow>
+                            )
+                        )
                     }
                 </TableBody>
             </Table>
+            <SearchCommand
+                title="Dosen"
+                items={dosenList && dosenList?.data?.map((item: any) => ({
+                    id: item.id,
+                    label: item.nama,
+                    value: item.id,
+                    description: item?.Fakultas?.nama ?? "-"
+                }))}
+                onSearch={setSearchDosen}
+                isLoading={isLoadingDosen}
+                hotkey="ctrl+k"
+                onSelect={(item) => setSelectedDosen(Number(item.value))}
+            />
         </>
     );
 }

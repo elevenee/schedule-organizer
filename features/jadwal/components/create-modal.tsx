@@ -1,14 +1,14 @@
 'use client';
 
+import { Button } from "@/components/ui/button";
+import BaseModal from '@/components/ui/modal';
+import { useModalManager } from '@/hooks/modal-manager';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from "@/components/ui/button"
-import { jadwalFormValues, jadwalSchema } from '../validations';
 import { useStoreJadwal, useUpdateJadwal } from '../service';
+import { jadwalFormValues, jadwalSchema } from '../validations';
 import { JadwalForm } from './create-form';
-import { useModalManager } from '@/hooks/modal-manager';
-import BaseModal from '@/components/ui/modal';
 
 export function JadwalModal() {
     const { isOpen, getData, close } = useModalManager();
@@ -89,9 +89,9 @@ export function JadwalModal() {
         <>
             <BaseModal open={open} onOpenChange={(v) => !v && close("jadwalModal")} size="lg">
                 <BaseModal.Header>
-                    <BaseModal.Title>{jadwal ? 'Edit Jadwal' : 'Tambah Jadwal'}</BaseModal.Title>
+                    <BaseModal.Title>{jadwal?.id ? 'Edit ?.id' : 'Tambah Jadwal'}</BaseModal.Title>
                     <BaseModal.Description>
-                        Silakan {jadwal ? 'ubah' : 'tambah'} data Jadwal di sini. Klik simpan setelah selesai.
+                        Silakan {jadwal?.id ? 'ubah' : 'tambah'} data Jadwal di sini. Klik simpan setelah selesai.
                     </BaseModal.Description>
                 </BaseModal.Header>
 

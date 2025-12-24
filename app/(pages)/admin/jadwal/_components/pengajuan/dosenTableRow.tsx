@@ -1,10 +1,9 @@
 'use client'
-import React from 'react';
-import { TableRow, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Check, X } from 'lucide-react';
-import { Jadwal } from '@prisma/client';
+import { TableCell, TableRow } from '@/components/ui/table';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
+import { Jadwal } from '@prisma/client';
+import { Check, X } from 'lucide-react';
 
 /* eslint-disable */
 interface DosenTableRowProps {

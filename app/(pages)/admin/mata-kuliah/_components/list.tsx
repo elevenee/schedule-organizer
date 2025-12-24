@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useGetFakultas } from "@/features/fakultas/service";
 import { MataKuliahModal } from "@/features/mata-kuliah/components/create-modal";
+import { ImportMataKuliahModal } from "@/features/mata-kuliah/components/import-modal";
 import { useGetMataKuliah, useSyncMatkul } from "@/features/mata-kuliah/hooks/matkul.hook";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
-import { Plus, RecycleIcon } from "lucide-react";
+import { Import, Plus, RecycleIcon } from "lucide-react";
 import React, { useMemo } from "react";
 
 /* eslint-disable */
@@ -36,14 +37,21 @@ export default function List() {
             accessorKey: "nama",
             header: "Nama Matakuliah",
             cell: ({ row }) => (
-                <>{row.getValue("nama")}</>
+                <div className="text-wrap">{row.getValue("nama")}</div>
             ),
         },
         {
             id: "Prodi",
             header: "Prodi",
             cell: ({ row }) => (
-                <>{row.original.jurusan}</>
+                <div className="text-wrap">{row.original.jurusan}</div>
+            ),
+        },
+        {
+            id: "Kurikulum",
+            header: "Kurikulum",
+            cell: ({ row }) => (
+                <div className="text-wrap">{row.original.kurikulum}</div>
             ),
         },
         {
@@ -86,6 +94,8 @@ export default function List() {
         jurusanId: selectedJurusan
     });
 
+    console.log(data);
+    
     const { data: fakultasList } = useGetFakultas({
         page: 1,
         remove_pagination: true,
@@ -149,6 +159,7 @@ export default function List() {
                 <h1 className="text-3xl font-bold order-2 md:order-1">Daftar Mata Kuliah</h1>
                 <div className="order-1 md:order-2 flex gap-2">
                     <Button variant={"outline"} onClick={handleSync}><RecycleIcon /> Sync</Button>
+                    <Button variant={"outline"} onClick={() => open("importMataKuliahModal")}><Import /> Import</Button>
                     <Button variant={"default"} onClick={() => open("mataKuliahModal")}><Plus /> Tambah</Button>
                 </div>
             </div>
@@ -208,6 +219,7 @@ export default function List() {
                 onSearchChange={onSearchChange}
             />
             <MataKuliahModal />
+            <ImportMataKuliahModal/>
         </div>
     );
 }

@@ -47,7 +47,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                         </>
                     )}
 
-                    <ActionButtons item={jadwal} hasActions={true} onOpenModal={onOpenModal} />
+                    <ActionButtons item={jadwal} hasActions={true} onOpenModal={onOpenModal} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}/>
                     <JadwalDataCell jadwal={jadwal} />
 
                     {/* Total SKS only in first row */}
@@ -84,7 +84,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
                     onOpenModal={onOpenModal}
                 />
             </TableCell>
-            <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} />
+            <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}/>
             <JadwalDataCell jadwal={jadwal} />
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKSRequest}</TableCell>
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
@@ -95,7 +95,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
 // Helper component for action buttons
 /* eslint-disable */
-function ActionButtons({ item, hasActions, onOpenModal }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
+function ActionButtons({ item, hasActions, onOpenModal, pengaturan }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; pengaturan?: any }) {
     if (!hasActions) return <TableCell className='border'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
@@ -108,6 +108,7 @@ function ActionButtons({ item, hasActions, onOpenModal }: { item: any; hasAction
         dosenId: item?.dosenId ? Number(item.dosenId) : undefined,
         fakultasId: item?.fakultasId ? Number(item.fakultasId) : undefined,
         jurusanId: item?.jurusanId ? Number(item.jurusanId) : undefined,
+        jenisDosen: pengaturan?.jenisDosen
     } as any;
 
     const handleEdit = () => {

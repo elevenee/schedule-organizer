@@ -1,21 +1,21 @@
 'use client'
-import { useGetJadwal } from "@/features/jadwal/service";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import React, { useMemo, useState } from "react";
-import { useModalManager } from "@/hooks/modal-manager";
-import { DosenTableRow } from "./dosenTableRow";
-import { useGetFakultas } from "@/features/fakultas/service";
-import { Label } from "@/components/ui/label";
-import { Combobox } from "@/components/ui/combobox";
-import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ListCheck } from "lucide-react";
-import { useGetDosen } from "@/features/dosen/hooks/useDosen";
-import { SearchCommand } from "@/components/ui/search-command";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Combobox } from "@/components/ui/combobox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { MultiSelect } from "@/components/ui/multiple-select";
+import { SearchCommand } from "@/components/ui/search-command";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useGetDosen } from "@/features/dosen/hooks/useDosen";
+import { useGetFakultas } from "@/features/fakultas/service";
+import { useGetJadwal } from "@/features/jadwal/service";
+import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
+import { useModalManager } from "@/hooks/modal-manager";
+import { ListCheck } from "lucide-react";
+import { useMemo, useState } from "react";
+import { DosenTableRow } from "./dosenTableRow";
 
 /* eslint-disable */
 interface Props {
@@ -52,6 +52,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         page: 1,
         remove_pagination: true,
         search: searchDosen ?? "",
+        status: "TETAP",
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -145,7 +146,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     return (
         <>
             <div className="py-4 border-t border-gray-200  flex gap-2 justify-center md:justify-between">
-                <Button variant="default" onClick={() => open("listRequestModal")}><ListCheck /> List Pengajuan Jadwal</Button>
+                <Button variant="default" onClick={() => open("listRequestModal", {jenisDosen: "TETAP"})}><ListCheck /> List Pengajuan Jadwal</Button>
                 <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-gray-200">

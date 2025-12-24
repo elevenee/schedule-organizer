@@ -126,7 +126,7 @@ model MataKuliah {
   sisaSks       SisaSks[]
   kurikulum     Kurikulum?      @relation(fields: [kurikulumId], references: [id])
 
-  @@unique([kode, jurusanId, semester, jenjang])
+  @@unique([kode, jurusanId, semester, jenjang, kurikulumId])
 }
 
 model Kurikulum {
