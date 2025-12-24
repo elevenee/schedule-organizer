@@ -33,8 +33,9 @@ export async function GET_PAGINATE({
         : {};
     const idFilter = id ? { id } : {};
     const jurusanFilter = jurusanId ? { jurusanId } : {};
-    const semesterFilter = semester ? { semester: Number(semester) } : {};
 
+    const semesterFilter = semester ? (Number(semester) === 6 || Number(semester) === 7) ? { semester: { in: [Number(semester), 99] } } : { semester: Number(semester) } : {};
+    
     const activeCuriculums = await prisma.kurikulum.findMany({
         where: {
             status: "ACTIVE"

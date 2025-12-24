@@ -75,12 +75,12 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         jurusanId: form.watch().jurusanId ?? 9999999,
         semester: form.watch().semester ?? 99999,
         kurikulumId: form.watch().kurikulumId ?? 99999,
+        limit: 50,
         sort: {
             field: "nama",
             orderBy: 'asc'
         }
     })
-
     const matkulOptions = useMemo(() => {
         const data = listMatakuliah?.data?.map((item: any) => ({
             label: item.nama.replace(/\s+/g, ' ').trim(),

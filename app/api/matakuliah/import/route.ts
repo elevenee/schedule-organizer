@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, StatusTahun } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
@@ -116,32 +116,32 @@ export async function POST(request: NextRequest) {
                     //     }
                     // });
                     // if (!existingMatkul) {
-                    if (Number(lastProdi) !== data.jurusanId) {
-                        const kuri = {
-                            nama: data.kurikulum,
-                            status: "ACTIVE" as StatusTahun,
-                        };
+                    // if (Number(lastProdi) !== data.jurusanId) {
+                    //     const kuri = {
+                    //         nama: data.kurikulum,
+                    //         status: "ACTIVE" as StatusTahun,
+                    //     };
 
-                        lastKurikulum = await tx.kurikulum.create({
-                            data: kuri
-                        })
-                        lastProdi = data.jurusanId;
-                    }
-                    if (lastKurikulum) {
-                        const existingMatkul = await tx.mataKuliah.findFirst({
-                            where: {
-                                nama: data.nama,
-                                kode: data.kode,
-                                semester: data.semester,
-                                jurusanId: data.jurusanId,
-                                kurikulumId: lastKurikulum?.id,
-                                jenjang: data.jenjang
-                            }
-                        });
-                        if (existingMatkul) {
-                            console.log("EXIST: ", existingMatkul);
-                            // continue;
-                        }
+                    //     lastKurikulum = await tx.kurikulum.create({
+                    //         data: kuri
+                    //     })
+                    //     lastProdi = data.jurusanId;
+                    // }
+                    // if (lastKurikulum) {
+                        // const existingMatkul = await tx.mataKuliah.findFirst({
+                        //     where: {
+                        //         nama: data.nama,
+                        //         kode: data.kode,
+                        //         semester: data.semester,
+                        //         jurusanId: data.jurusanId,
+                        //         kurikulumId: lastKurikulum?.id,
+                        //         jenjang: data.jenjang
+                        //     }
+                        // });
+                        // if (existingMatkul) {
+                        //     console.log("EXIST: ", existingMatkul);
+                        //     // continue;
+                        // }
                         const ck = {
                             nama: data.nama,
                             kode: data.kode,
@@ -149,13 +149,13 @@ export async function POST(request: NextRequest) {
                             jurusanId: data.jurusanId,
                             sks: data.sks,
                             jenjang: data.jenjang,
-                            kurikulumId: lastKurikulum?.id
+                            kurikulumId: data?.kurikulum
                         }
 
                         await tx.mataKuliah.create({
                             data: ck
                         });
-                    }
+                    // }
                     // }
 
                     successCount++;

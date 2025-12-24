@@ -73,6 +73,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         jurusanId: form.watch().jurusanId ?? 9999999,
         semester: form.watch().semester ?? 999999,
         kurikulumId: form.watch().kurikulumId ?? 999999,
+        limit: 50,
         sort: {
             field: "nama",
             orderBy: 'asc'

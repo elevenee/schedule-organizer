@@ -1,15 +1,15 @@
 'use client'
 
+import { AlertCircle, ChevronsUpDown, Loader2 } from 'lucide-react'
 import * as React from 'react'
-import { ChevronsUpDown, Loader2, AlertCircle } from 'lucide-react'
 
-import { useMediaQuery } from '@/hooks/use-media-query'
-import { Button } from '../../components/ui/button'
-import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover'
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '../../components/ui/drawer'
-import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '../../components/ui/command'
 import { useDebounce } from '@/hooks/use-debounce'
+import { useMediaQuery } from '@/hooks/use-media-query'
 import { cn } from '@/lib/utils'
+import { Button } from '../../components/ui/button'
+import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '../../components/ui/command'
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from '../../components/ui/drawer'
+import { Popover, PopoverContent, PopoverTrigger } from '../../components/ui/popover'
 
 type Option = {
     label: string | React.ReactNode
@@ -141,7 +141,7 @@ export function Combobox({
                         role="combobox"
                         aria-expanded={open}
                         className={cn(
-                            "w-full justify-between bg-transparent",
+                            "w-full justify-between bg-transparent overflow-hidden",
                             triggerClassName,
                             isLoading && "opacity-70"
                         )}
