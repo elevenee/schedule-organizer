@@ -1,4 +1,4 @@
-import { PrismaClient, TypeDosen } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
@@ -83,7 +83,12 @@ export async function POST(request: NextRequest) {
         let successCount = 0;
         let failedCount = 0;
         const detailErrors:any[] = [];
-        
+        try {
+            await prisma.dosen.createMany({ data: validatedData });
+        } catch (error) {
+            console.log(error);
+            
+        }
         await prisma.$transaction(async (tx) => {
             for (const data of validatedData) {
                 try {
@@ -93,24 +98,24 @@ export async function POST(request: NextRequest) {
                     });
                     if (existingDosen) {
                         // Update data dosen yang sudah ada
-                        await tx.dosen.update({
-                            where: { id: existingDosen.id },
-                            data: {
-                                fakultasId: data.fakultasId,
-                                jurusanId: data.jurusanId,
-                            }
-                        });
+                        // await tx.dosen.update({
+                        //     where: { id: existingDosen.id },
+                        //     data: {
+                        //         fakultasId: data.fakultasId,
+                        //         jurusanId: data.jurusanId,
+                        //     }
+                        // });
                     } else {
-                        await tx.dosen.create({
-                            data: {
-                                nama: data.nama,
-                                status: data.status as TypeDosen,
-                                nip: data.nip,
-                                nidn: data.nidn,
-                                fakultasId: data?.fakultasId ?? null,
-                                jurusanId: data?.jurusanId ?? null,
-                            }
-                        });
+                        // await tx.dosen.create({
+                        //     data: {
+                        //         nama: data.nama,
+                        //         status: data.status as TypeDosen,
+                        //         nip: data.nip,
+                        //         nidn: data.nidn,
+                        //         fakultasId: data?.fakultasId ?? null,
+                        //         jurusanId: data?.jurusanId ?? null,
+                        //     }
+                        // });
                     }
                     
                     successCount++;
