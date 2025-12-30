@@ -20,7 +20,8 @@ interface PaginateProps {
     programStudi?: number | null,
     matakuliah?: string | null,
     status?: string | null,
-    dosen?: number | null
+    dosen?: number | null,
+    fakultas?: number | null,
 }
 export async function GET_PAGINATE({
     page = 1,
@@ -33,13 +34,14 @@ export async function GET_PAGINATE({
     matakuliah = null,
     dosen = null,
     status,
+    fakultas = null,
 }: PaginateProps) {
     const skip = (page - 1) * limit;
 
     const session = await getServerSession(authOptions);
     if (!session) throw new Error("Unauthorized");
     if (session.user?.role !== 'FAKULTAS' && session.user?.role !== 'ADMIN') throw new Error("Unauthorized");
-    const fakultas = session.user?.fakultasId ?? undefined;
+    // const fakultas = session.user?.fakultasId ?? undefined;
     const searchFilter = search
         ? {
             Dosen: {

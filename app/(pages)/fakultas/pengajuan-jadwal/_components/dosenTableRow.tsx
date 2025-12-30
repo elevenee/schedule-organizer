@@ -12,22 +12,22 @@ interface DosenTableRowProps {
     item: any;
     index: number;
     pengaturan: any;
+    fakultasId?: number;
     onOpenModal: (modal: string, data: any) => void;
 }
 
 /* eslint-disable */
-export function DosenTableRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
+export function DosenTableRow({ item, index, pengaturan, fakultasId, onOpenModal }: DosenTableRowProps) {
     const hasMultipleJadwal = item?.jadwal?.length > 1;
-    
     if (hasMultipleJadwal) {
-        return <MultipleJadwalRow item={item} index={index} pengaturan={pengaturan} onOpenModal={onOpenModal} />;
+        return <MultipleJadwalRow item={item} index={index} pengaturan={pengaturan} fakultasId={fakultasId} onOpenModal={onOpenModal} />;
     }
 
-    return <SingleJadwalRow item={item} index={index} pengaturan={pengaturan} onOpenModal={onOpenModal} />;
+    return <SingleJadwalRow item={item} index={index} pengaturan={pengaturan} fakultasId={fakultasId} onOpenModal={onOpenModal} />;
 }
 
 // Helper component for multiple jadwal
-function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
+function MultipleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }: DosenTableRowProps) {
     const { capacityStyle, isOverCapacity } = useCapacityCheck(item, pengaturan);
     return (
         <>
@@ -47,7 +47,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                         </>
                     )}
 
-                    <ActionButtons item={jadwal} hasActions={true} onOpenModal={onOpenModal} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}/>
+                    <ActionButtons item={jadwal} hasActions={true} onOpenModal={onOpenModal} pengaturan={{ ...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} fakultasId={fakultasId} />
                     <JadwalDataCell jadwal={jadwal} />
 
                     {/* Total SKS only in first row */}
@@ -69,7 +69,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
 }
 
 /* eslint-disable */
-function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
+function SingleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }: DosenTableRowProps) {
     const { capacityStyle } = useCapacityCheck(item, pengaturan);
     const jadwal = item.jadwal?.[0];
     const hasJadwal = !!jadwal;
@@ -84,7 +84,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
                     onOpenModal={onOpenModal}
                 />
             </TableCell>
-            <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}/>
+            <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} pengaturan={{ ...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} fakultasId={fakultasId} />
             <JadwalDataCell jadwal={jadwal} />
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKSRequest}</TableCell>
             <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
@@ -95,7 +95,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
 // Helper component for action buttons
 /* eslint-disable */
-function ActionButtons({ item, hasActions, onOpenModal, pengaturan }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; pengaturan?: any }) {
+function ActionButtons({ item, hasActions, onOpenModal, pengaturan, fakultasId }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; pengaturan?: any; fakultasId?: number; }) {
     if (!hasActions) return <TableCell className='border'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
@@ -114,47 +114,78 @@ function ActionButtons({ item, hasActions, onOpenModal, pengaturan }: { item: an
     const handleEdit = () => {
         onOpenModal("jadwalRequestModal", itemEdit);
     }
-
     return (
-        <TableCell className='border'>
-            <div className="flex gap-2">
-                {
-                    item?.status && item.status !== "APPROVED" && (
-                        <>
-                            <Button variant="outline" onClick={handleEdit}>
-                                <Edit className="text-sky-500 h-4 w-4" />
-                            </Button>
-                            <DeleteJadwal id={Number(item.id)} />
-                        </>
-                    )
-                }
-                {
-                    item?.status && item.status === "REJECTED" && (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="destructive">
-                                    <InfoIcon />
-                                </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>{item.keteranganAdmin}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    )
-                }
-                {
-                    item?.status && item.status === "APPROVED" && (
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <Button variant="outline"><Check className='text-emerald-500' /></Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                                <p>Jadwal disetujui</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    )
-                }
-            </div>
+        <TableCell className='border' data-id={fakultasId}>
+            {
+                fakultasId && Number(fakultasId) === Number(item?.fakultasId) ? (
+                    <div className="flex gap-2">
+                        {
+                            item?.status && item.status !== "APPROVED" && (
+                                <>
+                                    <Button variant="outline" onClick={handleEdit}>
+                                        <Edit className="text-sky-500 h-4 w-4" />
+                                    </Button>
+                                    <DeleteJadwal id={Number(item.id)} />
+                                </>
+                            )
+                        }
+                        {
+                            item?.status && item.status === "REJECTED" && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant="destructive">
+                                            <InfoIcon />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{item.keteranganAdmin}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            )
+                        }
+                        {
+                            item?.status && item.status === "APPROVED" && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant="outline"><Check className='text-emerald-500' /></Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Jadwal disetujui</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            )
+                        }
+                    </div>) : (
+                    <div className="flex gap-2">
+                        {
+                            item?.status && item.status === "REJECTED" && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant="destructive">
+                                            <InfoIcon />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>{item.keteranganAdmin}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            )
+                        }
+                        {
+                            item?.status && item.status === "APPROVED" && (
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant="outline"><Check className='text-emerald-500' /></Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p>Jadwal disetujui</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            )
+                        }
+                    </div>
+                )
+            }
         </TableCell>
     );
 }

@@ -74,8 +74,8 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
     
     return (
         <TableRow>
-            <TableCell className='border'>{index + 1}</TableCell>
             <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} />
+            <TableCell className='border'>{index + 1}</TableCell>
             <TableCell className={`font-medium border ${capacityStyle}`}>
                 <DosenNameCell
                     item={{ ...item, maxSks: maxSks }}

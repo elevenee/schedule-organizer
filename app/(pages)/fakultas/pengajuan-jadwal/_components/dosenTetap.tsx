@@ -24,8 +24,9 @@ interface Props {
 export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const { open } = useModalManager();
     const session = useSession();
-    const [selectedDosen, setSelectedDosen] = useState<number | null>(session.data?.user?.fakultasId ?? null);
-    const [selectedFakultas, setSelectedFakultas] = useState<number | null>(session.data?.user?.fakultasId ?? null);
+    const [selectedDosen, setSelectedDosen] = useState<number | null>(null);
+    const [currentFakultas, setCurrentFakultas] = useState<number | null>(null);
+    const [selectedFakultas, setSelectedFakultas] = useState<number | null>(null);
     const [selectedProdi, setSelectedProdi] = useState<number | null>(null);
     const [selectedMatkul, setSelectedMatkul] = useState<string | null>(null);
     const [searchDosen, setSearchDosen] = useState<string | null>(null)
@@ -52,7 +53,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const { data: fakultasList, isLoading: isLoadingFakultas } = useGetFakultas({
         page: 1,
         remove_pagination: true,
-        id: selectedFakultas ?? undefined,
+        // id: selectedFakultas ?? undefined,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -95,7 +96,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
 
     useEffect(() => {
         if (session.data?.user?.fakultasId) {
-            setSelectedFakultas(session.data?.user?.fakultasId)
+            setCurrentFakultas(session.data?.user?.fakultasId)
         }
     }, [session])
 
@@ -104,7 +105,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         setSelectedProdi(null)
         setSelectedMatkul(null)
     }
-
+    
     return (
         <>
             <div className="py-4 border-t border-gray-200 flex gap-2 justify-center md:justify-between">
@@ -178,13 +179,14 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                                 <TableCell className="border text-center" colSpan={13}>Memuat...</TableCell>
                             </TableRow>
                         ) : (
-                            data?.data && data?.data?.length ? data.data?.map((item: any, index: number) => (
+                            data?.data && data?.data?.length && session?.data?.user ? data.data?.map((item: any, index: number) => (
                                 <DosenTableRow
                                     key={item.id || index}
                                     item={item}
                                     index={index}
                                     pengaturan={pengaturan}
                                     onOpenModal={open}
+                                    fakultasId={currentFakultas ?? undefined}
                                 />
                             )) : (
                                 <TableRow>
