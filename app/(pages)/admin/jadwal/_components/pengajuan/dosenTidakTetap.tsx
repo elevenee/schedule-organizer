@@ -62,7 +62,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
             value: item.id.toString(),
         })) || [],
         [prodiList, selectedFakultas]
-    );
+    );    
 
     return (
         <>

@@ -55,7 +55,7 @@ export async function GET_PAGINATE({
         status: status as StatusJadwalRequest
     } : {}
     const jenisDosenFilter = jenisDosen ? {
-        status: jenisDosen as TypeDosen
+        Dosen: { status: jenisDosen as TypeDosen }
     } : {}
     const fakultasFilter = fakultas ? {
         fakultasId: fakultas
@@ -83,14 +83,16 @@ export async function GET_PAGINATE({
         tahunAkademikId: selectedTahunAkademik,
         ...programStudiFilter,
         ...matakuliahFilter,
-        ...dosenFilter
+        ...dosenFilter,
+        ...jenisDosenFilter
     };
     const whereJadwalRequest = {
         tahunAkademikId: selectedTahunAkademik,
         ...fakultasFilter,
         ...programStudiFilter,
         ...matakuliahFilter,
-        ...dosenFilter
+        ...dosenFilter,
+        ...jenisDosenFilter
     };
 
     const [jadwalData, jadwalDataRequest, total] = await Promise.all([
@@ -236,7 +238,7 @@ export async function GET_PAGINATE({
 
         const listRequest = jadwalRequestDosen.map((j: any) => ({
             id: j.id,
-            matakuliah: j.Matakuliah?.nama,
+            matakuliah: j.Matakuliah?.nama?.toUpperCase(),
             sks: j.sks?.toNumber(),
             kelas: j.kelas,
             semester: j.semester,
@@ -253,7 +255,7 @@ export async function GET_PAGINATE({
         }));
         const listJadwal = jadwalDosen.map((j: any) => ({
             id: j.id,
-            matakuliah: j.Matakuliah?.nama,
+            matakuliah: j.Matakuliah?.nama?.toUpperCase(),
             sks: j.sks?.toNumber(),
             kelas: j.kelas,
             semester: j.semester,

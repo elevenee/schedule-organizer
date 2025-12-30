@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, TypeDosen } from '@prisma/client';
+import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
 const prisma = new PrismaClient();
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
         const workbook = XLSX.read(buffer, { type: 'buffer' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(worksheet, {
-            header: ['id', 'nip', 'nama','fakultasId','jurusanId'],
+            header: ['nama', 'status', 'nidn', 'nip','fakultas','prodi'],
             range: 1 // Skip header
         });
 
@@ -43,15 +43,6 @@ export async function POST(request: NextRequest) {
             const rowNumber = i + 2; // +2 karena header di row 1 dan array mulai dari 0
 
             // Validasi required fields
-            if (!row.nip) {
-                errors.push({
-                    row: rowNumber,
-                    error: 'NIP wajib diisi',
-                    data: row
-                });
-                continue;
-            }
-
             if (!row.nama) {
                 errors.push({
                     row: rowNumber,
@@ -61,11 +52,23 @@ export async function POST(request: NextRequest) {
                 continue;
             }
 
+            if (!row.status) {
+                errors.push({
+                    row: rowNumber,
+                    error: 'Status wajib diisi',
+                    data: row
+                });
+                continue;
+            }
+
             // Format data
             validatedData.push({
-                nidn: String(row.nidn).trim(),
-                fakultasId: Number(row.fakultasId),
-                jurusanId: Number(row.jurusanId),
+                nama: String(row.nama).trim(),
+                status: String(row.status).trim(),
+                nip: row.nip ? String(row.nip).trim(): null,
+                nidn: row.nidn ? String(row.nidn).trim() : null,
+                fakultasId: row.fakultas ? Number(row.fakultas) : null,
+                jurusanId: row.prodi ? Number(row.prodi) : null,
             });
         }
 
@@ -90,8 +93,6 @@ export async function POST(request: NextRequest) {
                     });
                     if (existingDosen) {
                         // Update data dosen yang sudah ada
-                        console.log(data.fakultasId, data.jurusanId);
-                        
                         await tx.dosen.update({
                             where: { id: existingDosen.id },
                             data: {
@@ -99,9 +100,17 @@ export async function POST(request: NextRequest) {
                                 jurusanId: data.jurusanId,
                             }
                         });
-                    }else{
-                        console.log("Do not exist");
-                        
+                    } else {
+                        await tx.dosen.create({
+                            data: {
+                                nama: data.nama,
+                                status: data.status as TypeDosen,
+                                nip: data.nip,
+                                nidn: data.nidn,
+                                fakultasId: data?.fakultasId ?? null,
+                                jurusanId: data?.jurusanId ?? null,
+                            }
+                        });
                     }
                     
                     successCount++;

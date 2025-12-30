@@ -83,7 +83,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
 
     const matkulOptions = useMemo(() => {
         const data = listMatakuliah?.data?.map((item: any) => ({
-            label: item.nama.replace(/\s+/g, ' ').trim(),
+            label: item.nama.replace(/\s+/g, ' ').trim()?.toUpperCase(),
             value: item.id.toString(),
             sks: item.sks
         })) || [];

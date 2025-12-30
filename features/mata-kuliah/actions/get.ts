@@ -92,7 +92,7 @@ export async function GET_PAGINATE({
         data: data?.map((d: any) => {
             const cleanedNama = d.nama.replace(/\s+/g, ' ').trim();
             return {
-                nama: cleanedNama,
+                nama: cleanedNama?.toUpperCase(),
                 id: d.id,
                 sks: d.sks,
                 jurusanId: d.jurusanId,

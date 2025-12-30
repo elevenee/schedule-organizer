@@ -194,7 +194,7 @@ export async function GET_PAGINATE({
             totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
             jadwal: jadwalDosen.map((j: any) => ({
                 id: j.id,
-                matakuliah: j.Matakuliah?.nama,
+                matakuliah: j.Matakuliah?.nama?.toUpperCase(),
                 sks: j.sks?.toString(),
                 kelas: j.kelas,
                 semester: j.semester,

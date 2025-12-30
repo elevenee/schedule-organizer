@@ -27,7 +27,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
             <ActionButtons item={item} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} onOpenModal={onOpenModal} />
             <TableCell className='border'><div className="text-wrap">{item.Fakultas?.nama}</div></TableCell>
             <TableCell className='border'><div className='text-wrap'>{item.Jurusan?.nama}</div></TableCell>
-            <TableCell className='border text-wrap'><div className='text-wrap'>{item.Matakuliah?.nama}</div></TableCell>
+            <TableCell className='border text-wrap'><div className='text-wrap'>{item.Matakuliah?.nama?.toUpperCase()}</div></TableCell>
             <TableCell className='border text-center'>{`${item.semester}/${item.kelas?.join(',')}`}</TableCell>
             <TableCell className='border text-center'>{item.kelas?.length || 0}</TableCell>
             <TableCell className='border text-center'>{item.sks}</TableCell>
