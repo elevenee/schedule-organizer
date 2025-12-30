@@ -59,6 +59,12 @@ export async function GET_PAGINATE({
                         id: true,
                         nama: true
                     }
+                },
+                Jurusan: {
+                    select: {
+                        id: true,
+                        nama: true
+                    }
                 }
             }
         }),

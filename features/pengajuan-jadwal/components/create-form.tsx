@@ -40,6 +40,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         remove_pagination: true,
         fakultas: form.watch().fakultasId ?? undefined,
         search: searchJurusan,
+        limit: 50,
         sort: {
             field: "nama",
             orderBy: 'asc'

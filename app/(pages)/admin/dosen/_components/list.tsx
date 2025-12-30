@@ -46,6 +46,20 @@ export default function List() {
             ),
         },
         {
+            id: "fakultas",
+            header: "Fakultas",
+            cell: ({ row }) => (
+                <div className="text-wrap">{row.original.Fakultas?.nama ?? "-"}</div>
+            ),
+        },
+        {
+            id: "prodi",
+            header: "Program Studi",
+            cell: ({ row }) => (
+                <div className="text-wrap">{row.original.Jurusan?.nama ?? "-"}</div>
+            ),
+        },
+        {
             accessorKey: "status",
             header: "Status",
             cell: ({ row }) => (
@@ -102,7 +116,7 @@ export default function List() {
         fakultasId: selectedFakultas ?? undefined,
         jurusanId: selectedProdi ?? undefined,
     });
-
+    
     const { data: fakultasList } = useGetFakultas({
         page: 1,
         remove_pagination: true,
@@ -118,6 +132,7 @@ export default function List() {
         fakultas: selectedFakultas ?? 99999,
         remove_pagination: true,
         search: searchJurusan,
+        limit: 100,
         sort: {
             field: "nama",
             orderBy: 'asc'
