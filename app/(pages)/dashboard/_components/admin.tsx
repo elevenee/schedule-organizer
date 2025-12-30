@@ -35,7 +35,7 @@ export default function AdminDashboard() {
                         <Combobox
                             options={listTahunAjaran ? listTahunAjaran?.data?.map((item: any) => {
                                 return {
-                                    label: "TA. " + item.name,
+                                    label: "TA. " + item.name+" - "+ item.semester,
                                     value: item.id.toString()
                                 }
                             }) : []}

@@ -1,9 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogClose,
@@ -12,11 +9,14 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
-} from "@/components/ui/dialog"
-import { tahunAkademikFormValues, tahunAkademikSchema } from '../validations';
-import { useStoreTahunAkademik, useUpdateTahunAkademik } from '../service';
-import { TahunAkademikForm } from './create-form';
+} from "@/components/ui/dialog";
 import { useModalManager } from '@/hooks/modal-manager';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { useStoreTahunAkademik, useUpdateTahunAkademik } from '../service';
+import { tahunAkademikFormValues, tahunAkademikSchema } from '../validations';
+import { TahunAkademikForm } from './create-form';
 
 export function TahunAkademikModal() {
     const { isOpen, getData, close } = useModalManager();
@@ -30,11 +30,12 @@ export function TahunAkademikModal() {
             id: tahunAkademik?.id ?? undefined,
             name: tahunAkademik?.name ?? '',
             status: tahunAkademik?.status as "ACTIVE" | "INACTIVE" ?? 'INACTIVE',
+            semester: tahunAkademik?.semester as 'GANJIL' | 'GENAP' ?? "GANJIL",
         }
     });
     const storeTahunAkademik = useStoreTahunAkademik()
     const updateTahunAkademik = useUpdateTahunAkademik()
-
+    
     const onSubmit = async (values: tahunAkademikFormValues) => {
         setIsSubmitting(true);
         try {
@@ -58,6 +59,7 @@ export function TahunAkademikModal() {
                 id: tahunAkademik?.id ?? undefined,
                 name: tahunAkademik?.name ?? '',
                 status: tahunAkademik?.status as "ACTIVE" | "INACTIVE" ?? 'INACTIVE',
+                semester: tahunAkademik?.semester as 'GANJIL' | 'GENAP' ?? "GANJIL",
             });
         }
     }, [open, tahunAkademik, form]);

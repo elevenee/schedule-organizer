@@ -10,7 +10,6 @@ import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit, Plus, Recycle } from "lucide-react";
-import React from "react";
 
 /* eslint-disable */
 export default function List() {
@@ -30,6 +29,13 @@ export default function List() {
             header: "Tahun Akademik",
             cell: ({ row }) => (
                 <div className="capitalize">{row.getValue("name")}</div>
+            ),
+        },
+        {
+            accessorKey: "semester",
+            header: "Semester",
+            cell: ({ row }) => (
+                <div className="capitalize">{row.getValue("semester")}</div>
             ),
         },
         {

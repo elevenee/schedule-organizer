@@ -1,16 +1,16 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { useGetFakultas } from "@/features/fakultas/service";
 import { DeleteProgramStudi } from "@/features/program-studi/components/delete-dialog";
+import { UserModal } from "@/features/user/components/create-modal";
+import UserAdvanceFilterForm from "@/features/user/components/filter-advance";
+import { useGetUser } from "@/features/user/service";
+import { useModalManager } from "@/hooks/modal-manager";
+import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit, Plus } from "lucide-react";
 import { useState } from "react";
-import { useModalManager } from "@/hooks/modal-manager";
-import { useGetFakultas } from "@/features/fakultas/service";
-import { useDataTable } from "@/hooks/use-datatables";
-import UserAdvanceFilterForm from "@/features/user/components/filter-advance";
-import { UserModal } from "@/features/user/components/create-modal";
-import { useGetUser } from "@/features/user/service";
 
 /* eslint-disable */
 export default function List() {
@@ -30,6 +30,13 @@ export default function List() {
             header: "Nama",
             cell: ({ row }) => (
                 <div>{row.getValue("name")}</div>
+            ),
+        },
+        {
+            accessorKey: "username",
+            header: "Username",
+            cell: ({ row }) => (
+                <div>{row.getValue("username")}</div>
             ),
         },
         {
