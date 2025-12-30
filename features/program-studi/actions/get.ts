@@ -44,7 +44,7 @@ export async function GET_PAGINATE({
         ...idFilter,
         ...withDeleted
     };    
-
+    
     const [data, total] = await Promise.all([
         prisma.jurusan.findMany({
             skip,
@@ -57,7 +57,7 @@ export async function GET_PAGINATE({
         }),
         prisma.jurusan.count({ where }),
     ]);    
-
+    
     return { data, total };
 }
 

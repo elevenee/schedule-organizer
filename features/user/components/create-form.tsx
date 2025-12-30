@@ -1,12 +1,12 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
-import { userFormValues } from '@/features/user/validations';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/combobox';
-import { Role } from '@prisma/client';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { useGetFakultas } from '@/features/fakultas/service';
+import { userFormValues } from '@/features/user/validations';
+import { Role } from '@prisma/client';
+import { UseFormReturn } from 'react-hook-form';
 
 interface Props {
     form: UseFormReturn<userFormValues>;
@@ -118,7 +118,7 @@ export function UserForm({ form, onSubmit }: Props) {
                                 <Combobox
                                     options={fakultasData?.data?.map((item:any) => ({ label: item.nama, value: String(item.id) })) || []}
                                     value={field.value ? field.value.toString() : ''}
-                                    onChange={(val) => setValue('fakultasId', val as Role)}
+                                    onChange={(val) => setValue('fakultasId', val)}
                                     placeholder="Pilih Fakultas"
                                 />
                             </FormControl>
