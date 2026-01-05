@@ -1,9 +1,9 @@
 'use server';
 
-import { prisma } from "@/lib/prisma";
-import { jadwalFormValues } from "../validations";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
+import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth";
+import { jadwalFormValues } from "../validations";
 
 export async function create(formData: jadwalFormValues) {
   const session = await getServerSession(authOptions);
@@ -28,9 +28,15 @@ export async function create(formData: jadwalFormValues) {
     include: { Dosen: true }
   });
 
+  const getDosen = await prisma.dosen.findUnique({
+    where: {
+      id: Number(dosenId),
+    },
+  }); 
+
   const getPengaturanJadwal = await prisma.pengaturanJadwal.findFirst({
     where: {
-      jenisDosen: getCurrent[0]?.Dosen?.status
+      jenisDosen: getDosen?.status,
     },
   });
 
