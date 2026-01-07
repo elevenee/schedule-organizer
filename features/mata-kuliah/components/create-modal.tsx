@@ -1,14 +1,14 @@
 'use client';
 
+import { Button } from "@/components/ui/button";
+import BaseModal from '@/components/ui/modal';
+import { useModalManager } from '@/hooks/modal-manager';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from "@/components/ui/button"
-import { mataKuliahFormValues, mataKuliahSchema } from '../validations';
 import { useStoreMataKuliah, useUpdateMataKuliah } from '../hooks/matkul.hook';
+import { mataKuliahFormValues, mataKuliahSchema } from '../validations';
 import { MataKuliahForm } from './create-form';
-import { useModalManager } from '@/hooks/modal-manager';
-import BaseModal from '@/components/ui/modal';
 
 export function MataKuliahModal() {
     const { isOpen, getData, close } = useModalManager();
@@ -22,8 +22,10 @@ export function MataKuliahModal() {
             id: mataKuliah?.id ? Number(mataKuliah.id) : undefined,
             nama: mataKuliah?.nama ?? '',
             kode: mataKuliah?.kode ?? '',
-            sks: mataKuliah?.sks ?? undefined,
+            sks: mataKuliah?.sks?.toString() ?? undefined,
+            semester: mataKuliah?.semester?.toString() ?? undefined,
             jurusanId: mataKuliah?.jurusanId ? Number(mataKuliah.jurusanId) : undefined,
+            kurikulumId: mataKuliah?.kurikulumId ? Number(mataKuliah.kurikulumId) : undefined,
         }
     });
     const storeMatakuliah = useStoreMataKuliah()
@@ -52,8 +54,10 @@ export function MataKuliahModal() {
                 id: mataKuliah?.id ? Number(mataKuliah.id) : undefined,
                 nama: mataKuliah?.nama ?? '',
                 kode: mataKuliah?.kode ?? '',
-                sks: mataKuliah?.sks ?? undefined,
+                sks: mataKuliah?.sks?.toString() ?? undefined,
+                semester: mataKuliah?.semester?.toString() ?? undefined,
                 jurusanId: mataKuliah?.jurusanId ? Number(mataKuliah.jurusanId) : undefined,
+                kurikulumId: mataKuliah?.kurikulumId ? Number(mataKuliah.kurikulumId) : undefined,
             });
         }
     }, [open, mataKuliah, form]);

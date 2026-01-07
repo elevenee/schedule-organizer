@@ -24,19 +24,20 @@ export async function GET_PAGINATE({
     const searchNama = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};
-    const statusFilter = status ? { status: status as TypeDosen  } : {};
+    const statusFilter = status ? { status: status as TypeDosen } : {};
     const user = await getServerSession(authOptions);
     if (!user) throw new Error("Unauthorized");
 
-     let withDeleted = { deletedAt: null } as any;
+    let withDeleted = { deletedAt: null } as any;
+    let isActiveFilter = { isActive } as any;
     if (user?.user?.role === 'ADMIN') {
-        withDeleted = {  } as any;
+        withDeleted = {} as any;
+        isActiveFilter = false;
     }
 
     const fakultasFilter = fakultasId ? { fakultasId } : {};
     const jurusanFilter = jurusanId ? { jurusanId } : {};
     const idFilter = id ? { id } : {};
-    const isActiveFilter = isActive;
 
     const where = {
         ...idFilter,
@@ -44,7 +45,8 @@ export async function GET_PAGINATE({
         ...statusFilter,
         ...fakultasFilter,
         ...jurusanFilter,
-        ...withDeleted
+        ...withDeleted,
+        ...isActiveFilter
     };
     // prisma.user.findMany({ withDeleted: true })
     const [data, total] = await Promise.all([

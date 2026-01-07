@@ -53,6 +53,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         id: form.watch().dosenId ?? undefined,
         search: searchDosen,
         status: jenisDosen,
+        isActive: true,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -73,7 +74,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         page: 1,
         remove_pagination: true,
         jurusanId: form.watch().jurusanId ?? 9999999,
-        // semester: form.watch().semester ?? 999999,
+        semester: form.watch().semester ?? 999999,
         kurikulumId: form.watch().kurikulumId ?? 999999,
         limit: 50,
         search: searchMatkuliah,
@@ -140,7 +141,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
 
     const { data: tahunAkademik } = useGetTahunAkademikAktif();
 
-    const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
+    const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8, 99];
 
     useEffect(() => {
         if (tahunAkademik) {

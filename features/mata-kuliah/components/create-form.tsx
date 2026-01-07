@@ -48,6 +48,18 @@ export function MataKuliahForm({ form, onSubmit }: Props) {
         return data;
     }, [listJurusan]) as { label: string; value: string; jenjang: string }[];
 
+    const SEMESTER = [
+        { label: '1', value: '1' },
+        { label: '2', value: '2' },
+        { label: '3', value: '3' },
+        { label: '4', value: '4' },
+        { label: '5', value: '5' },
+        { label: '6', value: '6' },
+        { label: '7', value: '7' },
+        { label: '8', value: '8' },
+        { label: '99', value: '99' },
+    ];
+
     return (
         <Form {...form}>
             <form id="form-mata-kuliah" onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-12 gap-4">
@@ -152,7 +164,12 @@ export function MataKuliahForm({ form, onSubmit }: Props) {
                         <FormItem className='col-span-12 md:col-span-6'>
                             <FormLabel required>Semester</FormLabel>
                             <FormControl>
-                                <Input placeholder="Input semester" type='number' {...field} max={8} min={1} />
+                                <Combobox
+                                    options={SEMESTER ?? []}
+                                    value={field.value ? field.value.toString() : ""}
+                                    onChange={(val) => setValue('semester', val)}
+                                    placeholder="Pilih Semester"
+                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

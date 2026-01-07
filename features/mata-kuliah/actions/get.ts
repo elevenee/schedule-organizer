@@ -51,7 +51,7 @@ export async function GET_PAGINATE({
         ...idFilter,
         ...searchFilter,
         ...jurusanFilter,
-        // ...semesterFilter,
+        ...semesterFilter,
         ...kurikulumFilter
     };
 
@@ -92,6 +92,7 @@ export async function GET_PAGINATE({
         data: data?.map((d: any) => {
             const cleanedNama = d.nama.replace(/\s+/g, ' ').trim();
             return {
+                kode: d.kode,
                 nama: cleanedNama?.toUpperCase(),
                 id: d.id,
                 sks: d.sks,
@@ -99,7 +100,8 @@ export async function GET_PAGINATE({
                 jurusan: d.Jurusan?.nama,
                 semester: d.semester,
                 originalNama: d.nama,
-                kurikulum: d.kurikulum?.nama
+                kurikulum: d.kurikulum?.nama,
+                kurikulumId: d.kurikulumId
             }
         }), total
     };

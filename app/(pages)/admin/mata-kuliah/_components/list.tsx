@@ -12,7 +12,7 @@ import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
-import { Import, Plus, RecycleIcon } from "lucide-react";
+import { Edit, Import, Plus, RecycleIcon } from "lucide-react";
 import React, { useMemo } from "react";
 
 /* eslint-disable */
@@ -67,6 +67,21 @@ export default function List() {
             cell: ({ row }) => (
                 <>{row.original.sks}</>
             ),
+        },
+        {
+            id: "actions",
+            enableHiding: false,
+            cell: ({ row }) => {
+                return (
+                    <div className='flex flex-wrap gap-2'>
+                        {
+                            !row.original.deletedAt && (
+                                <Button variant={"outline"} onClick={() => open("mataKuliahModal", row.original)}><Edit /> <span className="hidden md:flex">Edit</span></Button>
+                            )
+                        }
+                    </div>
+                )
+            },
         },
     ];
 
