@@ -7,7 +7,8 @@ export const mataKuliahSchema = z.object({
     sks: z.number().min(1, "Jumlah SKS harus diisi"),
     semester: z.number().min(1, "Semester harus diisi"),
     jurusanId: z.number().min(1, "Jurusan harus diisi"),
-    jenjang: z.string().optional()
+    jenjang: z.string().optional(),
+    kurikulumId: z.number().min(1, "Kurikulum harus diisi")
 });
 
 export type mataKuliahFormValues = z.infer<typeof mataKuliahSchema>;

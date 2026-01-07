@@ -29,22 +29,22 @@ export async function GET_PAGINATE({
         withDeleted = {} as any;
     }
 
-    const getKurikulumMatakul = await prisma.mataKuliah.findMany({
-        where: {
-            jurusanId: jurusanId ? Number(jurusanId) : 99999999
-        }
-    })
+    // const getKurikulumMatakul = await prisma.mataKuliah.findMany({
+    //     where: {
+    //         jurusanId: jurusanId ? Number(jurusanId) : 99999999
+    //     }
+    // })
 
     const where = {
         ...searchKurikulum,
         ...withDeleted,
-        id: { in: getKurikulumMatakul.map((x) => x.kurikulumId) }
+        // id: { in: getKurikulumMatakul.map((x) => x.kurikulumId) }
     };
     const [data, total] = await Promise.all([
         prisma.kurikulum.findMany({
             skip,
             take: limit,
-            where,
+            where,  
             orderBy: { "status": "asc" },
         }),
         prisma.kurikulum.count({ where }),

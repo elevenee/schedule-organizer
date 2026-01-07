@@ -31,7 +31,8 @@ export async function SYNC() {
     try {
         const listKurikulum = [130, 79, 108, 116, 123, 119, 160, 155, 128, 75, 81, 82, 121, 124, 134, 109, 113, 112, 125, 122, 132, 164, 77, 78, 76, 107, 106, 114, 110, 118, 126, 120, 149, 154, 163, 131, 58, 89, 83, 87, 91, 92, 93, 96, 102, 105, 129, 145, 146, 147, 151, 137, 148, 139, 143, 161, 162, 133, 135, 94, 98, 85, 86, 101, 90, 88, 84, 103, 104, 115, 100, 117, 127, 138, 141, 140, 142, 144, 152, 153, 156, 159, 157, 150, 97, 95, 99, 158, 136];
         const texts = ['ujian', 'tesis', 'skripsi'];
-        allData = allData.filter((v) => listKurikulum.includes(Number(v.KURIKULUM_ID)))
+        allData = allData
+            // .filter((v) => listKurikulum.includes(Number(v.KURIKULUM_ID)))
             .filter((s)=> s.SEMESTER > 0)
             .filter((item) => {
                 const itemName = item.NAMA_MATAKULIAH.toLowerCase();

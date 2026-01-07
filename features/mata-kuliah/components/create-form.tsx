@@ -1,12 +1,14 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
-import { mataKuliahFormValues } from '@/features/mata-kuliah/validations';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Combobox } from '@/components/ui/combobox';
-import { Jurusan } from '@prisma/client';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { useGetKurikulumAktif } from '@/features/kurikulum/service';
+import { Kurikulum } from '@/features/kurikulum/types';
+import { mataKuliahFormValues } from '@/features/mata-kuliah/validations';
 import { useGetProdi } from '@/features/program-studi/hooks/useProdi';
+import { Jurusan } from '@prisma/client';
+import { UseFormReturn } from 'react-hook-form';
 
 interface Props {
     form: UseFormReturn<mataKuliahFormValues>;
@@ -21,9 +23,17 @@ export function MataKuliahForm({ form, onSubmit }: Props) {
         setValue,
     } = form;
 
-    const {data: listJurusan} = useGetProdi({
+    const { data: listJurusan } = useGetProdi({
         page: 1,
         remove_pagination: true
+    })
+    const { data: listKurikulum, isLoading: isLoadingKurikulum } = useGetKurikulumAktif({
+        page: 1,
+        remove_pagination: true,
+        sort: {
+            field: "nama",
+            orderBy: 'asc'
+        }
     })
     return (
         <Form {...form}>
@@ -69,12 +79,38 @@ export function MataKuliahForm({ form, onSubmit }: Props) {
                 />
                 <FormField
                     control={form.control}
+                    name="kurikulumId"
+                    render={({ field }) => (
+                        <FormItem className='col-span-12 md:col-span-6'>
+                            <FormLabel required>Kurikulum</FormLabel>
+                            <FormControl>
+                                <Combobox
+                                    className='w-full'
+                                    options={listKurikulum ? listKurikulum?.map((t: Kurikulum) => {
+                                        return {
+                                            label: t.nama,
+                                            value: t.id.toString()
+                                        }
+                                    }) : []}
+                                    isLoading={isLoadingKurikulum}
+                                    value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
+                                    onChange={(value) => field.onChange(Number(value))}
+                                    loadingMessage='Memuat data kurikulum'
+                                    placeholder="Pilih Kurikulum"
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
                     name="semester"
                     render={({ field }) => (
                         <FormItem className='col-span-12 md:col-span-6'>
                             <FormLabel required>Semester</FormLabel>
                             <FormControl>
-                                <Input placeholder="Input semester" type='number' {...field} max={8} min={1}/>
+                                <Input placeholder="Input semester" type='number' {...field} max={8} min={1} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

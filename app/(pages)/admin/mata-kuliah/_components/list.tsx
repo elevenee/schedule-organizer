@@ -93,8 +93,6 @@ export default function List() {
         semester: selectedSemester,
         jurusanId: selectedJurusan
     });
-
-    console.log(data);
     
     const { data: fakultasList } = useGetFakultas({
         page: 1,
