@@ -1,16 +1,16 @@
 'use client'
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
+import { useGetFakultas } from "@/features/fakultas/service";
 import { ProgramStudiModal } from "@/features/program-studi/components/create-modal";
 import { DeleteProgramStudi } from "@/features/program-studi/components/delete-dialog";
 import ProgramStudiFilterAdvanceForm from "@/features/program-studi/components/filter-advance";
+import { useGetProdi, useSyncProgramStudi } from "@/features/program-studi/hooks/useProdi";
+import { useModalManager } from "@/hooks/modal-manager";
+import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
 import { Edit, Plus, RecycleIcon } from "lucide-react";
 import { useState } from "react";
-import { useModalManager } from "@/hooks/modal-manager";
-import { useGetProdi, useSyncProgramStudi } from "@/features/program-studi/hooks/useProdi";
-import { useGetFakultas } from "@/features/fakultas/service";
-import { useDataTable } from "@/hooks/use-datatables";
 
 /* eslint-disable */
 export default function List() {
@@ -67,14 +67,14 @@ export default function List() {
         resetAll
     } = useDataTable({
         initialPageSize: 20,
-        initialSort: [{ id: "name", desc: false }],
+        initialSort: [{ id: "nama", desc: false }],
     });
 
     const { data, isLoading } = useGetProdi({
         page: page,
         limit: limit,
         search: search,
-        sort: { field: sorting[0].id ?? 'name', orderBy: sorting[0].desc ? 'desc' : 'asc' },
+        sort: { field: sorting[0].id ?? 'nama', orderBy: sorting[0].desc ? 'desc' : 'asc' },
         fakultas: Number(selectedFakultas)
     })
     const { data: dataFakultas, isLoading: isLoadingFakultas } = useGetFakultas({

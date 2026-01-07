@@ -50,7 +50,7 @@ export async function GET_PAGINATE({
             skip,
             take: limit,
             where: where,
-            orderBy: { createdAt: "desc" },
+            orderBy: { [sort.field]: sort.orderBy.toLowerCase() as Prisma.SortOrder },
             include: {
                 Fakultas: { select: { id: true, nama: true } }
             }
