@@ -26,6 +26,7 @@ interface Props {
 /* eslint-disable */
 export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
     const [availableSemester, setAvailableSemester] = useState<{ value: string; label: string }[]>([]);
+    const [searchMatkuliah, setSearchMatkuliah] = useState('')
     const [searchDosen, setSearchDosen] = useState('')
     const [searchJurusan, setSearchJurusan] = useState('')
     const {
@@ -68,13 +69,14 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         }
     })
 
-    const { data: listMatakuliah } = useGetMataKuliah({
+    const { data: listMatakuliah, isLoading: isLoadingMatakuliah } = useGetMataKuliah({
         page: 1,
         remove_pagination: true,
         jurusanId: form.watch().jurusanId ?? 9999999,
-        semester: form.watch().semester ?? 999999,
+        // semester: form.watch().semester ?? 999999,
         kurikulumId: form.watch().kurikulumId ?? 999999,
         limit: 50,
+        search: searchMatkuliah,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -85,7 +87,8 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         const data = listMatakuliah?.data?.map((item: any) => ({
             label: item.nama.replace(/\s+/g, ' ').trim()?.toUpperCase(),
             value: item.id.toString(),
-            sks: item.sks
+            sks: item.sks,
+            semester: item.semester
         })) || [];
         const resultMap = new Map();
 
@@ -273,13 +276,25 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
                             <FormLabel required>Nama Matakuliah</FormLabel>
                             <FormControl>
                                 <Combobox
-                                    options={matkulOptions?.length ? matkulOptions : []}
+                                   data={matkulOptions ? matkulOptions?.map((t: any) => {
+                                        return {
+                                            label: <div className='flex flex-col gap-0'>
+                                                <span>{t.label}</span>
+                                                <span className='text-xs text-gray-500'>Semester {t.semester ? t.semester : ""}</span>
+                                            </div>,
+                                            value: t.value
+                                        }
+                                    }) : []}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => {
                                         field.onChange(Number(value));
                                         const sks = matkulOptions.filter((v: any) => v.value === value);
                                         setValue('sks', sks && sks.length ? sks[0]?.sks.toString() : "")
                                     }}
+                                    isLoading={isLoadingMatakuliah}
+                                    onSearch={setSearchMatkuliah}
+                                    showSearch={true}
+                                    emptyMessage="Matakuliah tidak ditemukan"
                                     placeholder="Pilih Matakuliah"
                                 />
                             </FormControl>

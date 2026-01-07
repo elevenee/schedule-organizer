@@ -27,6 +27,16 @@ export async function create(formData: jadwalFormValues) {
     },
     include: { Dosen: true }
   });
+  const getCurrentPengajuan = await prisma.jadwalRequest.findMany({
+    where: {
+      tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+      dosenId: Number(dosenId),
+      status: {
+        in: ['PENDING']
+      }
+    },
+    include: { Dosen: true }
+  });
 
   const getDosen = await prisma.dosen.findUnique({
     where: {
@@ -42,6 +52,10 @@ export async function create(formData: jadwalFormValues) {
 
   const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks.toNumber() * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
   if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
+    return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
+  }
+  const totalSksPengajuan = getCurrentPengajuan.reduce((total, jadwal) => total + (jadwal.sks.toNumber() * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
+  if (totalSksPengajuan > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
     return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
   }
   const data = {

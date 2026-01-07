@@ -51,7 +51,7 @@ export async function GET_PAGINATE({
         ...idFilter,
         ...searchFilter,
         ...jurusanFilter,
-        ...semesterFilter,
+        // ...semesterFilter,
         ...kurikulumFilter
     };
 
