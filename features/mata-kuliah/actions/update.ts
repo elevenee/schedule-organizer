@@ -6,13 +6,14 @@ export async function update(id: number, formData: mataKuliahFormValues) {
     const find = await prisma.mataKuliah.findUnique({ where: { id } });
     if (!find) return { error: 'Tahun Akademik tidak ditemukan' };
 
-    const { nama, kode, sks, jurusanId, semester } = formData;
+    const { nama, kode, sks, jurusanId, semester, kurikulumId } = formData;
     const updateData = {
         nama,
         kode,
-        sks,
+        sks: Number(sks),
         semester: Number(semester),
         jurusanId: Number(jurusanId),
+        kurikulumId: Number(kurikulumId) || null
     }
 
     const updated = await prisma.mataKuliah.update({
