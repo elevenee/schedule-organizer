@@ -1,5 +1,6 @@
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { approveRequest } from "./actions/approve";
 import { create } from "./actions/create";
 import { destroy } from "./actions/delete";
 import { GET_PAGINATE } from "./actions/get";
@@ -118,6 +119,26 @@ export const useUpdateStatusJadwal = async (options: MutationOptions = {}) => {
 
     return useMutation({
         mutationFn: ({ id, data }: { id: number; data: any }) => updateStatusJadwalRequest(id, data, showProccessAlert),
+        onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["pengajuan-jadwal"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Status Jadwal gagal perbaharui"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert),
+    });
+};
+const approveJadwalRequest = async (id: number, formData: any, showProccessAlert: boolean) => {
+    return handleMutation(
+        () => (approveRequest(id, formData)),
+        showProccessAlert,
+        "Updating Data",
+        "Data sedang diproses"
+    );
+};
+
+export const useApproveJadwalRequest = async (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: any }) => approveJadwalRequest(id, data, showProccessAlert),
         onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["pengajuan-jadwal"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Status Jadwal gagal perbaharui"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert),

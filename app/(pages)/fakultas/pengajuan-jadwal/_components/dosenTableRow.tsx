@@ -5,7 +5,7 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
 import { DeleteJadwal } from '@/features/pengajuan-jadwal/components/delete-dialog';
-import { Check, Edit, InfoIcon } from 'lucide-react';
+import { Edit, Info, InfoIcon } from 'lucide-react';
 
 /* eslint-disable */
 interface DosenTableRowProps {
@@ -147,7 +147,7 @@ function ActionButtons({ item, hasActions, onOpenModal, pengaturan, fakultasId }
                             item?.status && item.status === "APPROVED" && (
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant="outline"><Check className='text-emerald-500' /></Button>
+                                        <Button variant="outline"><Info className='text-emerald-500' /></Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p>Jadwal disetujui</p>
@@ -175,7 +175,7 @@ function ActionButtons({ item, hasActions, onOpenModal, pengaturan, fakultasId }
                             item?.status && item.status === "APPROVED" && (
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button variant="outline"><Check className='text-emerald-500' /></Button>
+                                        <Button variant="outline"><Info className='text-emerald-500' /></Button>
                                     </TooltipTrigger>
                                     <TooltipContent>
                                         <p>Jadwal disetujui</p>

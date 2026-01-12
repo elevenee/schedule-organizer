@@ -1,0 +1,63 @@
+'use server';
+
+import { prisma } from "@/lib/prisma";
+import { StatusJadwalRequest } from "@prisma/client";
+
+export async function approveRequest(id: number, formData: any) {
+    const find = await prisma.jadwalRequest.findUnique({ where: { id } });
+    if (!find) return { error: 'Jadwal tidak ditemukan' };
+
+    const tahunAkademik = await prisma.tahunAkademik.findFirst({
+        where: { status: "ACTIVE" },
+    })
+    if (!tahunAkademik) {
+        throw new Error("Tahun akademik tidak ditemukan")
+    }
+
+    const { matakuliahId, sks, dosenId, semester, kelas, fakultasId, jurusanId } = formData;
+    const getCurrent = await prisma.jadwal.findMany({
+        where: {
+            tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+            dosenId: Number(dosenId),
+        },
+        include: { Dosen: true }
+    });
+
+    const getPengaturanJadwal = await prisma.pengaturanJadwal.findFirst({
+        where: {
+            jenisDosen: getCurrent[0]?.Dosen?.status
+        },
+    });
+
+    const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks.toNumber() * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
+    if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
+        return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
+    }
+    
+
+    const data = {
+        tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+        matakuliahId,
+        sks: Number(sks),
+        semester: Number(semester),
+        dosenId: Number(dosenId),
+        fakultasId: Number(fakultasId),
+        jurusanId: Number(jurusanId),
+        totalSks: Number(sks) * kelas.length,
+        kelas
+    }
+    const [updated, created] = await Promise.all([
+        await prisma.jadwalRequest.update({
+            where: { id },
+            data: {
+                status: StatusJadwalRequest.APPROVED,
+                keteranganAdmin: formData.keteranganAdmin as string || null,
+            },
+        }),
+        await prisma.jadwal.create({
+            data: data
+        })
+    ]);
+
+    return { success: true, data: { ...updated, sks: updated.sks.toNumber(), totalSks: updated.totalSks?.toNumber() }, created: created ? true : false };
+}

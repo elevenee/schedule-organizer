@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { JadwalModal } from "@/features/jadwal/components/create-modal";
+import { ApproveJadwalRequestModal } from "@/features/pengajuan-jadwal/components/approve-modal";
 import { StatusJadwalRequestModal } from "@/features/pengajuan-jadwal/components/update-status";
 import { StatusJadwalRequestAllModal } from "@/features/pengajuan-jadwal/components/update-status-all";
 import { useGetPengaturanJadwal } from "@/features/pengaturan/jadwal/service";
@@ -62,6 +63,7 @@ export default function List() {
             <ListPengajuanModal />
             <StatusJadwalRequestModal />
             <StatusJadwalRequestAllModal />
+            <ApproveJadwalRequestModal />
         </div>
     );
 }

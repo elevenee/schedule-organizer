@@ -32,7 +32,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
         <>
             {item.jadwal.map((jadwal: any, jadwalIndex: number) => (
                 <TableRow key={`${item.id}-${jadwal.id || jadwalIndex}`}>
-                    <ActionButtons item={jadwal} hasActions={true} onOpenModal={onOpenModal} />
+                    <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={true} onOpenModal={onOpenModal} />
                     {/* First row with rowspan for common data */}
                     {jadwalIndex === 0 && (
                         <>
@@ -74,7 +74,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
     return (
         <TableRow>
-            <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} />
+            <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={hasJadwal} onOpenModal={onOpenModal} />
             <TableCell className='border'>{index + 1}</TableCell>
             <TableCell className={`font-medium border ${capacityStyle}`}>
                 <DosenNameCell
@@ -93,11 +93,26 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
 // Helper component for action buttons
 /* eslint-disable */
-function ActionButtons({ item, hasActions, onOpenModal }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
+function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenModal }: { item: any; currentTotalSks?: number; pengaturan: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
     if (!hasActions) return <TableCell className='border'></TableCell>;
 
     const handleApprove = () => {
-        onOpenModal("statusJadwalRequestModal", { id: item.id, status: "APPROVED" });
+        const itemEdit = {
+            id: item?.id ? Number(item.id) : undefined,
+            matakuliahId: Number(item?.matakuliahId) ?? undefined,
+            kurikulumId: Number(item?.kurikulumId) ?? undefined,
+            sks: item?.sks ? item.sks.toString() : undefined,
+            kelas: item?.kelas ?? [],
+            keterangan: item?.keterangan ?? '',
+            semester: item?.semester ? item.semester.toString() : undefined,
+            dosenId: item?.dosenId ? Number(item.dosenId) : undefined,
+            fakultasId: item?.fakultasId ? Number(item.fakultasId) : undefined,
+            jurusanId: item?.jurusanId ? Number(item.jurusanId) : undefined,
+            currentTotalSKS: currentTotalSks,
+            maxSks: pengaturan?.maxSks,
+            jenisDosen: pengaturan?.jenisDosen
+        } as any;
+        onOpenModal("approveJadwalRequestModal", itemEdit);
     }
     const handleReject = () => {
         onOpenModal("statusJadwalRequestModal", { id: item.id, status: "REJECTED" });
