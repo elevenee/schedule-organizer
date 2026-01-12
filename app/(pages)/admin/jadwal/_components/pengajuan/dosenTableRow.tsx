@@ -1,9 +1,9 @@
 'use client'
 import { Button } from '@/components/ui/button';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
-import { Jadwal } from '@prisma/client';
-import { Check, X } from 'lucide-react';
+import { Check, Info, InfoIcon, X } from 'lucide-react';
 
 /* eslint-disable */
 interface DosenTableRowProps {
@@ -15,7 +15,7 @@ interface DosenTableRowProps {
 
 export function DosenTableRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
     const hasMultipleJadwal = item?.jadwal?.length > 1;
-    
+
     if (hasMultipleJadwal) {
         return <MultipleJadwalRow item={item} index={index} pengaturan={pengaturan} onOpenModal={onOpenModal} />;
     }
@@ -39,7 +39,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                             <TableCell rowSpan={item.jadwal.length} className='border'>{index + 1}</TableCell>
                             <TableCell rowSpan={item.jadwal.length} className={`font-medium ${capacityStyle}`}>
                                 <DosenNameCell
-                                    item={{ ...item, maxSks: maxSks}}
+                                    item={{ ...item, maxSks: maxSks }}
                                     isOverCapacity={isOverCapacity}
                                     onOpenModal={onOpenModal}
                                 />
@@ -71,7 +71,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
     const jadwal = item.jadwal?.[0];
     const hasJadwal = !!jadwal;
     const maxSks = pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks || 0;
-    
+
     return (
         <TableRow>
             <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} />
@@ -93,26 +93,56 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
 
 // Helper component for action buttons
 /* eslint-disable */
-function ActionButtons({ item, hasActions, onOpenModal }: { item: Jadwal; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
+function ActionButtons({ item, hasActions, onOpenModal }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; }) {
     if (!hasActions) return <TableCell className='border'></TableCell>;
 
     const handleApprove = () => {
         onOpenModal("statusJadwalRequestModal", { id: item.id, status: "APPROVED" });
     }
     const handleReject = () => {
-       onOpenModal("statusJadwalRequestModal", { id: item.id, status: "REJECTED" });
+        onOpenModal("statusJadwalRequestModal", { id: item.id, status: "REJECTED" });
     }
 
     return (
         <TableCell className='border'>
-            <div className="flex gap-2">
-                <Button variant="outline" onClick={handleApprove}>
-                    <Check className="text-sky-500 h-4 w-4" />
-                </Button>
-                <Button variant="outline" onClick={handleReject}>
-                    <X className="text-rose-500 h-4 w-4" />
-                </Button>
-            </div>
+            {
+                item.status === 'PENDING' && (
+                    <div className="flex gap-2">
+                        <Button variant="outline" onClick={handleApprove}>
+                            <Check className="text-sky-500 h-4 w-4" />
+                        </Button>
+                        <Button variant="outline" onClick={handleReject}>
+                            <X className="text-rose-500 h-4 w-4" />
+                        </Button>
+                    </div>
+                )
+            }
+            {
+                item?.status && item.status === "REJECTED" && (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="destructive">
+                                <InfoIcon />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>{item.keteranganAdmin}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                )
+            }
+            {
+                item?.status && item.status === "APPROVED" && (
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Button variant="outline"><Info className='text-emerald-500' /></Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Jadwal disetujui</p>
+                        </TooltipContent>
+                    </Tooltip>
+                )
+            }
         </TableCell>
     );
 }

@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { jadwalSchema } from "./validations";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { create } from "./actions/create";
-import { update, updateStatus } from "./actions/update";
 import { destroy } from "./actions/delete";
 import { GET_PAGINATE } from "./actions/get";
+import { update, updateStatus, updateStatusAll } from "./actions/update";
+import { jadwalSchema } from "./validations";
 
 interface StoreOptions extends MutationOptions { }
 
@@ -118,6 +118,26 @@ export const useUpdateStatusJadwal = async (options: MutationOptions = {}) => {
 
     return useMutation({
         mutationFn: ({ id, data }: { id: number; data: any }) => updateStatusJadwalRequest(id, data, showProccessAlert),
+        onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["pengajuan-jadwal"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Status Jadwal gagal perbaharui"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert),
+    });
+};
+const updateStatusJadwalRequestAll = async (ids: number[], formData: any, showProccessAlert: boolean) => {
+    return handleMutation(
+        () => (updateStatusAll(ids, formData)),
+        showProccessAlert,
+        "Updating Data",
+        "Data sedang diproses"
+    );
+};
+
+export const useUpdateStatusJadwalAll = async (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: ({ ids, data }: { ids: number[]; data: any }) => updateStatusJadwalRequestAll(ids, data, showProccessAlert),
         onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["pengajuan-jadwal"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Status Jadwal gagal perbaharui"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert),

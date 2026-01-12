@@ -24,8 +24,9 @@ interface Props {
 export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
     const { open } = useModalManager();
     const session = useSession();
-    const [selectedDosen, setSelectedDosen] = useState<number | null>(session.data?.user?.fakultasId ?? null);
-    const [selectedFakultas, setSelectedFakultas] = useState<number | null>(session.data?.user?.fakultasId ?? null);
+    const [selectedDosen, setSelectedDosen] = useState<number | null>(null);
+    const [currentFakultas, setCurrentFakultas] = useState<number | null>(null);
+    const [selectedFakultas, setSelectedFakultas] = useState<number | null>(null);
     const [selectedProdi, setSelectedProdi] = useState<number | null>(null);
     const [selectedMatkul, setSelectedMatkul] = useState<string | null>(null);
     const [searchDosen, setSearchDosen] = useState<string | null>(null)
@@ -34,7 +35,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
         search: "",
         jenisDosen: "TIDAK_TETAP",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
-        sort: { field: 'matakuliah', orderBy: 'asc' },
+        sort: { field: 'dosen.nama', orderBy: 'asc' },
         fakultas: selectedFakultas ?? null,
         programStudi: selectedProdi ?? null,
         matakuliah: selectedMatkul ?? null,
@@ -53,7 +54,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
     const { data: fakultasList, isLoading: isLoadingFakultas } = useGetFakultas({
         page: 1,
         remove_pagination: true,
-        id: selectedFakultas ?? undefined,
+        // id: selectedFakultas ?? undefined,
         sort: {
             field: "nama",
             orderBy: 'asc'
@@ -96,7 +97,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
 
     useEffect(() => {
         if (session.data?.user?.fakultasId) {
-            setSelectedFakultas(session.data?.user?.fakultasId)
+            setCurrentFakultas(session.data?.user?.fakultasId)
         }
     }, [session])
 
@@ -109,7 +110,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
     return (
         <>
             <div className="py-4 border-t border-gray-200 flex gap-2 justify-center md:justify-between">
-                <Button variant="default" onClick={() => open("jadwalRequestModal", {jenisDosen: 'TIDAK_TETAP'})}><Plus /> Tambah Jadwal</Button>
+                <Button variant="default" onClick={() => open("jadwalRequestModal", { jenisDosen: 'TIDAK_TETAP' })}><Plus /> Tambah Jadwal</Button>
                 <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 mb-4">
@@ -186,6 +187,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                     index={index}
                                     pengaturan={pengaturan}
                                     onOpenModal={open}
+                                    fakultasId={currentFakultas ?? undefined}
                                 />
                             )) : (
                                 <TableRow>

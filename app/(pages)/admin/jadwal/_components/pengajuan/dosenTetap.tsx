@@ -1,4 +1,5 @@
 'use client'
+import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,11 +26,11 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         search: "",
         jenisDosen: "TETAP",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
-        sort: { field: 'matakuliah', orderBy: 'asc' },
+        sort: { field: 'dosen.nama', orderBy: 'asc' },
         fakultas: selectedFakultas ?? null,
         programStudi: selectedProdi ?? null,
         matakuliah: selectedMatkul ?? null,
-        status: "PENDING",
+        // status: "PENDING",
     });
     const { data: fakultasList } = useGetFakultas({
         page: 1,
@@ -64,6 +65,24 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         [prodiList, selectedFakultas]
     );
 
+    const updateMultipleStatus = async () => {
+        const ids = new Set<number>();
+
+        if (Array.isArray(data?.data)) {
+            for (const item of data.data) {
+                if (Array.isArray(item?.jadwal)) {
+                    for (const jadwal of item.jadwal) {
+                        if (typeof jadwal?.id === 'number') {
+                            ids.add(Number(jadwal.id));
+                        }
+                    }
+                }
+            }
+        }
+
+        const result = [...ids];
+        open("statusJadwalRequestAllModal", { ids: result });
+    }
     return (
         <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-y border-gray-200 mb-4">
@@ -94,6 +113,9 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                         placeholder="Ketik Matakuliah"
                     />
                 </div>
+            </div>
+            <div className="mb-4">
+                <Button variant="default" size="sm" onClick={updateMultipleStatus}>Update Status</Button>
             </div>
             <Table>
                 <TableHeader>
@@ -127,7 +149,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                                     pengaturan={pengaturan}
                                     onOpenModal={open}
                                 />
-                            )): (
+                            )) : (
                                 <TableRow>
                                     <TableCell className="border text-center" colSpan={12}>Data tidak ditemukan</TableCell>
                                 </TableRow>

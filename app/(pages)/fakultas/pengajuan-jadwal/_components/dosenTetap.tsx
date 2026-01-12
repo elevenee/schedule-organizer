@@ -35,7 +35,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         search: "",
         jenisDosen: "TETAP",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
-        sort: { field: 'matakuliah', orderBy: 'asc' },
+        sort: { field: 'dosen.nama', orderBy: 'asc' },
         fakultas: selectedFakultas ?? null,
         programStudi: selectedProdi ?? null,
         matakuliah: selectedMatkul ?? null,

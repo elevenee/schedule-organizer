@@ -1,16 +1,17 @@
 'use client'
+import { Button } from "@/components/ui/button";
+import { useSidebar } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { JadwalModal } from "@/features/jadwal/components/create-modal";
-import { useGetPengaturanJadwal } from "@/features/pengaturan/jadwal/service";
-import React, { useEffect } from "react";
-import DosenTetap from "./dosenTetap";
-import { useGetTahunAkademikAktif } from "@/features/tahun_akademik/service";
-import DosenTidakTetap from "./dosenTidakTetap";
-import { useSidebar } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import ListPengajuanModal from "./pengajuan/list-modal";
 import { StatusJadwalRequestModal } from "@/features/pengajuan-jadwal/components/update-status";
+import { StatusJadwalRequestAllModal } from "@/features/pengajuan-jadwal/components/update-status-all";
+import { useGetPengaturanJadwal } from "@/features/pengaturan/jadwal/service";
+import { useGetTahunAkademikAktif } from "@/features/tahun_akademik/service";
+import { Download } from "lucide-react";
+import { useEffect } from "react";
+import DosenTetap from "./dosenTetap";
+import DosenTidakTetap from "./dosenTidakTetap";
+import ListPengajuanModal from "./pengajuan/list-modal";
 
 /* eslint-disable */
 export default function List() {
@@ -60,6 +61,7 @@ export default function List() {
             <JadwalModal />
             <ListPengajuanModal />
             <StatusJadwalRequestModal />
+            <StatusJadwalRequestAllModal />
         </div>
     );
 }

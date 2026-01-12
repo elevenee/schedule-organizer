@@ -1,8 +1,8 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
-import { jadwalFormValues, statusJadwalFormValues } from "../validations";
 import { StatusJadwalRequest } from "@prisma/client";
+import { jadwalFormValues, statusJadwalFormValues } from "../validations";
 export async function update(id: number, formData: jadwalFormValues) {
 
     const find = await prisma.jadwalRequest.findUnique({ where: { id } });
@@ -91,4 +91,99 @@ export async function updateStatus(id: number, formData: statusJadwalFormValues)
         });
         return { success: true, data: updated };
     }
+}
+
+export async function updateStatusAll(ids: number[], data: statusJadwalFormValues) {
+    const tahunAkademik = await prisma.tahunAkademik.findFirst({
+        where: { status: 'ACTIVE' },
+    });
+
+    if (!tahunAkademik) {
+        throw new Error('Tahun akademik tidak ditemukan');
+    }
+
+    const requests = await prisma.jadwalRequest.findMany({
+        where: { id: { in: ids } },
+        include: { Dosen: true },
+    });
+
+    if (!requests.length) {
+        return { success: false, message: 'Data tidak ditemukan' };
+    }
+
+    const result = {
+        approved: [] as number[],
+        skipped: [] as { id: number; reason: string }[],
+        rejected: [] as number[],
+    };
+
+    await prisma.$transaction(async (tx) => {
+        for (const req of requests) {
+            if (data.status !== 'APPROVED') {
+                await tx.jadwalRequest.update({
+                    where: { id: req.id },
+                    data: { status: data.status as StatusJadwalRequest },
+                });
+                result.rejected.push(Number(req.id));
+                continue;
+            }
+
+            const currentJadwal = await tx.jadwal.findMany({
+                where: {
+                    tahunAkademikId: BigInt(tahunAkademik.id),
+                    dosenId: Number(req.dosenId),
+                },
+            });
+
+            const pengaturan = await tx.pengaturanJadwal.findFirst({
+                where: { jenisDosen: req.Dosen?.status },
+            });
+
+            const totalSks =
+                currentJadwal.reduce(
+                    (t, j) => t + j.sks.toNumber() * j.kelas.length,
+                    0
+                ) + req.sks.toNumber() * req.kelas.length;
+
+            if (totalSks > (pengaturan?.maxSks?.toNumber() ?? 0)) {
+                result.skipped.push({
+                    id: Number(req.id),
+                    reason: 'SKS dosen melebihi batas',
+                });
+                continue;
+            }
+
+            await tx.jadwal.create({
+                data: {
+                    tahunAkademikId: BigInt(tahunAkademik.id),
+                    matakuliahId: req.matakuliahId,
+                    sks: req.sks.toNumber(),
+                    semester: Number(req.semester),
+                    dosenId: Number(req.dosenId),
+                    fakultasId: Number(req.fakultasId),
+                    jurusanId: Number(req.jurusanId),
+                    totalSks: req.sks.toNumber() * req.kelas.length,
+                    kelas: req.kelas,
+                },
+            });
+
+            await tx.jadwalRequest.update({
+                where: { id: req.id },
+                data: { status: data.status as StatusJadwalRequest, keteranganAdmin: data.keteranganAdmin },
+            });
+
+            result.approved.push(Number(req.id));
+        }
+    });
+
+    return {
+        success: true,
+        summary: {
+            total: ids.length,
+            approved: result.approved.length,
+            skipped: result.skipped.length,
+            rejected: result.rejected.length,
+        },
+        detail: result,
+    };
 }

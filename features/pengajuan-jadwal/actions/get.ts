@@ -214,7 +214,7 @@ export async function GET_PAGINATE({
     }, new Map());
 
     // Convert ke array
-    const listDosenx = Array.from(uniqueDosen.values());
+    const listDosenx = Array.from(uniqueDosen.values()).sort((a, b) => a.nama.localeCompare(b.nama));
 
     // Group jadwal by dosenId untuk mapping
     const jadwalByDosen = jadwalData.reduce((acc, jadwal) => {
@@ -239,7 +239,7 @@ export async function GET_PAGINATE({
         const jadwalRequestDosen = jadwalRequestByDosen[dosen.id.toString()] || [];
 
         const listRequest = jadwalRequestDosen.map((j: any) => ({
-            id: j.id,
+            id: Number(j.id),
             matakuliah: j.Matakuliah?.nama?.toUpperCase(),
             sks: j.sks?.toNumber(),
             kelas: j.kelas,
@@ -256,7 +256,7 @@ export async function GET_PAGINATE({
             kurikulumId: j.Matakuliah?.kurikulumId,
         }));
         const listJadwal = jadwalDosen.map((j: any) => ({
-            id: j.id,
+            id: Number(j.id),
             matakuliah: j.Matakuliah?.nama?.toUpperCase(),
             sks: j.sks?.toNumber(),
             kelas: j.kelas,
