@@ -9,6 +9,7 @@ import { useGetJadwal } from "@/features/pengajuan-jadwal/service";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useMemo, useState } from "react";
+import toast from "react-hot-toast";
 import { DosenTableRow } from "./dosenTableRow";
 
 /* eslint-disable */
@@ -72,7 +73,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
             for (const item of data.data) {
                 if (Array.isArray(item?.jadwal)) {
                     for (const jadwal of item.jadwal) {
-                        if (typeof jadwal?.id === 'number') {
+                        if (typeof jadwal?.id === 'number' && jadwal?.status === 'PENDING') {
                             ids.add(Number(jadwal.id));
                         }
                     }
@@ -81,6 +82,10 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         }
 
         const result = [...ids];
+        if (result.length === 0) {
+            toast.error("Tidak ada data yang dapat diupdate.");
+            return;
+        }
         open("statusJadwalRequestAllModal", { ids: result });
     }
     return (
