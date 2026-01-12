@@ -1,10 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { jadwalSchema } from "./validations";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { create } from "./actions/create";
-import { update } from "./actions/update";
 import { destroy } from "./actions/delete";
 import { GET_PAGINATE } from "./actions/get";
+import { update } from "./actions/update";
+import { jadwalSchema } from "./validations";
 
 interface StoreOptions extends MutationOptions { }
 
@@ -19,7 +19,8 @@ interface GetAllProps extends DataTableOptions {
     matakuliah?: string | null,
     dosen?: number | null,
     semester?: string | null,
-    kelas?: string[]
+    kelas?: string[],
+    totalSks?: string | null
 }
 export const useGetJadwal = (params: GetAllProps) => {
     

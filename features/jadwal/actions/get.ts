@@ -25,7 +25,8 @@ interface PropsPaginate {
     matakuliah?: string | null;
     dosen?: number | null,
     semester?: string | null,
-    kelas?: string[]
+    kelas?: string[],
+    totalSks?: string | null
 }
 export async function GET_PAGINATE({
     page = 1,
@@ -42,7 +43,8 @@ export async function GET_PAGINATE({
     matakuliah = null,
     dosen = null,
     semester = null,
-    kelas = []
+    kelas = [],
+    totalSks = null
 }: PropsPaginate) {
     const skip = (page - 1) * limit;
     const searchFilter = search
@@ -183,7 +185,7 @@ export async function GET_PAGINATE({
     const data = dosenList.map(dosen => {
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
 
-        return {
+        const dataList = {
             id: dosen.id,
             nama: dosen.nama,
             nidn: dosen.nidn,
@@ -208,6 +210,8 @@ export async function GET_PAGINATE({
                 kurikulumId: j.Matakuliah?.kurikulumId,
             }))
         };
+        return dataList;
+        // return totalSks ? (dataList.totalSKS.toString() === totalSks ? dataList : null) : dataList;
     });
     return { data, total };
 }
