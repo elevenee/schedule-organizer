@@ -141,7 +141,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
             }
         }
 
-    }, [tahunAkademik?.data, setValue]);
+    }, [tahunAkademik?.data, setValue]);    
 
     return (
         <Form {...form}>
@@ -277,7 +277,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
                                     options={matkulOptions}
                                     value={field.value !== undefined && field.value !== null ? String(field.value) : ""}
                                     onChange={(value) => {
-                                        field.onChange(value);
+                                        field.onChange(Number(value));
                                         const sks = matkulOptions.filter((v: any) => v.value === value);
                                         setValue('sks', sks && sks.length ? sks[0]?.sks.toString() : "")
                                     }}

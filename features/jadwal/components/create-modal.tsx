@@ -89,7 +89,7 @@ export function JadwalModal() {
         <>
             <BaseModal open={open} onOpenChange={(v) => !v && close("jadwalModal")} size="lg">
                 <BaseModal.Header>
-                    <BaseModal.Title>{jadwal?.id ? 'Edit ?.id' : 'Tambah Jadwal'}</BaseModal.Title>
+                    <BaseModal.Title>{jadwal?.id ? 'Edit' : 'Tambah Jadwal'}</BaseModal.Title>
                     <BaseModal.Description>
                         Silakan {jadwal?.id ? 'ubah' : 'tambah'} data Jadwal di sini. Klik simpan setelah selesai.
                     </BaseModal.Description>
