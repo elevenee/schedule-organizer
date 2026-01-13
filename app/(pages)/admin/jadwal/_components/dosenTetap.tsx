@@ -81,6 +81,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         page: 1,
         fakultas: selectedBaseFakultas ?? undefined,
         remove_pagination: true,
+        limit: 50,
         sort: {
             field: "nama",
             orderBy: 'asc'

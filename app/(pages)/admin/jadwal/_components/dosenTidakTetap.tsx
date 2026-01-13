@@ -72,6 +72,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
         page: 1,
         fakultas: selectedFakultas ?? undefined,
         remove_pagination: true,
+        limit: 50,
         sort: {
             field: "nama",
             orderBy: 'asc'
