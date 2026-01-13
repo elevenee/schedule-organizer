@@ -15,7 +15,7 @@ interface GetAllProps extends DataTableOptions {
     fakultas?: number,
     id?: number,
 }
-export const useGetProdi = (params: GetAllProps) => {
+export const useGetProdi = (params: GetAllProps) => {    
     return handleFetchData(
         () => GET_PAGINATE(params as any),
         [

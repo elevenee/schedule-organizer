@@ -18,7 +18,7 @@ export async function GET_PAGINATE({
     id,
 }: { page?: number, limit?: number, search?: string, sort?: SortProp, fakultas?: string, id?: number }) {
     const skip = (page - 1) * limit;
-
+    
     const searchFilters = {
         OR: [
             { nama: { contains: search, mode: Prisma.QueryMode.insensitive } },
@@ -56,7 +56,7 @@ export async function GET_PAGINATE({
             }
         }),
         prisma.jurusan.count({ where }),
-    ]);    
+    ]);   
     
     return { data, total };
 }
