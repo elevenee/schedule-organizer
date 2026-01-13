@@ -1,6 +1,6 @@
 'use client'
-import * as React from "react"
-import { Box, Building, Calendar, CalendarMinus, ChevronRight, LayoutDashboardIcon, User, Users } from "lucide-react"
+import { Box, Building, Calendar, CalendarCheck, CalendarMinus, ChevronRight, LayoutDashboardIcon, User, Users } from "lucide-react";
+import * as React from "react";
 
 import {
     Sidebar,
@@ -13,10 +13,10 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
     SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 import Logo from "../ui/logo";
 import { Separator } from "../ui/separator";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "../ui/collapsible";
 
 /* eslint-disable */
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -93,6 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             items: [
                 { url: `${base}/dashboard`, title: "Dashboard", icon: LayoutDashboardIcon },
                 { url: `${base}/fakultas/pengajuan-jadwal`, title: "Pengajuan Jadwal", icon: Calendar },
+                { url: `${base}/fakultas/jadwal`, title: "Jadwal Disetujui", icon: CalendarCheck },
             ]
         }
     ];

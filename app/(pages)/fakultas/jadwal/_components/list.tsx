@@ -1,7 +1,6 @@
 'use client'
 import { useSidebar } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { JadwalModal } from "@/features/pengajuan-jadwal/components/create-modal";
 import { useGetPengaturanJadwal } from "@/features/pengaturan/jadwal/service";
 import { useGetTahunAkademikAktif } from "@/features/tahun_akademik/service";
 import { useEffect } from "react";
@@ -26,7 +25,7 @@ export default function List() {
         <div className="w-full">
             <div className="flex gap-2 flex-col md:flex-row md:items-center md:flex-column md:justify-between mb-4">
                 <div>
-                    <h1 className="text-3xl font-bold order-2 md:order-1">Daftar Pengajuan Jadwal</h1>
+                    <h1 className="text-3xl font-bold order-2 md:order-1">Daftar Jadwal</h1>
                     <p className="text-gray-400">Tahun Akademik: {tahunAkademik ? tahunAkademik?.name + ` - SMT ${tahunAkademik?.semester}` : "Tidak Diketahui"}</p>
                 </div>
             </div>
@@ -46,7 +45,6 @@ export default function List() {
                     </Tabs>
                 </div>
             </div>
-            <JadwalModal />
         </div>
     );
 }

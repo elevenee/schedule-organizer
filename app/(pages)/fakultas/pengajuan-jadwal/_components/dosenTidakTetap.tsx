@@ -110,7 +110,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
     return (
         <>
             <div className="py-4 border-t border-gray-200 flex gap-2 justify-center md:justify-between">
-                <Button variant="default" onClick={() => open("jadwalRequestModal", { jenisDosen: 'TIDAK_TETAP' })}><Plus /> Tambah Jadwal</Button>
+                <Button variant="default" onClick={() => open("jadwalRequestModal", { jenisDosen: 'TIDAK_TETAP' })}><Plus /> Ajukan Jadwal</Button>
                 <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 mb-4">

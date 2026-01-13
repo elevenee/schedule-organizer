@@ -112,7 +112,8 @@ export async function GET_PAGINATE({
         ...kelasFilter
     };
 
-    const [dosenList, jadwalData, total] = await Promise.all([
+    const [pengaturan, dosenList, jadwalData, total] = await Promise.all([
+        prisma.pengaturanJadwal.findMany(),
         prisma.dosen.findMany({
             where: where,
             include: {
@@ -155,7 +156,7 @@ export async function GET_PAGINATE({
                     }
                 },
                 Matakuliah: {
-                    select:{
+                    select: {
                         id: true,
                         nama: true,
                         semester: true,
@@ -185,7 +186,7 @@ export async function GET_PAGINATE({
     const data = dosenList.map(dosen => {
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
 
-        const dataList = {
+        return {
             id: dosen.id,
             nama: dosen.nama,
             nidn: dosen.nidn,
@@ -210,10 +211,35 @@ export async function GET_PAGINATE({
                 kurikulumId: j.Matakuliah?.kurikulumId,
             }))
         };
-        return dataList;
-        // return totalSks ? (dataList.totalSKS.toString() === totalSks ? dataList : null) : dataList;
     });
-    return { data, total };
+
+    if (!totalSks) return { data, total };
+
+    return {
+        data: data.filter((d) => {
+            const pengaturanMap = new Map<TypeDosen, number>(
+                pengaturan.map(p => [
+                    p.jenisDosen,
+                    p.maxSks?.toNumber() ?? 0
+                ])
+            );
+            const maxSks = pengaturanMap.get(d.status) ?? 0;
+
+            if (totalSks === 'TERPENUHI') {
+                return d.totalSKS <= maxSks;
+            }
+
+            if (totalSks === 'MELEBIHI_BATAS') {
+                return d.totalSKS > maxSks;
+            }
+            if (totalSks === 'BELUM_ADA') {
+                return d.totalSKS === 0;
+            }
+
+            return true;
+        }),
+        total
+    };
 }
 
 export default async function GET_ALL() {

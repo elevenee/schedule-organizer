@@ -32,6 +32,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
     const [selectedMatkul, setSelectedMatkul] = useState<string | null>(null);
     const [selectedSemester, setSelectedSemester] = useState<string | null>(null);
     const [selectedKelas, setSelectedKelas] = useState<string[]>([]);
+    const [selectedTotalSKS, setSelectedTotalSKS] = useState<string | null>(null);
     const [searchDosen, setSearchDosen] = useState<string | null>(null);
     const { data, isLoading } = useGetJadwal({
         page: 1,
@@ -46,7 +47,8 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
         matakuliah: selectedMatkul ?? null,
         dosen: selectedDosen ?? null,
         semester: selectedSemester ?? null,
-        kelas: selectedKelas
+        kelas: selectedKelas,
+        totalSks: selectedTotalSKS ?? null
     });
     const { data: dosenList, isLoading: isLoadingDosen } = useGetDosen({
         page: 1,
@@ -126,6 +128,8 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
         setSelectedBaseProdi(null)
         setSelectedMatkul(null)
         setSelectedSemester(null)
+        setSelectedKelas([])
+        setSelectedTotalSKS(null)
     }
 
     const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -147,7 +151,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
         <>
             <div className="py-4 border-t border-gray-200  flex gap-2 justify-center md:justify-between">
                 <Button variant="default" onClick={() => open("listRequestModal", {jenisDosen: "TIDAK_TETAP"})}><ListCheck /> List Pengajuan Jadwal</Button>
-                <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
+                <Button variant="outline" onClick={resetFilter}><span className="text-rose-500">Reset Filter</span></Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-gray-200">
                 <div className="flex flex-col gap-2">
@@ -241,6 +245,23 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                 onChange={(value) => setSelectedBaseProdi(value ? Number(value) : null)}
                                 placeholder="Pilih Program Studi"
                             />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Total SKS</Label>
+                            <Select
+                                value={selectedTotalSKS ?? ""}
+                                onValueChange={setSelectedTotalSKS}
+                            >
+                                <SelectTrigger className="w-full">
+                                    <SelectValue placeholder="Pilih Total SKS" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="SEMUA">SEMUA</SelectItem>
+                                    <SelectItem value="TERSEDIA">TERSEDIA/TERPENUHI</SelectItem>
+                                    <SelectItem value="MELEBIHI_BATAS">MELEBIHI BATAS</SelectItem>
+                                    <SelectItem value="BELUM_ADA">BELUM ADA</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                 </CollapsibleContent>

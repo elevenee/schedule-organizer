@@ -13,7 +13,6 @@ import { useGetFakultas } from "@/features/fakultas/service";
 import { useGetJadwal } from "@/features/jadwal/service";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
-import { ListCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { DosenTableRow } from "./dosenTableRow";
 
@@ -150,7 +149,6 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     return (
         <>
             <div className="py-4 border-t border-gray-200  flex gap-2 justify-center md:justify-between">
-                <Button variant="default" onClick={() => open("listRequestModal", { jenisDosen: "TETAP" })}><ListCheck /> List Pengajuan Jadwal</Button>
                 <Button variant="outline" onClick={resetFilter}><span className="text-rose-500">Reset Filter</span></Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-gray-200">
@@ -271,7 +269,6 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                     <TableRow>
                         <TableHead className="border">NO</TableHead>
                         <TableHead className="border">Nama Dosen</TableHead>
-                        <TableHead className="border">#</TableHead>
                         <TableHead className="border">Fakultas</TableHead>
                         <TableHead className="border">Matakuliah</TableHead>
                         <TableHead className="border">Prodi</TableHead>
