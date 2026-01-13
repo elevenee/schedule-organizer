@@ -183,7 +183,7 @@ export async function GET_PAGINATE({
         return acc;
     }, {} as Record<string, typeof jadwalData>);
 
-    const data = dosenList.map(dosen => {
+    let data = dosenList.map(dosen => {
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
 
         return {
@@ -212,6 +212,9 @@ export async function GET_PAGINATE({
             }))
         };
     });
+    if (fakultasFilter || programStudiFilter || matakuliahFilter) {
+        data = data.filter((x) => x.jadwal.length > 0);
+    }
 
     if (!totalSks) return { data, total };
 
