@@ -111,8 +111,12 @@ export async function GET_PAGINATE({
         ...semesterFilter,
         ...kelasFilter
     };
+    const whereJadwalNoFilter = {
+        tahunAkademikId: selectedTahunAkademik,
+        ...dosenFilter,
+    };
 
-    const [pengaturan, dosenList, jadwalData, total] = await Promise.all([
+    const [pengaturan, dosenList, jadwalData, jadwalNoFilter, total] = await Promise.all([
         prisma.pengaturanJadwal.findMany(),
         prisma.dosen.findMany({
             where: where,
@@ -170,6 +174,44 @@ export async function GET_PAGINATE({
                 { Matakuliah: { id: 'asc' } }
             ]
         }),
+        prisma.jadwal.findMany({
+            where: whereJadwalNoFilter,
+            select: {
+                id: true,
+                dosenId: true,
+                matakuliahId: true,
+                sks: true,
+                kelas: true,
+                semester: true,
+                keterangan: true,
+                Fakultas: {
+                    select: {
+                        id: true,
+                        nama: true
+                    }
+                },
+                Jurusan: {
+                    select: {
+                        id: true,
+                        nama: true,
+                        jenjang: true
+                    }
+                },
+                Matakuliah: {
+                    select: {
+                        id: true,
+                        nama: true,
+                        semester: true,
+                        sks: true,
+                        kurikulumId: true
+                    }
+                }
+            },
+            orderBy: [
+                { semester: 'asc' },
+                { Matakuliah: { id: 'asc' } }
+            ]
+        }),
         prisma.dosen.count(),
     ]);
 
@@ -182,10 +224,18 @@ export async function GET_PAGINATE({
         acc[dosenIdStr].push(jadwal);
         return acc;
     }, {} as Record<string, typeof jadwalData>);
+    const jadwalByDosenNoFIlter = jadwalNoFilter.reduce((acc, jadwal) => {
+        const dosenIdStr = jadwal.dosenId.toString(); // Convert bigint to string
+        if (!acc[dosenIdStr]) {
+            acc[dosenIdStr] = [];
+        }
+        acc[dosenIdStr].push(jadwal);
+        return acc;
+    }, {} as Record<string, typeof jadwalData>);
 
     let data = dosenList.map(dosen => {
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
-
+        const jadwalDosenNF = jadwalByDosenNoFIlter[dosen.id.toString()] || [];
         return {
             id: dosen.id,
             nama: dosen.nama,
@@ -194,7 +244,8 @@ export async function GET_PAGINATE({
             homebase: dosen.Jurusan?.nama || "-",
             tahunAkademik: findTahunAkademik?.name.replace(/_/g, '/') || "" + " - SMT " + findTahunAkademik?.semester,
             totalJadwal: jadwalDosen.length,
-            totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
+            totalSKSFilter: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
+            totalSKS: jadwalDosenNF.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
             jadwal: jadwalDosen.map((j: any) => ({
                 id: j.id,
                 matakuliah: j.Matakuliah?.nama?.toUpperCase(),
