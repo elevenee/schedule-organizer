@@ -199,7 +199,7 @@ export async function GET_PAGINATE({
                 id: j.id,
                 matakuliah: j.Matakuliah?.nama?.toUpperCase(),
                 sks: j.sks?.toString(),
-                kelas: j.kelas,
+                kelas: j.kelas.sort(),
                 semester: j.semester,
                 keterangan: j.keterangan,
                 fakultas: j.Fakultas?.nama,
