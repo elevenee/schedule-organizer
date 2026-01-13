@@ -36,7 +36,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                     {jadwalIndex === 0 && (
                         <>
                             <TableCell rowSpan={item.jadwal.length} className='border border-gray-900 dark:border-gray-400'>{index + 1}</TableCell>
-                            <TableCell rowSpan={item.jadwal.length} className={`font-medium ${capacityStyle}`}>
+                            <TableCell rowSpan={item.jadwal.length} className={`font-medium border border-gray-900 dark:border-gray-400 ${capacityStyle}`}>
                                 <DosenNameCell
                                     item={{ ...item, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}
                                     isOverCapacity={isOverCapacity}
