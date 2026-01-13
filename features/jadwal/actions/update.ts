@@ -56,45 +56,55 @@ export async function update(id: number, formData: jadwalFormValues) {
 
     let kelasChanges = [];
     const kelasFind = find.kelas.length ? find.kelas : [];
-    
+
     if (kelas.length < kelasFind.length) {
         const set1 = new Set(kelas);
         kelasChanges = kelasFind.filter(item => !set1.has(item));
-    }else{
+    } else {
         const set1 = new Set(kelasFind);
         kelasChanges = kelas.filter(item => !set1.has(item));
     }
-    
-    const updated = await prisma.jadwal.update({
-        where: { id },
-        data: updateData,
-    });
 
+    let updated = null;
     if (findSisaSks) {
-        await prisma.sisaSks.update({
-            where: { id: findSisaSks.id },
-            data: {
-                tahunAkademikId: find?.tahunAkademikId,
-                matakuliahId: find.matakuliahId,
-                sks: find.sks,
-                semester: find.semester,
-                fakultasId: find.fakultasId,
-                jurusanId: find.jurusanId,
-                kelas: kelasChanges
-            }
-        })
+        const [upjadwal, upsks] = await prisma.$transaction([
+            prisma.jadwal.update({
+                where: { id },
+                data: updateData,
+            }),
+            prisma.sisaSks.update({
+                where: { id: findSisaSks.id },
+                data: {
+                    tahunAkademikId: find?.tahunAkademikId,
+                    matakuliahId: find.matakuliahId,
+                    sks: find.sks,
+                    semester: find.semester,
+                    fakultasId: find.fakultasId,
+                    jurusanId: find.jurusanId,
+                    kelas: kelasChanges
+                }
+            })
+        ]);
+        updated = upjadwal;
     } else {
-        await prisma.sisaSks.create({
-            data: {
-                tahunAkademikId: find?.tahunAkademikId,
-                matakuliahId: find.matakuliahId,
-                sks: find.sks,
-                semester: find.semester,
-                fakultasId: find.fakultasId,
-                jurusanId: find.jurusanId,
-                kelas: kelasChanges
-            }
-        })
+        const [upjadwal, crsisa] = await prisma.$transaction([
+            prisma.jadwal.update({
+                where: { id },
+                data: updateData,
+            }),
+            prisma.sisaSks.create({
+                data: {
+                    tahunAkademikId: find?.tahunAkademikId,
+                    matakuliahId: find.matakuliahId,
+                    sks: find.sks,
+                    semester: find.semester,
+                    fakultasId: find.fakultasId,
+                    jurusanId: find.jurusanId,
+                    kelas: kelasChanges
+                }
+            })
+        ]);
+        updated = upjadwal;
     }
 
     return { success: true, data: { ...updated, sks: updated.sks.toNumber(), totalSks: updated.totalSks?.toNumber() } };

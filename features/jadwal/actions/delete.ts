@@ -22,25 +22,28 @@ export async function destroy(id: number) {
             }
         },
     })
-    await prisma.jadwal.delete({
-        where: { id }
-    });
-    
+
     if (findSisaSks.length > 0) {
         const ids = findSisaSks.map(item => item.id);
-        await prisma.sisaSks.deleteMany({ where: {id: {in: ids}}})
+        await prisma.$transaction([
+            prisma.sisaSks.deleteMany({ where: { id: { in: ids } } }),
+            prisma.jadwal.delete({ where: { id } })
+        ])
     } else {
-        await prisma.sisaSks.create({
-            data: {
-                tahunAkademikId: jadwal?.tahunAkademikId,
-                matakuliahId: jadwal.matakuliahId,
-                sks: jadwal.sks,
-                semester: jadwal.semester,
-                fakultasId: jadwal.fakultasId,
-                jurusanId: jadwal.jurusanId,
-                kelas: jadwal.kelas
-            }
-        })
+        await prisma.$transaction([
+            prisma.sisaSks.create({
+                data: {
+                    tahunAkademikId: jadwal?.tahunAkademikId,
+                    matakuliahId: jadwal.matakuliahId,
+                    sks: jadwal.sks,
+                    semester: jadwal.semester,
+                    fakultasId: jadwal.fakultasId,
+                    jurusanId: jadwal.jurusanId,
+                    kelas: jadwal.kelas
+                }
+            }),
+            prisma.jadwal.delete({ where: { id } })
+        ])
     }
 
     return true;
