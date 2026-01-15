@@ -1,8 +1,10 @@
 'use client'
+import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useGetPengaturanJadwal } from "@/features/pengaturan/jadwal/service";
 import { useGetTahunAkademikAktif } from "@/features/tahun_akademik/service";
+import { Download } from "lucide-react";
 import { useEffect } from "react";
 import DosenTetap from "./dosenTetap";
 import DosenTidakTetap from "./dosenTidakTetap";
@@ -27,6 +29,13 @@ export default function List() {
                 <div>
                     <h1 className="text-3xl font-bold order-2 md:order-1">Daftar Jadwal</h1>
                     <p className="text-gray-400">Tahun Akademik: {tahunAkademik ? tahunAkademik?.name + ` - SMT ${tahunAkademik?.semester}` : "Tidak Diketahui"}</p>
+                </div>
+                 <div>
+                    <Button variant="default" onClick={() => {
+                        window.location.href = "/api/export/jadwal"
+                    }}>
+                        <Download /> Export Excel
+                    </Button>
                 </div>
             </div>
             <div>

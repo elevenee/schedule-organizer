@@ -280,18 +280,18 @@ export async function GET_PAGINATE({
                 ])
             );
             const maxSks = pengaturanMap.get(d.status) ?? 0;
-
-            if (totalSks === 'TERPENUHI') {
+            
+            if (totalSks === 'TERSEDIA') {
                 return d.totalSKS > 0 && d.totalSKS <= maxSks;
             }
 
-            if (totalSks === 'DIBAWAH_BATAS') {
+            else if (totalSks === 'DIBAWAH_BATAS') {
                 return d.totalSKS < 12;
             }
-            if (totalSks === 'MELEBIHI_BATAS') {
+            else if (totalSks === 'MELEBIHI_BATAS') {
                 return d.totalSKS > maxSks;
             }
-            if (totalSks === 'BELUM_ADA') {
+            else if (totalSks === 'BELUM_ADA') {
                 return d.totalSKS === 0;
             }
 

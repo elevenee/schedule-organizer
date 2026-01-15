@@ -36,7 +36,8 @@ async function getDataDosen(status: string): Promise<any[]> {
     const [dosenList, jadwalData, total] = await Promise.all([
         prisma.dosen.findMany({
             where: {
-                status: status as TypeDosen
+                status: status as TypeDosen,
+                deletedAt: null
             },
             include: {
                 Fakultas: {
