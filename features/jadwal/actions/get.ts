@@ -99,6 +99,7 @@ export async function GET_PAGINATE({
         ...jenisDosenFilter,
         ...fakultasBaseFilter,
         ...programStudiBaseFilter,
+        deletedAt: null,
         isActive: true,
         id: dosen ? dosen : {}
     };
@@ -263,7 +264,7 @@ export async function GET_PAGINATE({
             }))
         };
     });
-    
+
     if (Object.keys(fakultasFilter).length > 0 || Object.keys(programStudiFilter).length > 0 || Object.keys(matakuliahFilter).length > 0) {
         data = data.filter((x) => x.jadwal.length > 0);
     }
@@ -281,7 +282,7 @@ export async function GET_PAGINATE({
             const maxSks = pengaturanMap.get(d.status) ?? 0;
 
             if (totalSks === 'TERPENUHI') {
-                return d.totalSKS <= maxSks;
+                return d.totalSKS > 0 && d.totalSKS <= maxSks;
             }
 
             if (totalSks === 'DIBAWAH_BATAS') {

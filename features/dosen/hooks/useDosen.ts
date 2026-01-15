@@ -1,11 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { dosenSchema } from "./../validations";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { SYNC } from "../actions/sync";
 import { create } from "./../actions/create";
-import { update } from "./../actions/update";
 import { destroy } from "./../actions/delete";
 import { GET_PAGINATE } from "./../actions/get";
-import { SYNC } from "../actions/sync";
+import { update } from "./../actions/update";
+import { dosenSchema } from "./../validations";
 
 interface StoreOptions extends MutationOptions { }
 

@@ -18,8 +18,9 @@ export async function GET_PAGINATE({
     fakultasId,
     jurusanId,
     id,
-    isActive = true
-}: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, jurusanId?: number, id?: number, isActive?: boolean }) {
+    isActive = true,
+    deleted = false
+}: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, jurusanId?: number, id?: number, isActive?: boolean, deleted?: boolean }) {
     const skip = (page - 1) * limit;
     const searchNama = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
