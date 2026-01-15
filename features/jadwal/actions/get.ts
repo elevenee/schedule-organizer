@@ -263,7 +263,8 @@ export async function GET_PAGINATE({
             }))
         };
     });
-    if (fakultasFilter || programStudiFilter || matakuliahFilter) {
+    
+    if (Object.keys(fakultasFilter).length > 0 || Object.keys(programStudiFilter).length > 0 || Object.keys(matakuliahFilter).length > 0) {
         data = data.filter((x) => x.jadwal.length > 0);
     }
 
