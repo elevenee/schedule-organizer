@@ -283,6 +283,9 @@ export async function GET_PAGINATE({
                 return d.totalSKS <= maxSks;
             }
 
+            if (totalSks === 'DIBAWAH_BATAS') {
+                return d.totalSKS < 12;
+            }
             if (totalSks === 'MELEBIHI_BATAS') {
                 return d.totalSKS > maxSks;
             }

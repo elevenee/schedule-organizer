@@ -259,6 +259,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                 <SelectContent>
                                     <SelectItem value="SEMUA">SEMUA</SelectItem>
                                     <SelectItem value="TERSEDIA">TERSEDIA/TERPENUHI</SelectItem>
+                                    <SelectItem value="DIBAWAH_BATAS">DIBAWAH BATAS</SelectItem>
                                     <SelectItem value="MELEBIHI_BATAS">MELEBIHI BATAS</SelectItem>
                                     <SelectItem value="BELUM_ADA">BELUM ADA</SelectItem>
                                 </SelectContent>

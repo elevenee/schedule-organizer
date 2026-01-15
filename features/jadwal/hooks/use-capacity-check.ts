@@ -4,8 +4,12 @@ export function useCapacityCheck(item: any, pengaturan: any) {
     const minSks = settings?.minSks;
     const maxSks = settings?.maxSks;
 
-    const isOverCapacity = maxSks ? item.totalSKS >= maxSks : false;
-    const capacityStyle = isOverCapacity ? "bg-rose-100 dark:bg-rose-900" : "bg-green-100 dark:bg-green-900";
+    const isOverCapacity = maxSks ? item.totalSKS > maxSks : false;
+    const capacityStyle = isOverCapacity
+        ? "bg-rose-100 dark:bg-rose-900"
+        : item.totalSKS < minSks
+            ? "bg-orange-200 dark:bg-orange-800"
+            : "bg-green-100 dark:bg-green-900";
 
     return { capacityStyle, isOverCapacity, minSks, maxSks };
 }

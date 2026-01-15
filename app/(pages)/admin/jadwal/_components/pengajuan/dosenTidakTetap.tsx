@@ -98,25 +98,25 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="border">#</TableHead>
-                        <TableHead className="border">NO</TableHead>
-                        <TableHead className="border">Nama Dosen</TableHead>
-                        <TableHead className="border">Fakultas</TableHead>
-                        <TableHead className="border">Prodi</TableHead>
-                        <TableHead className="border">Matakuliah</TableHead>
-                        <TableHead className="border">SMT/Kelas</TableHead>
-                        <TableHead className="border">Jumlah Kelas</TableHead>
-                        <TableHead className="border">SKS</TableHead>
-                        <TableHead className="border">Total SKS</TableHead>
-                        <TableHead className="border">Sisa SKS</TableHead>
-                        <TableHead className="border">KJM</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">NO</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Nama Dosen</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">#</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Fakultas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Prodi</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Matakuliah</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">SMT/Kelas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Jumlah Kelas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">SKS</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Total SKS</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Sisa SKS</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">KJM</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {
                         isLoading ? (
                             <TableRow>
-                                <TableCell className="border text-center" colSpan={12}>Memuat...</TableCell>
+                                <TableCell className="border border-gray-900 dark:border-gray-400 text-center" colSpan={12}>Memuat...</TableCell>
                             </TableRow>
                         ) : (
                             data?.data && data?.data.length ? data.data?.map((item: any, index: number) => (
@@ -129,7 +129,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                 />
                             )): (
                                 <TableRow>
-                                    <TableCell className="border text-center" colSpan={12}>Data tidak ditemukan</TableCell>
+                                    <TableCell className="border border-gray-900 dark:border-gray-400 text-center" colSpan={12}>Data tidak ditemukan</TableCell>
                                 </TableRow>
                             )
                         )
