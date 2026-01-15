@@ -26,6 +26,7 @@ interface Props {
 }
 export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
     const [availableSemester, setAvailableSemester] = useState<{ value: string; label: string }[]>([]);
+    const [searchDosen, setSearchDosen] = useState<string>("")
     const {
         handleSubmit,
         setValue,
@@ -35,7 +36,8 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
         page: 1,
         remove_pagination: true,
         limit: 1000,
-        id: form.watch().dosenId ?? undefined,
+        // id: form.watch().dosenId ?? undefined,
+        search: searchDosen ?? "",
         status: jenisDosen,
         sort: {
             field: "nama",
