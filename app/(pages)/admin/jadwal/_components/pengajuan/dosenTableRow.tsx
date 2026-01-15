@@ -176,7 +176,7 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
                 <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
             </>
         );
-    }
+    } 
 
     return (
         <>
