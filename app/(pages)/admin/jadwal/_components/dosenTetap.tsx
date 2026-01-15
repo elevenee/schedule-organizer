@@ -148,7 +148,6 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         { value: "J", label: "Kelas J" },
         { value: "K", label: "Kelas K" },
     ];
-
     return (
         <>
             <div className="py-4 border-t border-gray-200  flex gap-2 justify-center md:justify-between">

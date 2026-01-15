@@ -1,12 +1,12 @@
 'use client';
 
-import { useModalManager } from '@/hooks/modal-manager';
 import BaseModal from '@/components/ui/modal';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useGetPengaturanJadwal } from '@/features/pengaturan/jadwal/service';
+import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
+import { useModalManager } from '@/hooks/modal-manager';
 import DosenTetap from './dosenTetap';
 import DosenTidakTetap from './dosenTidakTetap';
-import { useGetTahunAkademikAktif } from '@/features/tahun_akademik/service';
-import { useGetPengaturanJadwal } from '@/features/pengaturan/jadwal/service';
 
 export default function ListPengajuanModal() {
     const { isOpen, close } = useModalManager();

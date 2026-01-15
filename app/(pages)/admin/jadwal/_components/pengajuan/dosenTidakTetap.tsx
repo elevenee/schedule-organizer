@@ -2,7 +2,9 @@
 import { Combobox } from "@/components/ui/combobox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { SearchCommand } from "@/components/ui/search-command";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useGetDosen } from "@/features/dosen/hooks/useDosen";
 import { useGetFakultas } from "@/features/fakultas/service";
 import { useGetJadwal } from "@/features/pengajuan-jadwal/service";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
@@ -17,9 +19,11 @@ interface Props {
 }
 export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
     const { open } = useModalManager()
+     const [selectedDosen, setSelectedDosen] = useState<number | null>(null);
     const [selectedFakultas, setSelectedFakultas] = useState<number | null>(null);
     const [selectedProdi, setSelectedProdi] = useState<number | null>(null);
     const [selectedMatkul, setSelectedMatkul] = useState<string | null>(null);
+    const [searchDosen, setSearchDosen] = useState<string | null>(null);
     const { data, isLoading } = useGetJadwal({
         page: 1,
         search: "",
@@ -48,6 +52,27 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
             orderBy: 'asc'
         }
     })
+    const { data: dosenList, isLoading: isLoadingDosen } = useGetDosen({
+            page: 1,
+            remove_pagination: true,
+            search: searchDosen ?? "",
+            status: "TIDAK_TETAP",
+            sort: {
+                field: "nama",
+                orderBy: 'asc'
+            }
+        })
+    
+        const dosenOptions = useMemo(() =>
+            dosenList && dosenList?.data?.map((item: any) => ({
+                label: <div className='flex flex-col gap-0'>
+                    <span>{item.nama}</span>
+                    <span className='text-xs text-gray-500'>{item.Fakultas?.nama ? item.Fakultas?.nama : ""}</span>
+                </div>,
+                value: item.id.toString(),
+            })) || [],
+            [dosenList, selectedFakultas]
+        );
 
     const fakultasOptions = useMemo(() =>
         fakultasList && fakultasList?.data?.map((item: any) => ({
@@ -62,18 +87,22 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
             value: item.id.toString(),
         })) || [],
         [prodiList, selectedFakultas]
-    );    
+    );
 
     return (
         <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 py-4 border-y border-gray-200 mb-4">
-                <div className="space-y-2">
-                    <Label>Fakultas</Label>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 mb-4">
+                <div className="flex flex-col gap-2">
+                    <Label>Dosen</Label>
                     <Combobox
-                        options={fakultasOptions}
-                        value={selectedFakultas !== undefined && selectedFakultas !== null ? String(selectedFakultas) : ""}
-                        onChange={(value) => setSelectedFakultas(value ? Number(value) : null)}
-                        placeholder="Pilih Fakultas"
+                        data={dosenOptions}
+                        isLoading={isLoadingDosen}
+                        onSearch={setSearchDosen}
+                        showSearch={true}
+                        emptyMessage="Dosen tidak ditemukan"
+                        value={selectedDosen ? selectedDosen.toString() : ""}
+                        onChange={(value) => setSelectedDosen(Number(value))}
+                        placeholder={isLoadingDosen ? "Memuat dosen..." : "Pilih Dosen"}
                     />
                 </div>
                 <div className="space-y-2">
@@ -127,7 +156,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                     pengaturan={pengaturan}
                                     onOpenModal={open}
                                 />
-                            )): (
+                            )) : (
                                 <TableRow>
                                     <TableCell className="border border-gray-900 dark:border-gray-400 text-center" colSpan={12}>Data tidak ditemukan</TableCell>
                                 </TableRow>
@@ -136,6 +165,19 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                     }
                 </TableBody>
             </Table>
+            <SearchCommand
+                title="Dosen"
+                items={dosenList && dosenList?.data?.map((item: any) => ({
+                    id: item.id,
+                    label: item.nama,
+                    value: item.id,
+                    description: item?.Fakultas?.nama ?? "-"
+                }))}
+                onSearch={setSearchDosen}
+                isLoading={isLoadingDosen}
+                hotkey="ctrl+k"
+                onSelect={(item) => setSelectedDosen(Number(item.value))}
+            />
         </>
     );
 }

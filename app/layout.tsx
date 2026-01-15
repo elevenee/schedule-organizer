@@ -1,10 +1,11 @@
+import QueryProvider from "@/components/providers/query-provider";
+import Providers from "@/components/providers/session-provider";
+import { ThemeProvider } from "@/components/providers/theme-provider";
+import { CommandStackProvider } from "@/contexts/comand-scope-context";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import QueryProvider from "@/components/providers/query-provider";
-import { ThemeProvider } from "@/components/providers/theme-provider";
-import Providers from "@/components/providers/session-provider";
 import { Toaster } from "react-hot-toast";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,7 +40,9 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Providers>
-              {children}
+              <CommandStackProvider>
+                {children}
+              </CommandStackProvider>
             </Providers>
           </ThemeProvider>
         </QueryProvider>
