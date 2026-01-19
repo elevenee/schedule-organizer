@@ -136,6 +136,7 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
                 <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
                 <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
                 <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
             </>
         );
     }
@@ -148,6 +149,7 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
             <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
             <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.kelas?.length || 0}</TableCell>
             <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.sks}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.kelas?.length * jadwal.sks}</TableCell>
         </>
     );
 }
