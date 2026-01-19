@@ -209,8 +209,8 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
     return (
         <>
             <TableCell className='border'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>
-            <TableCell className='border text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
             <TableCell className='border'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
+            <TableCell className='border text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
             <TableCell className='border text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
             <TableCell className='border text-center'>{jadwal.kelas?.length || 0}</TableCell>
             <TableCell className='border text-center'>{jadwal.sks}</TableCell>
