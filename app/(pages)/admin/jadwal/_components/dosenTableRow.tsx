@@ -57,7 +57,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                             </TableCell>
                             {
                                 item.status === 'TETAP' && (
-                                    <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                                    <TableCell rowSpan={item.jadwal.length} className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
                                 )
                             }
                         </>
