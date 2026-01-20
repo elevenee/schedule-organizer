@@ -157,19 +157,19 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
             <Table>
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="border">NO</TableHead>
-                        <TableHead className="border">Nama Dosen</TableHead>
-                        <TableHead className="border">#</TableHead>
-                        <TableHead className="border">Fakultas</TableHead>
-                        <TableHead className="border">Prodi</TableHead>
-                        <TableHead className="border">Matakuliah</TableHead>
-                        <TableHead className="border">SMT/Kelas</TableHead>
-                        <TableHead className="border">Σ Kelas</TableHead>
-                        <TableHead className="border">SKS</TableHead>
-                        <TableHead className="border">Σ SMT/Kelas Diterima</TableHead>
-                        <TableHead className="border">Σ Pengajuan SKS</TableHead>
-                        <TableHead className="border">Σ SKS Diterima</TableHead>
-                        <TableHead className="border">KJM</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">NO</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Nama Dosen</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">#</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Fakultas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Prodi</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Matakuliah</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">SMT/Kelas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Σ Kelas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">SKS</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Σ SMT/Kelas Diterima</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Σ Pengajuan SKS</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">Σ SKS Diterima</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400">KJM</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>

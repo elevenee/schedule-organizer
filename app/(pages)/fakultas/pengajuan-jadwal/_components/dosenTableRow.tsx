@@ -36,7 +36,7 @@ function MultipleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }:
                     {/* First row with rowspan for common data */}
                     {jadwalIndex === 0 && (
                         <>
-                            <TableCell rowSpan={item.jadwal.length} className='border'>{index + 1}</TableCell>
+                            <TableCell rowSpan={item.jadwal.length} className='border border-gray-900 dark:border-gray-400'>{index + 1}</TableCell>
                             <TableCell rowSpan={item.jadwal.length} className={`font-medium ${capacityStyle}`}>
                                 <DosenNameCell
                                     item={{ ...item, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}
@@ -53,13 +53,17 @@ function MultipleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }:
                     {/* Total SKS only in first row */}
                     {jadwalIndex === 0 && (
                         <>
-                            <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border ${capacityStyle}`}>
+                            <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border border-gray-900 dark:border-gray-400 ${capacityStyle}`}>
                                 {item.totalSKSRequest}
                             </TableCell>
-                            <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border ${capacityStyle}`}>
+                            <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border border-gray-900 dark:border-gray-400 ${capacityStyle}`}>
                                 {item.totalSKS}
                             </TableCell>
-                            <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                            {
+                                item.status === 'TETAP' && (
+                                    <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                                )
+                            }
                         </>
                     )}
                 </TableRow>
@@ -76,8 +80,8 @@ function SingleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }: D
 
     return (
         <TableRow>
-            <TableCell className='border'>{index + 1}</TableCell>
-            <TableCell className={`font-medium border ${capacityStyle}`}>
+            <TableCell className='border border-gray-900 dark:border-gray-400'>{index + 1}</TableCell>
+            <TableCell className={`font-medium border border-gray-900 dark:border-gray-400 ${capacityStyle}`}>
                 <DosenNameCell
                     item={{ ...item, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}
                     isOverCapacity={false}
@@ -86,9 +90,13 @@ function SingleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }: D
             </TableCell>
             <ActionButtons item={jadwal} hasActions={hasJadwal} onOpenModal={onOpenModal} pengaturan={{ ...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} fakultasId={fakultasId} />
             <JadwalDataCell jadwal={jadwal} />
-            <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKSRequest}</TableCell>
-            <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
-            <TableCell className={`border font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+            <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKSRequest}</TableCell>
+            <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
+            {
+                item.status === 'TETAP' && (
+                    <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                )
+            }
         </TableRow>
     );
 }
@@ -96,7 +104,7 @@ function SingleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }: D
 // Helper component for action buttons
 /* eslint-disable */
 function ActionButtons({ item, hasActions, onOpenModal, pengaturan, fakultasId }: { item: any; hasActions: boolean, onOpenModal: (modal: string, data: any) => void; pengaturan?: any; fakultasId?: number; }) {
-    if (!hasActions) return <TableCell className='border'></TableCell>;
+    if (!hasActions) return <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>;
     const itemEdit = {
         id: item?.id ? Number(item.id) : undefined,
         matakuliahId: Number(item?.matakuliahId) ?? undefined,
@@ -115,7 +123,7 @@ function ActionButtons({ item, hasActions, onOpenModal, pengaturan, fakultasId }
         onOpenModal("jadwalRequestModal", itemEdit);
     }
     return (
-        <TableCell className='border' data-id={fakultasId}>
+        <TableCell className='border border-gray-900 dark:border-gray-400' data-id={fakultasId}>
             {
                 fakultasId && Number(fakultasId) === Number(item?.fakultasId) ? (
                     <div className="flex gap-2">
@@ -196,25 +204,25 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
     if (!jadwal) {
         return (
             <>
-                <TableCell className='border'></TableCell>
-                <TableCell className='border'></TableCell>
-                <TableCell className='border'></TableCell>
-                <TableCell className='border'></TableCell>
-                <TableCell className='border'></TableCell>
-                <TableCell className='border'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
             </>
         );
     }
 
     return (
         <>
-            <TableCell className='border'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>
-            <TableCell className='border'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
-            <TableCell className='border text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
-            <TableCell className='border text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
-            <TableCell className='border text-center'>{jadwal.kelas?.length || 0}</TableCell>
-            <TableCell className='border text-center'>{jadwal.sks}</TableCell>
-            <TableCell className='border text-center'>{jadwal?.semesterDiterima ? jadwal.semesterDiterima + "/" + jadwal.totalKelasDiterima?.join(',') : jadwal.kelas?.join(',')}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400 text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.kelas?.length || 0}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.sks}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal?.semesterDiterima ? jadwal.semesterDiterima + "/" + jadwal.totalKelasDiterima?.join(',') : jadwal.kelas?.join(',')}</TableCell>
         </>
     );
 }
