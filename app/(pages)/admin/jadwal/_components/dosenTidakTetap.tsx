@@ -271,25 +271,24 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
             <Table className="mt-4">
                 <TableHeader>
                     <TableRow>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">NO</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">Nama Dosen</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">#</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">Fakultas</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">Prodi</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">Matakuliah</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">SMT/Kelas</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">Jumlah Kelas</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">SKS</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">Σ SKS</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">Total SKS</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">KJM</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">NO</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Nama Dosen</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">#</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Fakultas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Prodi</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Matakuliah</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">SMT/Kelas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Jumlah Kelas</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">SKS</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Σ SKS</TableHead>
+                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Total SKS</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {
                         isLoading ? (
                             <TableRow>
-                                <TableCell className="border border-gray-900 dark:border-gray-400 text-center" colSpan={12}>Memuat...</TableCell>
+                                <TableCell className="border border-gray-900 dark:border-gray-400 text-center" colSpan={11}>Memuat...</TableCell>
                             </TableRow>
                         ) : (
                             data?.data && data?.data?.length ? data.data?.map((item: any, index: number) => (
@@ -302,7 +301,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                 />
                             )) : (
                                 <TableRow>
-                                    <TableCell className="border border-gray-900 dark:border-gray-400 text-center" colSpan={13}>Data tidak ditemukan</TableCell>
+                                    <TableCell className="border border-gray-900 dark:border-gray-400 text-center" colSpan={11}>Data tidak ditemukan</TableCell>
                                 </TableRow>
                             )
                         )

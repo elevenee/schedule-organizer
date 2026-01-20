@@ -51,6 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 { url: `${base}/admin/program-studi`, title: "Program Studi", icon: Box },
                 { url: `${base}/admin/mata-kuliah`, title: "Mata Kuliah", icon: Box },
                 { url: `${base}/admin/dosen`, title: "Dosen", icon: Users },
+                { url: `${base}/admin/dosen-tidak-tetap`, title: "Dosen Tidak Tetap", icon: Users },
             ]
         },
         {

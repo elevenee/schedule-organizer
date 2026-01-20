@@ -48,7 +48,11 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                             <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border border-gray-900 dark:border-gray-400 text-center ${capacityStyle}`}>
                                 {item.totalSKS}
                             </TableCell>
-                            <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border border-gray-900 dark:border-gray-400 text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                            {
+                                item.status === 'TETAP' && (
+                                    <TableCell rowSpan={item.jadwal.length} className={`text-center font-bold border border-gray-900 dark:border-gray-400 text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                                )
+                            }
                         </>
                     )}
                 </TableRow>
@@ -75,7 +79,11 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
             </TableCell>
             <JadwalDataCell jadwal={jadwal} />
             <TableCell className={`border border-gray-900 dark:border-gray-400 text-center font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
-            <TableCell className={`border border-gray-900 dark:border-gray-400 text-center font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+            {
+                item.status === 'TETAP' && (
+                    <TableCell className={`border border-gray-900 dark:border-gray-400 text-center font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                )
+            }
         </TableRow>
     );
 }

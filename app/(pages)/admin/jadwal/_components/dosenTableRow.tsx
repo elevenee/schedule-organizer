@@ -46,7 +46,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                         </>
                     )}
 
-                    <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={true} onOpenModal={onOpenModal} />
+                    <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{ ...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={true} onOpenModal={onOpenModal} />
                     <JadwalDataCell jadwal={jadwal} />
 
                     {/* Total SKS only in first row */}
@@ -80,10 +80,14 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
                     onOpenModal={onOpenModal}
                 />
             </TableCell>
-            <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={hasJadwal} onOpenModal={onOpenModal} />
+            <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{ ...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={hasJadwal} onOpenModal={onOpenModal} />
             <JadwalDataCell jadwal={jadwal} />
             <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
-            <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+            {
+                item.status === 'TETAP' && (
+                    <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                )
+            }
         </TableRow>
     );
 }
@@ -107,7 +111,7 @@ function ActionButtons({ item, currentTotalSks, pengaturan, hasActions, onOpenMo
         maxSks: pengaturan?.maxSks,
         jenisDosen: pengaturan?.jenisDosen
     } as any;
-    
+
     const handleEdit = () => {
         onOpenModal("jadwalModal", itemEdit);
     }
@@ -140,7 +144,7 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
             </>
         );
     }
-    
+
     return (
         <>
             <TableCell className='border border-gray-900 dark:border-gray-400'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>

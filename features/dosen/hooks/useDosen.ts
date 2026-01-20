@@ -4,7 +4,7 @@ import { SYNC } from "../actions/sync";
 import { create } from "./../actions/create";
 import { destroy } from "./../actions/delete";
 import { GET_PAGINATE } from "./../actions/get";
-import { update } from "./../actions/update";
+import { update, updateNoHp } from "./../actions/update";
 import { dosenSchema } from "./../validations";
 
 interface StoreOptions extends MutationOptions { }
@@ -45,15 +45,6 @@ const createDosen = async (formData: any, showProccessAlert: boolean) => {
     );
 };
 
-const updateDosen = async (id: number, formData: any, showProccessAlert: boolean) => {
-    handleValidation(formData);
-    return handleMutation(
-        () => (update(id, formData)),
-        showProccessAlert,
-        "Updating Data",
-        "Data sedang diproses"
-    );
-};
 
 export const useStoreDosen = async (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
@@ -66,12 +57,40 @@ export const useStoreDosen = async (options: StoreOptions = {}) => {
     });
 };
 
+const updateDosen = async (id: number, formData: any, showProccessAlert: boolean) => {
+    handleValidation(formData);
+    return handleMutation(
+        () => (update(id, formData)),
+        showProccessAlert,
+        "Updating Data",
+        "Data sedang diproses"
+    );
+};
 export const useUpdateDosen = async (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
     return useMutation({
         mutationFn: ({ id, data }: { id: number; data: any }) => updateDosen(id, data, showProccessAlert),
+        onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["dosen"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Dosen gagal disimpan"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert),
+    });
+};
+const updateHpDosen = async (id: number, formData: any, showProccessAlert: boolean) => {
+    return handleMutation(
+        () => (updateNoHp(id, formData)),
+        showProccessAlert,
+        "Updating Data",
+        "Data sedang diproses"
+    );
+};
+export const useUpdateNoHpDosen = async (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: ({ id, data }: { id: number; data: any }) => updateHpDosen(id, data, showProccessAlert),
         onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["dosen"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Dosen gagal disimpan"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert),
