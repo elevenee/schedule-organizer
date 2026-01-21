@@ -40,7 +40,7 @@ export function ProgramStudiModal() {
                 jenjang: program_studi?.jenjang ?? "",
                 kode: program_studi?.kode ?? "",
                 singkatan: program_studi?.singkatan ?? "",
-                fakultas: program_studi?.fakultasId ?? undefined,
+                fakultas: program_studi?.fakultasId ? Number(program_studi.fakultasId): undefined,
             })
         }
     }, [open, program_studi, form]);
