@@ -65,6 +65,9 @@ export async function update(id: number, formData: jadwalFormValues) {
         kelasChanges = kelas.filter(item => !set1.has(item));
     }
 
+    // console.log(kelasChanges, kelas, kelasFind);
+    
+
     let updated = null;
     if (findSisaSks) {
         const [upjadwal, upsks] = await prisma.$transaction([

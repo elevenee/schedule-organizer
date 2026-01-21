@@ -1,8 +1,6 @@
 'use client';
 
-import { UseFormReturn } from 'react-hook-form';
-import { ProgramStudiFormValues } from '@/features/program-studi/validations';
-import { Input } from '@/components/ui/input';
+import { Combobox } from '@/components/ui/combobox';
 import {
     Form,
     FormControl,
@@ -11,6 +9,7 @@ import {
     FormLabel,
     FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import {
     Select,
     SelectContent,
@@ -18,8 +17,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Combobox } from '@/components/ui/combobox';
+import { ProgramStudiFormValues } from '@/features/program-studi/validations';
 import { useMemo } from 'react';
+import { UseFormReturn } from 'react-hook-form';
 
 interface Props {
     form: UseFormReturn<ProgramStudiFormValues>;
@@ -97,6 +97,8 @@ export function ProgramStudiForm({ form, onSubmit, fakultas }: Props) {
                                         </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
+                                        <SelectItem value="D3">D3</SelectItem>
+                                        <SelectItem value="D4">D4</SelectItem>
                                         <SelectItem value="S1">S1</SelectItem>
                                         <SelectItem value="S2">S2</SelectItem>
                                         <SelectItem value="S3">S3</SelectItem>
