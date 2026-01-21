@@ -269,7 +269,6 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                     <TableRow>
                         <TableHead className="border border-gray-900 dark:border-gray-400 text-center">NO</TableHead>
                         <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Nama Dosen</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400 text-center">#</TableHead>
                         <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Fakultas</TableHead>
                         <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Prodi</TableHead>
                         <TableHead className="border border-gray-900 dark:border-gray-400 text-center">Matakuliah</TableHead>
