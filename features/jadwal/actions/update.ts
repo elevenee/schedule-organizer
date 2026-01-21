@@ -3,7 +3,12 @@
 import { prisma } from "@/lib/prisma";
 import { jadwalFormValues } from "../validations";
 export async function update(id: number, formData: jadwalFormValues) {
-    const find = await prisma.jadwal.findUnique({ where: { id } });
+    const find = await prisma.jadwal.findUnique({
+        where: { id },
+        include: {
+            Matakuliah: true
+        }
+    });
     if (!find) return { error: 'Jadwal tidak ditemukan' };
 
     const { matakuliahId, sks, dosenId, semester, kelas } = formData;
@@ -64,12 +69,14 @@ export async function update(id: number, formData: jadwalFormValues) {
         const set1 = new Set(kelasFind);
         kelasChanges = kelas.filter(item => !set1.has(item));
     }
-
-    // console.log(kelasChanges, kelas, kelasFind);
-    
-
     let updated = null;
-    if (findSisaSks) {
+    if (!kelasChanges.length && find.Matakuliah.sks.toString() === sks) {
+        updated = await prisma.jadwal.update({
+            where: { id },
+            data: updateData,
+        });
+    }
+    else if (findSisaSks) {
         const [upjadwal, upsks] = await prisma.$transaction([
             prisma.jadwal.update({
                 where: { id },
@@ -80,11 +87,11 @@ export async function update(id: number, formData: jadwalFormValues) {
                 data: {
                     tahunAkademikId: find?.tahunAkademikId,
                     matakuliahId: find.matakuliahId,
-                    sks: find.sks,
+                    sks: find.Matakuliah.sks.toString() !== sks ? find.Matakuliah.sks - parseFloat(sks) : find.sks,
                     semester: find.semester,
                     fakultasId: find.fakultasId,
                     jurusanId: find.jurusanId,
-                    kelas: kelasChanges
+                    kelas: kelasChanges.length ? kelasChanges : kelas
                 }
             })
         ]);
@@ -99,11 +106,11 @@ export async function update(id: number, formData: jadwalFormValues) {
                 data: {
                     tahunAkademikId: find?.tahunAkademikId,
                     matakuliahId: find.matakuliahId,
-                    sks: find.sks,
+                    sks: find.Matakuliah.sks.toString() !== sks ? find.Matakuliah.sks - parseFloat(sks) : find.sks,
                     semester: find.semester,
                     fakultasId: find.fakultasId,
                     jurusanId: find.jurusanId,
-                    kelas: kelasChanges
+                    kelas: kelasChanges.length ? kelasChanges : kelas
                 }
             })
         ]);
