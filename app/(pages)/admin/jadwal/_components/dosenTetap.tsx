@@ -22,6 +22,10 @@ interface Props {
     pengaturan?: any;
     tahunAkademik?: any;
 }
+interface sort {
+    field: string,
+    orderBy: any
+}
 export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const { open } = useModalManager()
     const [selectedDosen, setSelectedDosen] = useState<number | null>(null);
@@ -34,12 +38,18 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const [selectedKelas, setSelectedKelas] = useState<string[]>([]);
     const [searchDosen, setSearchDosen] = useState<string | null>(null);
     const [selectedTotalSKS, setSelectedTotalSKS] = useState<string | null>(null);
+    const [reorders, setReOrders] = useState<boolean>(false);
+
+    const [sort, setSort] = useState<sort[]>([
+        { field: 'semester', orderBy: 'asc' },
+        { field: 'Matakuliah', orderBy: { id: 'asc' } }
+    ]);
     const { data, isLoading } = useGetJadwal({
         page: 1,
         search: "",
         jenisDosen: "TETAP",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
-        sort: { field: 'matakuliah', orderBy: 'asc' },
+        sort: sort,
         fakultas: selectedFakultas ?? null,
         programStudi: selectedProdi ?? null,
         fakultasBase: selectedBaseFakultas ?? null,
@@ -48,7 +58,8 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         dosen: selectedDosen ?? null,
         semester: selectedSemester ?? null,
         kelas: selectedKelas,
-        totalSks: selectedTotalSKS ?? null
+        totalSks: selectedTotalSKS ?? null,
+        reOrders: reorders
     });
     const { data: dosenList, isLoading: isLoadingDosen } = useGetDosen({
         page: 1,
@@ -122,6 +133,16 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         [prodiListBase, selectedBaseFakultas]
     );
 
+    const setOrders = () => {
+        setSort([
+            { field: 'Jurusan', orderBy: { nama: 'asc' } },
+            { field: 'Matakuliah', orderBy: { id: 'asc' } },
+            { field: 'semester', orderBy: 'asc' },
+            { field: 'kelas', orderBy: 'asc' },
+        ]);
+        setReOrders(!reorders)
+    }
+
     const resetFilter = () => {
         setSelectedDosen(null)
         setSelectedFakultas(null)
@@ -132,6 +153,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         setSelectedSemester(null)
         setSelectedKelas([]);
         setSelectedTotalSKS(null)
+        setReOrders(false)
     }
 
     const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -152,7 +174,10 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
         <>
             <div className="py-4 border-t border-gray-200  flex gap-2 justify-center md:justify-between">
                 <Button variant="default" onClick={() => open("listRequestModal", { jenisDosen: "TETAP" })}><ListCheck /> List Pengajuan Jadwal</Button>
-                <Button variant="outline" onClick={resetFilter}><span className="text-rose-500">Reset Filter</span></Button>
+                <div className="flex flex-wrap gap-2">
+                    <Button variant="outline" onClick={setOrders}><span>Reorders</span></Button>
+                    <Button variant="outline" onClick={resetFilter}><span className="text-rose-500">Reset Filter</span></Button>
+                </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-t border-gray-200">
                 <div className="flex flex-col gap-2">

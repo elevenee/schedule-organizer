@@ -47,7 +47,7 @@ export async function GET_PAGINATE({
             Dosen: {
                 nama: { contains: search, mode: Prisma.QueryMode.insensitive }
             },
-            matakuliah: { contains: search, mode: Prisma.QueryMode.insensitive },
+            Matakuliah: { contains: search, mode: Prisma.QueryMode.insensitive },
         }
         : {};
     const dosenFilter = dosen ? {
@@ -67,7 +67,7 @@ export async function GET_PAGINATE({
         jurusanId: programStudi
     } : {}
     const matakuliahFilter = matakuliah ? {
-        matakuliah: {
+        Matakuliah: {
             nama: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
         }
     } : {}
@@ -84,7 +84,7 @@ export async function GET_PAGINATE({
     const whereJadwal = {
         tahunAkademikId: selectedTahunAkademik,
         ...programStudiFilter,
-        ...matakuliahFilter,
+        // ...matakuliahFilter,
         ...dosenFilter,
         ...jenisDosenFilter
     };

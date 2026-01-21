@@ -1,7 +1,7 @@
 import { QueryClient, useQuery, UseQueryResult } from "@tanstack/react-query";
+import toast from 'react-hot-toast';
 import Swal from "sweetalert2";
 import { ZodObject } from "zod";
-import toast from 'react-hot-toast';
 
 export interface MutationOptions {
     serverAction?: boolean;
@@ -9,14 +9,18 @@ export interface MutationOptions {
     showAlert?: boolean;
 }
 
+interface sortItem {
+    field: string,
+    orderBy: string | any
+}
 export interface DataTableOptions {
     page: number;
     limit?: number;
     search?: string;
     remove_pagination?: boolean,
-    sort?: {
+    sort?: sortItem[] | {
         field: string,
-        orderBy: string
+        orderBy: string | any
     } | null | undefined
 }
 
@@ -54,7 +58,7 @@ export const successMessage = (res: any, text: string = "Data berhasil disimpan"
         return res;
     }
     toast.success(text)
-    
+
 };
 
 export const errorMessage = (res: any, title: string = "Gagal", text: string = "Permintaan gagal dilakukan") => {
@@ -73,7 +77,7 @@ export const handleFetchData = (
     const fetchData = async () => {
         try {
             const result = await action()
-            
+
             if (!result) {
                 throw new Error(`${result?.message}`);
             }
@@ -119,7 +123,7 @@ export const handleMutationSuccess = async (res: any, showAlert: boolean, text?:
         }
         return res;
     }
-    
+
     if (showAlert) {
         Swal.close();
         return successMessage(res, text);

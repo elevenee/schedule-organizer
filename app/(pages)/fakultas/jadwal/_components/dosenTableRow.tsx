@@ -70,7 +70,7 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
     return (
         <TableRow>
             <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{index + 1}</TableCell>
-            <TableCell className={`font-medium border border-gray-900 dark:border-gray-400 text-center ${capacityStyle}`}>
+            <TableCell className={`font-medium border border-gray-900 dark:border-gray-400 ${capacityStyle}`}>
                 <DosenNameCell
                     item={{ ...item, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }}
                     isOverCapacity={false}
@@ -93,26 +93,26 @@ function JadwalDataCell({ jadwal }: { jadwal: any }) {
     if (!jadwal) {
         return (
             <>
-                <TableCell className='border border-gray-900 dark:border-gray-400 text-center'></TableCell>
-                <TableCell className='border border-gray-900 dark:border-gray-400 text-center'></TableCell>
-                <TableCell className='border border-gray-900 dark:border-gray-400 text-center'></TableCell>
-                <TableCell className='border border-gray-900 dark:border-gray-400 text-center'></TableCell>
-                <TableCell className='border border-gray-900 dark:border-gray-400 text-center'></TableCell>
-                <TableCell className='border border-gray-900 dark:border-gray-400 text-center'></TableCell>
-                <TableCell className='border border-gray-900 dark:border-gray-400 text-center'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
+                <TableCell className='border border-gray-900 dark:border-gray-400'></TableCell>
             </>
         );
     }
     
     return (
         <>
-            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>
-            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
-            <TableCell className='border border-gray-900 dark:border-gray-400 text-center text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
-            <TableCell className='border border-gray-900 dark:border-gray-400 text-center text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
-            <TableCell className='border border-gray-900 dark:border-gray-400 text-center text-center'>{jadwal.kelas?.length || 0}</TableCell>
-            <TableCell className='border border-gray-900 dark:border-gray-400 text-center text-center'>{jadwal.sks}</TableCell>
-            <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.kelas?.length * jadwal.sks}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'><div className="text-wrap">{jadwal.fakultas}</div></TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400 text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'>{jadwal.kelas?.length || 0}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'>{jadwal.sks}</TableCell>
+            <TableCell className='border border-gray-900 dark:border-gray-400'>{jadwal.kelas?.length * jadwal.sks}</TableCell>
         </>
     );
 }

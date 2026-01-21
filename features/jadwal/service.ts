@@ -20,7 +20,8 @@ interface GetAllProps extends DataTableOptions {
     dosen?: number | null,
     semester?: string | null,
     kelas?: string[],
-    totalSks?: string | null
+    totalSks?: string | null,
+    reOrders?: boolean
 }
 export const useGetJadwal = (params: GetAllProps) => {
     

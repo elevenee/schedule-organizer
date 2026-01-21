@@ -26,7 +26,6 @@ export async function create(formData: sisaSksFormValues) {
       fakultasId: formData.fakultasId,
       semester: Number(formData.semester),
       matakuliahId: Number(formData.matakuliahId),
-      dosenId: Number(formData.dosenId),
       kelas: {
         hasSome: formData.kelas
       }
@@ -48,6 +47,9 @@ export async function create(formData: sisaSksFormValues) {
     if (isExists.Jurusan?.jenjang == 'S1') {
       return { errors_message: `Jadwal kelas pada matakuliah ${isExists?.Matakuliah.nama} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
     }
+    // else if(parseFloat(formData.sks) === isExists.Matakuliah.sks){
+
+    // }
   }
   const getCurrent = await prisma.jadwal.findMany({
     where: {

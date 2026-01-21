@@ -38,7 +38,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
         search: "",
         jenisDosen: "TIDAK_TETAP",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
-        sort: { field: 'matakuliah', orderBy: 'asc' },
+        sort: { field: 'Matakuliah', orderBy: {nama: 'asc'} },
         fakultas: selectedFakultas ?? null,
         programStudi: selectedProdi ?? null,
         fakultasBase: selectedBaseFakultas ?? null,
