@@ -135,8 +135,8 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
 
     const setOrders = () => {
         setSort([
-            { field: 'Jurusan', orderBy: { nama: 'asc' } },
-            { field: 'Matakuliah', orderBy: { id: 'asc' } },
+            { field: 'jurusanId', orderBy: 'asc' },
+            { field: 'matakuliahId', orderBy: 'asc' },
             { field: 'semester', orderBy: 'asc' },
             { field: 'kelas', orderBy: 'asc' },
         ]);

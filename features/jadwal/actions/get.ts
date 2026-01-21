@@ -123,7 +123,7 @@ export async function GET_PAGINATE({
         Dosen: {
             status: jenisDosen as TypeDosen
         },
-    };
+    };    
 
     const [pengaturan, dosenList, jadwalData, jadwalNoFilter, total] = await Promise.all([
         prisma.pengaturanJadwal.findMany(),
