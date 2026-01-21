@@ -1,15 +1,15 @@
 'use client';
 
+import { Button } from "@/components/ui/button";
+import BaseModal from '@/components/ui/modal';
+import { useGetFakultas } from '@/features/fakultas/service';
+import { useModalManager } from '@/hooks/modal-manager';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from "@/components/ui/button"
-import { ProgramStudiFormValues, programStudiSchema } from '../validations';
 import { useStoreProgramStudi, useUpdateProgramStudi } from '../hooks/useProdi';
+import { ProgramStudiFormValues, programStudiSchema } from '../validations';
 import { ProgramStudiForm } from './create-form';
-import { useModalManager } from '@/hooks/modal-manager';
-import { useGetFakultas } from '@/features/fakultas/service';
-import BaseModal from '@/components/ui/modal';
 
 export function ProgramStudiModal() {
     const { isOpen, getData, close } = useModalManager();
@@ -20,12 +20,12 @@ export function ProgramStudiModal() {
     const form = useForm<ProgramStudiFormValues>({
         resolver: zodResolver(programStudiSchema),
         defaultValues: {
-            id: program_studi?.id ?? undefined,
+            id: program_studi?.id ? Number(program_studi.id): undefined,
             nama: program_studi?.nama ?? "",
             jenjang: program_studi?.jenjang ?? "",
             kode: program_studi?.kode ?? "",
             singkatan: program_studi?.singkatan ?? "",
-            fakultas: program_studi?.fakultasId ?? undefined,
+            fakultas: program_studi?.fakultasId ? Number(program_studi.fakultasId): undefined,
         }
     });
 
