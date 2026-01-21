@@ -6,7 +6,7 @@ export const programStudiSchema = z.object({
     fakultas: z.number(),
     jenjang: z.string().min(1, 'Jenjang harus diisi').max(100),
     kode: z.string().min(1, 'kode harus diisi').max(100),
-    singkatan: z.string().min(1, 'singkatan harus diisi').max(100),
+    singkatan: z.string().optional(),
 });
 
 export type ProgramStudiFormValues = z.infer<typeof programStudiSchema>;
