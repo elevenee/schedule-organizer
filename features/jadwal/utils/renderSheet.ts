@@ -76,7 +76,7 @@ export function renderDosenSheet(
         const endRow = rowIndex - 1
 
         if (endRow > startRow) {
-            ["A", "H", "I"].forEach(col => {
+            ["A", "I", "J"].forEach(col => {
                 worksheet.mergeCells(`${col}${startRow}:${col}${endRow}`)
                 const cell = worksheet.getCell(`${col}${startRow}`);
                 cell.alignment = {
