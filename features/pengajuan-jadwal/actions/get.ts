@@ -84,7 +84,7 @@ export async function GET_PAGINATE({
     const whereJadwal = {
         tahunAkademikId: selectedTahunAkademik,
         ...programStudiFilter,
-        // ...matakuliahFilter,
+        ...matakuliahFilter,
         ...dosenFilter,
         ...jenisDosenFilter
     };

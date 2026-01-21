@@ -37,6 +37,7 @@ export function renderDosenSheet(
         { header: "SMT/Kelas", key: "kelas", width: 20 },
         { header: "Jumlah Kelas", key: "jumlah_kelas", width: 10 },
         { header: "SKS", key: "sks", width: 8 },
+        { header: "Jumlah SKS", key: "jml_sks", width: 8 },
 
         { header: "Total SKS", key: "totalSKS", width: 12 },
         { header: "KJM", key: "KJM", width: 12 },
@@ -63,6 +64,7 @@ export function renderDosenSheet(
                 kelas: jadwal.semester ? jadwal.semester + "/" + (Array.isArray(jadwal.kelas) ? jadwal.kelas.join(", ") : "") : "",
                 jumlah_kelas: Array.isArray(jadwal.kelas) ? jadwal.kelas.length : '',
                 sks: jadwal.sks || "",
+                jml_sks:  Array.isArray(jadwal.kelas) && jadwal.sks ? jadwal.kelas.length * parseFloat(jadwal.sks): '',
 
                 totalSKS: dosen.totalSKS ?? "",
                 KJM: dosen.totalSKS - 12

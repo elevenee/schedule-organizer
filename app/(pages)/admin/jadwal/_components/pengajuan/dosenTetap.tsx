@@ -153,7 +153,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                     <Label>Matakuliah</Label>
                     <Input
                         value={selectedMatkul ?? ""}
-                        disabled={!selectedProdi}
+                        // disabled={!selectedProdi}
                         onChange={(e) => setSelectedMatkul(e.target.value || null)}
                         placeholder="Ketik Matakuliah"
                     />
