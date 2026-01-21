@@ -1,10 +1,8 @@
 'use client'
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
 import { DataTable } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
-import { DeleteDosen } from "@/features/dosen/components/delete-dialog";
 import { DosenNoHPModal } from "@/features/dosen/components/nomor-hp-modal";
 import { useGetDosen, useSyncDosen } from "@/features/dosen/hooks/useDosen";
 import { useGetFakultas } from "@/features/fakultas/service";
@@ -12,7 +10,6 @@ import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Recycle } from "lucide-react";
 import React, { useMemo } from "react";
 
 export default function List() {
@@ -63,27 +60,6 @@ export default function List() {
             cell: ({ row }) => (
                 <div className="text-wrap">{row.original.Jurusan?.nama ?? "-"}</div>
             ),
-        },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => {
-                return (
-                    <div className='flex flex-wrap gap-2'>
-                        {
-                            !row.original.deletedAt && (
-                                <Button variant={"outline"} onClick={() => open("dosenModal", row.original)}><Edit /> <span className="hidden md:flex">Edit</span></Button>
-                            )
-                        }
-                        {
-                            row.original.deletedAt && (
-                                <Button variant={"outline"}><Recycle /> Restore</Button>
-                            )
-                        }
-                        <DeleteDosen id={row.original.id} custom_text={row.original.deletedAt ? 'Hapus Permanent' : 'Hapus'} />
-                    </div>
-                )
-            },
         },
     ];
 

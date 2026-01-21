@@ -6,7 +6,6 @@ import { DataTable } from "@/components/ui/data-table";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DosenModal } from "@/features/dosen/components/create-modal";
-import { DeleteDosen } from "@/features/dosen/components/delete-dialog";
 import { useGetDosen, useSyncDosen } from "@/features/dosen/hooks/useDosen";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
@@ -55,21 +54,6 @@ export default function List() {
                     }
                 </div>
             ),
-        },
-        {
-            id: "actions",
-            enableHiding: false,
-            cell: ({ row }) => {
-                return (
-                    <div className='flex flex-wrap gap-2'>
-                        {
-                            row.original.status === 'TIDAK_TETAP' && (
-                                <DeleteDosen id={row.original.id} />
-                            )
-                        }
-                    </div>
-                )
-            },
         },
     ];
 
