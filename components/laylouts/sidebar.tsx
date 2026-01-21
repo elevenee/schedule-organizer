@@ -95,6 +95,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 { url: `${base}/dashboard`, title: "Dashboard", icon: LayoutDashboardIcon },
                 { url: `${base}/fakultas/pengajuan-jadwal`, title: "Pengajuan Jadwal", icon: Calendar },
                 { url: `${base}/fakultas/jadwal`, title: "Jadwal Disetujui", icon: CalendarCheck },
+                { url: `${base}/admin/dosen-tidak-tetap`, title: "Dosen Tidak Tetap", icon: Users },
             ]
         }
     ];

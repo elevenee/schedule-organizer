@@ -170,14 +170,13 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                         <TableHead className="border border-gray-900 dark:border-gray-400">Σ SMT/Kelas Diterima</TableHead>
                         <TableHead className="border border-gray-900 dark:border-gray-400">Σ Pengajuan SKS</TableHead>
                         <TableHead className="border border-gray-900 dark:border-gray-400">Σ SKS</TableHead>
-                        <TableHead className="border border-gray-900 dark:border-gray-400">KJM</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
                     {
                         isLoading ? (
                             <TableRow>
-                                <TableCell className="border text-center" colSpan={13}>Memuat...</TableCell>
+                                <TableCell className="border text-center" colSpan={12}>Memuat...</TableCell>
                             </TableRow>
                         ) : (
                             data?.data && data?.data?.length ? data.data?.map((item: any, index: number) => (
@@ -191,7 +190,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                 />
                             )) : (
                                 <TableRow>
-                                    <TableCell className="border text-center" colSpan={13}>Data tidak ditemukan</TableCell>
+                                    <TableCell className="border text-center" colSpan={12}>Data tidak ditemukan</TableCell>
                                 </TableRow>
                             )
                         )

@@ -193,6 +193,11 @@ function DosenNameCell({ item, isOverCapacity, onOpenModal }: {
                 </ContextMenuContent>
             </ContextMenu>
             <p className="text-xs text-muted-foreground font-normal">{item.homebase}</p>
+            {
+                item.no_hp && (
+                    <p className="text-xs text-muted-foreground font-normal">{item.no_hp}</p>
+                )
+            }
         </div>
     );
 }
