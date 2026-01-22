@@ -46,7 +46,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     const { data, isLoading } = useGetJadwal({
         page: 1,
         search: "",
-        jenisDosen: "TETAP",
+        jenisDosen: "",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
         sort: sort,
         fakultas: selectedFakultas ?? null,

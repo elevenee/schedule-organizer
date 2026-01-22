@@ -47,7 +47,7 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                     )}
 
                     <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{ ...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={true} onOpenModal={onOpenModal} />
-                    <JadwalDataCell jadwal={jadwal} hasSome={item.hasSameClass}/>
+                    <JadwalDataCell jadwal={jadwal} hasSome={item.hasSameClass} />
 
                     {/* Total SKS only in first row */}
                     {jadwalIndex === 0 && (
@@ -56,9 +56,9 @@ function MultipleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableR
                                 {item.totalSKS}
                             </TableCell>
                             {
-                                item.status === 'TETAP' && (
-                                    <TableCell rowSpan={item.jadwal.length} className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
-                                )
+                                item.status === 'TETAP' ? (
+                                    <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
+                                ) : (<TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center`}></TableCell>)
                             }
                         </>
                     )}
@@ -85,12 +85,12 @@ function SingleJadwalRow({ item, index, pengaturan, onOpenModal }: DosenTableRow
                 />
             </TableCell>
             <ActionButtons item={jadwal} currentTotalSks={item.totalSKS} pengaturan={{ ...pengaturan, maxSks: pengaturan?.data?.find((p: any) => p.jenisDosen === item.status)?.maxSks }} hasActions={hasJadwal} onOpenModal={onOpenModal} />
-            <JadwalDataCell jadwal={jadwal} hasSome={item.hasSameClass}/>
+            <JadwalDataCell jadwal={jadwal} hasSome={item.hasSameClass} />
             <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS}</TableCell>
             {
-                item.status === 'TETAP' && (
+                item.status === 'TETAP' ? (
                     <TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center ${capacityStyle}`}>{item.totalSKS - 12}</TableCell>
-                )
+                ) : (<TableCell className={`border border-gray-900 dark:border-gray-400 font-bold text-center`}></TableCell>)
             }
         </TableRow>
     );
@@ -154,7 +154,7 @@ function JadwalDataCell({ jadwal, hasSome }: { jadwal: any, hasSome: boolean }) 
             <TableCell className='border border-gray-900 dark:border-gray-400'><div className='text-wrap'>{jadwal.jurusan}</div></TableCell>
             <TableCell className='border border-gray-900 dark:border-gray-400 text-wrap'><div className='text-wrap'>{jadwal.matakuliah}</div></TableCell>
             <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{`${jadwal.semester}/${jadwal.kelas?.join(',')}`}</TableCell>
-            <TableCell className={`border border-gray-900 dark:border-gray-400 text-center ${hasSome ? 'bg-rose-500':''}`}>{jadwal.kelas?.length || 0}</TableCell>
+            <TableCell className={`border border-gray-900 dark:border-gray-400 text-center ${hasSome ? 'bg-rose-500' : ''}`}>{jadwal.kelas?.length || 0}</TableCell>
             <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.sks}</TableCell>
             <TableCell className='border border-gray-900 dark:border-gray-400 text-center'>{jadwal.kelas?.length * jadwal.sks}</TableCell>
         </>

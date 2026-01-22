@@ -105,6 +105,11 @@ export async function GET_PAGINATE({
         isActive: true,
         id: dosen ? dosen : {}
     };
+    const dosenStatus = jenisDosen ? {
+        Dosen: {
+            status: jenisDosen as TypeDosen
+        }
+    } : {}
     const whereJadwal = {
         tahunAkademikId: selectedTahunAkademik,
         ...fakultasFilter,
@@ -113,21 +118,13 @@ export async function GET_PAGINATE({
         ...dosenFilter,
         ...semesterFilter,
         ...kelasFilter,
-        Dosen: {
-            status: jenisDosen as TypeDosen
-        },
+        ...dosenStatus
     };
     const whereJadwalNoFilter = {
         tahunAkademikId: selectedTahunAkademik,
         ...dosenFilter,
-        Dosen: {
-            status: jenisDosen as TypeDosen
-        },
+        ...dosenStatus
     };
-    console.log("########################## ", Array.isArray(sort)
-        ? sort.map(s => ({ [s.field]: s.orderBy }))
-        : [{ [sort.field]: sort.orderBy }]);
-
     const [pengaturan, dosenList, jadwalData, jadwalNoFilter, total] = await Promise.all([
         prisma.pengaturanJadwal.findMany(),
         prisma.dosen.findMany({
