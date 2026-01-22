@@ -96,8 +96,10 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
 
     useEffect(() => {
         if (session.data?.user?.fakultasId) {
-            setCurrentFakultas(session.data?.user?.fakultasId)
+            setCurrentFakultas(session.data?.user?.fakultasId);
+            
         }
+        
     }, [session])
 
     const resetFilter = () => {
@@ -109,7 +111,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
     return (
         <>
             <div className="py-4 border-t border-gray-200 flex gap-2 justify-center md:justify-between">
-                <Button variant="default" onClick={() => open("jadwalRequestModal", {jenisDosen: 'TETAP'})}><Plus /> Ajukan Jadwal</Button>
+                <Button variant="default" onClick={() => open("jadwalRequestModal", {jenisDosen: 'TETAP', fakultasId: currentFakultas})}><Plus /> Ajukan Jadwal</Button>
                 <Button variant="outline" onClick={resetFilter}>Reset Filter</Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 py-4 border-y border-gray-200 mb-4">
@@ -181,7 +183,7 @@ export default function DosenTetap({ pengaturan, tahunAkademik }: Props) {
                         ) : (
                             data?.data && data?.data?.length && session?.data?.user ? data.data?.map((item: any, index: number) => (
                                 <DosenTableRow
-                                    key={item.id || index}
+                                    key={index}
                                     item={item}
                                     index={index}
                                     pengaturan={pengaturan}

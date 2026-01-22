@@ -32,7 +32,7 @@ function MultipleJadwalRow({ item, index, pengaturan, fakultasId, onOpenModal }:
     return (
         <>
             {item.jadwal.map((jadwal: any, jadwalIndex: number) => (
-                <TableRow key={`${item.id}-${jadwal.id || jadwalIndex}`}>
+                <TableRow key={jadwalIndex}>
                     {/* First row with rowspan for common data */}
                     {jadwalIndex === 0 && (
                         <>

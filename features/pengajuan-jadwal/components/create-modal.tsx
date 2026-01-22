@@ -39,9 +39,10 @@ export function JadwalModal() {
     });
     const storejadwal = useStoreJadwal()
     const updatejadwal = useUpdateJadwal()
-
+    
     const onSubmit = async (values: jadwalFormValues) => {
         setIsSubmitting(true);
+        
         try {
             if (jadwal?.id) {
                 if (values.id) {

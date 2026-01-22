@@ -181,7 +181,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                         ) : (
                             data?.data && data?.data?.length ? data.data?.map((item: any, index: number) => (
                                 <DosenTableRow
-                                    key={item.id || index}
+                                    key={index}
                                     item={item}
                                     index={index}
                                     pengaturan={pengaturan}

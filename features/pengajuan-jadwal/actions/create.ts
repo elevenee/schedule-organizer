@@ -20,29 +20,54 @@ export async function create(formData: jadwalFormValues) {
 
   const { matakuliahId, sks, dosenId, semester, kelas, jurusanId } = formData;
 
-  const getCurrent = await prisma.jadwal.findMany({
+  const findMatkul = await prisma.mataKuliah.findFirst({
     where: {
-      tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-      dosenId: Number(dosenId),
-    },
-    include: { Dosen: true }
-  });
-  const getCurrentPengajuan = await prisma.jadwalRequest.findMany({
-    where: {
-      tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-      dosenId: Number(dosenId),
-      status: {
-        in: ['PENDING']
+      id: matakuliahId
+    }
+  })
+  const [getCurrent, getCurrentPengajuan, getDosen, isExist] = await Promise.all([
+    prisma.jadwal.findMany({
+      where: {
+        tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+        dosenId: Number(dosenId),
+      },
+      include: { Dosen: true }
+    }),
+    prisma.jadwalRequest.findMany({
+      where: {
+        tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+        dosenId: Number(dosenId),
+        status: {
+          in: ['PENDING']
+        }
+      },
+      include: { Dosen: true }
+    }),
+    prisma.dosen.findUnique({
+      where: {
+        id: Number(dosenId),
+      },
+    }),
+    prisma.jadwalRequest.findFirst({
+      where: {
+        tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+        semester: Number(semester),
+        Matakuliah: { nama: findMatkul?.nama },
+        jurusanId: jurusanId,
+        kelas: { hasSome: kelas }
+      },
+      include: {
+        Jurusan: {
+          select: {
+            id: true,
+            nama: true,
+            jenjang: true
+          }
+        },
+        Matakuliah: true
       }
-    },
-    include: { Dosen: true }
-  });
-
-  const getDosen = await prisma.dosen.findUnique({
-    where: {
-      id: Number(dosenId),
-    },
-  }); 
+    })
+  ])
 
   const getPengaturanJadwal = await prisma.pengaturanJadwal.findFirst({
     where: {
@@ -50,6 +75,12 @@ export async function create(formData: jadwalFormValues) {
     },
   });
 
+
+  if (isExist) {
+    if (isExist.Jurusan?.jenjang == 'S1') {
+      return { errors_message: `Jadwal kelas pada matakuliah ${isExist?.Matakuliah.nama} semester ${semester} di prodi ${isExist?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
+    }
+  }
   const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks.toNumber() * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
   if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
     return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
@@ -73,7 +104,7 @@ export async function create(formData: jadwalFormValues) {
     const create = await prisma.jadwalRequest.create({
       data: data
     });
-    return {...create, sks: create.sks.toNumber(), totalSks: create.totalSks?.toNumber()}
+    return { ...create, sks: create.sks.toNumber(), totalSks: create.totalSks?.toNumber() }
   } catch (error: any) {
     console.error("Error creating jadwal:", error.code);
     return { errors_message: 'Gagal membuat jadwal. Mungkin jadwal dengan data yang sama sudah ada.' };
