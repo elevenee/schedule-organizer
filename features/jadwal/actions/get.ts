@@ -123,7 +123,10 @@ export async function GET_PAGINATE({
         Dosen: {
             status: jenisDosen as TypeDosen
         },
-    };    
+    };
+    console.log("########################## ", Array.isArray(sort)
+        ? sort.map(s => ({ [s.field]: s.orderBy }))
+        : [{ [sort.field]: sort.orderBy }]);
 
     const [pengaturan, dosenList, jadwalData, jadwalNoFilter, total] = await Promise.all([
         prisma.pengaturanJadwal.findMany(),
@@ -245,10 +248,9 @@ export async function GET_PAGINATE({
                     }
                 }
             },
-            orderBy: [
-                { semester: 'asc' },
-                { Matakuliah: { id: 'asc' } }
-            ]
+            orderBy: Array.isArray(sort)
+                ? sort.map(s => ({ [s.field]: s.orderBy }))
+                : [{ [sort.field]: sort.orderBy }]
         }),
         prisma.dosen.count(),
     ]);
@@ -271,45 +273,61 @@ export async function GET_PAGINATE({
         return acc;
     }, {} as Record<string, typeof jadwalData>);
 
-    let dosenListUses:any = dosenList;
+    let dosenListUses: any = dosenList;
     let data = null;
-    
+
+    let currentId: any = null;
+    let currentClasses: any = [];
+    let hasSome = false;
     if (reOrders) {
-        const dosenIds = Object.keys(jadwalByDosen);
-        
-        data = dosenIds.map(dosenId => {
-            const jadwalDosen = jadwalByDosen[dosenId.toString()];
-            const jadwalDosenNF = jadwalByDosenNoFIlter[dosenId.toString()] || [];
+        data = jadwalData.map((jadwal, index) => {
+            const jadwalDosenNF = jadwalByDosenNoFIlter[jadwal.dosenId.toString()] || [];
+            const uniqeId = `${findTahunAkademik?.id}_${jadwal.Jurusan?.id}_${jadwal.Matakuliah.nama.toUpperCase().replaceAll(' ', '_')}_${jadwal.semester}`;
+            const jadwalKelas = Object.values(jadwal.kelas)
+            if (currentId !== uniqeId) {
+                currentId = uniqeId;
+                currentClasses = jadwalKelas;
+                hasSome = false;
+            } else {
+                let x = jadwalKelas.some((val: any) => currentClasses.includes(val))
+                if (x) {
+                    hasSome = true;
+                } else {
+                    currentClasses = [...currentClasses, ...jadwalKelas];
+                }
+            }
+
             return {
-                id: jadwalDosen[0].Dosen.id,
-                nama: jadwalDosen[0].Dosen.nama,
-                nidn: jadwalDosen[0].Dosen.nidn,
-                status: jadwalDosen[0].Dosen.status,
-                homebase: jadwalDosen[0]?.Dosen.Jurusan?.nama,
-                no_hp: jadwalDosen[0].Dosen.no_hp,
+                uniqeId: uniqeId,
+                hasSameClass: hasSome,
+                id: jadwal.dosenId,
+                nama: jadwal.Dosen.nama,
+                nidn: jadwal.Dosen.nidn,
+                status: jadwal.Dosen.status,
+                homebase: jadwal?.Dosen.Jurusan?.nama,
+                no_hp: jadwal.Dosen.no_hp,
                 tahunAkademik: findTahunAkademik?.name.replace(/_/g, '/') || "" + " - SMT " + findTahunAkademik?.semester,
-                totalJadwal: jadwalDosen.length,
-                totalSKSFilter: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
                 totalSKS: jadwalDosenNF.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),
-                jadwal: jadwalDosen.map((j: any) => ({
-                    id: j.id,
-                    matakuliah: j.Matakuliah?.nama?.toUpperCase(),
-                    sks: j.sks?.toString(),
-                    kelas: j.kelas.sort(),
-                    semester: j.semester,
-                    keterangan: j.keterangan,
-                    fakultas: j.Fakultas?.nama,
-                    jurusan: j.Jurusan?.nama,
-                    fakultasId: j.Fakultas?.id,
-                    jurusanId: j.Jurusan?.id,
-                    dosenId: j.dosenId,
-                    matakuliahId: j.matakuliahId,
-                    kurikulumId: j.Matakuliah?.kurikulumId,
-                }))
-            };
-        });
+                totalJadwal: jadwalDosenNF.length,
+                jadwal: [{
+                    id: jadwal.id,
+                    matakuliah: jadwal.Matakuliah?.nama?.toUpperCase(),
+                    sks: jadwal.sks?.toString(),
+                    kelas: jadwal.kelas.sort(),
+                    semester: jadwal.semester,
+                    keterangan: jadwal.keterangan,
+                    fakultas: jadwal.Fakultas?.nama,
+                    jurusan: jadwal.Jurusan?.nama,
+                    fakultasId: jadwal.Fakultas?.id,
+                    jurusanId: jadwal.Jurusan?.id,
+                    dosenId: jadwal.dosenId,
+                    matakuliahId: jadwal.matakuliahId,
+                    kurikulumId: jadwal.Matakuliah?.kurikulumId,
+                }]
+            }
+        })
     } else {
-        data = dosenListUses.map((dosen:any) => {
+        data = dosenListUses.map((dosen: any) => {
             const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
             const jadwalDosenNF = jadwalByDosenNoFIlter[dosen.id.toString()] || [];
             return {
@@ -343,13 +361,17 @@ export async function GET_PAGINATE({
     }
 
     if (Object.keys(fakultasFilter).length > 0 || Object.keys(programStudiFilter).length > 0 || Object.keys(matakuliahFilter).length > 0) {
-        data = data?.filter((x:any) => x.jadwal.length > 0);
+        data = data?.filter((x: any) => x.jadwal.length > 0);
     }
-
+    // data = [...data].sort((a, b) => {
+    //     return (
+    //         a.uniqeId.localeCompare(b.uniqeId)
+    //     )
+    // })
     if (!totalSks) return { data, total };
 
     return {
-        data: data?.filter((d:any) => {
+        data: data?.filter((d: any) => {
             const pengaturanMap = new Map<TypeDosen, number>(
                 pengaturan.map(p => [
                     p.jenisDosen,

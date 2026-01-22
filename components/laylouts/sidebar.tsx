@@ -70,6 +70,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     url: `${base}/admin/sisa-sks`
                 },
                 {
+                    title: "Jadwal Raw",
+                    icon: Calendar,
+                    url: `${base}/admin/jadwal-raw`
+                },
+                {
                     title: "Pengaturan Jadwal Dosen",
                     icon: Calendar,
                     url: `${base}/admin/pengaturan-jadwal`

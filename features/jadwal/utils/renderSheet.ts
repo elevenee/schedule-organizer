@@ -61,7 +61,7 @@ export function renderDosenSheet(
                 fakultas: jadwal.fakultas || "",
                 jurusan: jadwal.jurusan || "",
                 matakuliah: jadwal.matakuliah || "",
-                kelas: jadwal.semester ? jadwal.semester + "/" + (Array.isArray(jadwal.kelas) ? jadwal.kelas.join(", ") : "") : "",
+                kelas: jadwal.semester ? jadwal.semester + "/" + (Array.isArray(jadwal.kelas) ? jadwal.kelas.sort().join(", ") : "") : "",
                 jumlah_kelas: Array.isArray(jadwal.kelas) ? jadwal.kelas.length : '',
                 sks: jadwal.sks || "",
                 jml_sks:  Array.isArray(jadwal.kelas) && jadwal.sks ? jadwal.kelas.length * parseFloat(jadwal.sks): '',
