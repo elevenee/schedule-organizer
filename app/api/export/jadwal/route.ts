@@ -37,7 +37,10 @@ async function getDataDosen(status: string): Promise<any[]> {
         prisma.dosen.findMany({
             where: {
                 status: status as TypeDosen,
-                deletedAt: null
+                deletedAt: null,
+                Jadwal: {
+                    some: {}
+                }
             },
             include: {
                 Fakultas: {
@@ -57,7 +60,7 @@ async function getDataDosen(status: string): Promise<any[]> {
         }),
         prisma.jadwal.findMany({
             where: {
-                tahunAkademikId: findTahunAkademik?.id
+                tahunAkademikId: findTahunAkademik?.id,
             },
             select: {
                 id: true,
@@ -109,7 +112,6 @@ async function getDataDosen(status: string): Promise<any[]> {
 
     const data = dosenList.map(dosen => {
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
-
         return {
             id: dosen.id,
             nama: dosen.nama,
