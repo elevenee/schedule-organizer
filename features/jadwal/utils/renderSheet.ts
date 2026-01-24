@@ -64,7 +64,7 @@ export function renderDosenSheet(
                 kelas: jadwal.semester ? jadwal.semester + "/" + (Array.isArray(jadwal.kelas) ? jadwal.kelas.sort().join(", ") : "") : "",
                 jumlah_kelas: Array.isArray(jadwal.kelas) ? jadwal.kelas.length : '',
                 sks: jadwal.sks || "",
-                jml_sks:  Array.isArray(jadwal.kelas) && jadwal.sks ? jadwal.kelas.length * parseFloat(jadwal.sks): '',
+                jml_sks: Array.isArray(jadwal.kelas) && jadwal.sks ? jadwal.kelas.length * parseFloat(jadwal.sks) : '',
 
                 totalSKS: dosen.totalSKS ?? "",
                 KJM: dosen.totalSKS - 12
@@ -73,6 +73,20 @@ export function renderDosenSheet(
             rowIndex++
         }
 
+        worksheet.eachRow((row, rowNumber) => {
+            row.eachCell((cell) => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+                cell.alignment = {
+                    vertical: 'middle',
+                    wrapText: true
+                };
+            });
+        });
         const endRow = rowIndex - 1
 
         if (endRow > startRow) {
@@ -89,7 +103,7 @@ export function renderDosenSheet(
                         pattern: "solid",
                         fgColor: { argb: "FFBEFFBD" }
                     }
-                }else{
+                } else {
                     cell.fill = {
                         type: "pattern",
                         pattern: "solid",
