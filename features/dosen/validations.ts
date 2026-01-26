@@ -39,7 +39,7 @@ export const phoneSchema = z.object({
     no_hp: z
         .string()
         .min(1, "No HP harus diisi")
-        .regex(/^(\+62|62|0)[1-9][0-9]{7,11}$/, "Format nomor HP Indonesia tidak valid")
+        .regex(/^(\+?[1-9]\d{7,14}|0\d{8,13})$/, "Format nomor telepon tidak valid")
     // Penjelasan regex:
     // ^(\+62|62|0) : mulai dengan +62, 62, atau 0
     // [1-9]        : digit pertama setelah kode negara tidak boleh 0
