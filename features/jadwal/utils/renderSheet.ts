@@ -29,6 +29,7 @@ export function renderDosenSheet(
     const worksheet = workbook.addWorksheet(sheetName)
 
     worksheet.columns = [
+        { header: "No", key: "no", width: 6 },
         { header: "Nama Dosen", key: "nama", width: 30 },
 
         { header: "Fakultas", key: "fakultas", width: 20 },
@@ -52,6 +53,7 @@ export function renderDosenSheet(
         const jadwalList = dosen.jadwal.length ? dosen.jadwal : [{}]
         for (const jadwal of jadwalList) {
             worksheet.addRow({
+                no: rowIndex - 1,
                 nama: dosenCellValue(
                     dosen.nama,
                     `${dosen.homebase}`
@@ -74,6 +76,7 @@ export function renderDosenSheet(
         }
 
         worksheet.eachRow((row, rowNumber) => {
+            const colMerge = ["A", "J", "K"];
             row.eachCell((cell) => {
                 cell.border = {
                     top: { style: 'thin' },
@@ -81,21 +84,34 @@ export function renderDosenSheet(
                     bottom: { style: 'thin' },
                     right: { style: 'thin' }
                 };
-                cell.alignment = {
-                    vertical: 'middle',
-                    wrapText: true
-                };
+                if (colMerge.includes(cell.address.replace(/[0-9]/g, ''))) {
+                    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                } else {
+                    cell.alignment = {
+                        vertical: 'middle',
+                        wrapText: true
+                    };
+                }
             });
         });
         const endRow = rowIndex - 1
 
         if (endRow > startRow) {
-            ["A", "I", "J"].forEach(col => {
+            ["A", "B", "J", "K"].forEach((col, index) => {
                 worksheet.mergeCells(`${col}${startRow}:${col}${endRow}`)
                 const cell = worksheet.getCell(`${col}${startRow}`);
-                cell.alignment = {
-                    vertical: "middle",
-                    wrapText: true
+                console.log(Number(index) === 0);
+
+                if (Number(index) === 0) {
+                    cell.alignment = {
+                        vertical: 'middle',
+                        horizontal: 'center',
+                    };
+                } else {
+                    cell.alignment = {
+                        vertical: "middle",
+                        wrapText: true
+                    }
                 }
                 if (dosen.pengaturan.maxSks.toNumber() > dosen.totalSKS) {
                     cell.fill = {
