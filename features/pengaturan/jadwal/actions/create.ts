@@ -1,8 +1,8 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
-import { pengaturanJadwalFormValues } from "../validations";
 import { TypeDosen } from "@prisma/client";
+import { pengaturanJadwalFormValues } from "../validations";
 
 export async function create(formData: pengaturanJadwalFormValues) {
   const { jenisDosen, minSks, maxSks } = formData;

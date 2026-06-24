@@ -1,17 +1,17 @@
-import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
-import { Pool } from 'pg';
 
 const globalForPrisma = globalThis as unknown as {
     prisma: PrismaClient | undefined;
 };
 
+// Optional: Context untuk akses role
 type Context = {
     user?: {
         role: string;
     };
 };
 
+// Soft delete handler
 /* eslint-disable */
 function softDeleteHandlers() {
     return {
@@ -23,7 +23,7 @@ function softDeleteHandlers() {
             args: any;
             query: (args: any) => Promise<any>;
             ctx?: Context;
-        }) {
+        }) {            
             if (ctx?.user?.role === 'ADMIN') {
                 return query(args);
             }
@@ -32,7 +32,6 @@ function softDeleteHandlers() {
                 ...args.where,
                 deletedAt: null,
             };
-
             return query(args);
         },
 
@@ -46,7 +45,6 @@ function softDeleteHandlers() {
             ctx?: Context;
         }) {
             const withDeleted = args?.withDeleted === true;
-
             if (ctx?.user?.role === 'ADMIN' || withDeleted) {
                 delete args.withDeleted;
                 return query(args);
@@ -56,7 +54,6 @@ function softDeleteHandlers() {
                 ...args.where,
                 deletedAt: null,
             };
-
             return query(args);
         },
 
@@ -70,7 +67,6 @@ function softDeleteHandlers() {
             ctx?: Context;
         }) {
             const withDeleted = args?.withDeleted === true;
-
             if (ctx?.user?.role === 'ADMIN' || withDeleted) {
                 delete args.withDeleted;
                 return query(args);
@@ -80,25 +76,18 @@ function softDeleteHandlers() {
                 ...args.where,
                 deletedAt: null,
             };
-
+            
             return query(args);
         },
-    };
+    };    
 }
 
-function createPrismaClient(): PrismaClient {
-    const pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
-    });
-
-    const adapter = new PrismaPg(pool);
-
+// Extend Prisma client with soft delete logic
+function getExtendedClient(): PrismaClient {
     const client = new PrismaClient({
-        adapter,
-        log:
-            process.env.NODE_ENV !== 'production'
-                ? ['query', 'error', 'warn']
-                : ['error'],
+        log: process.env.NODE_ENV !== 'production'
+            ? ['query', 'error', 'warn']
+            : ['error'],
     });
 
     const extended = client.$extends({
@@ -111,9 +100,6 @@ function createPrismaClient(): PrismaClient {
     return extended as PrismaClient;
 }
 
+// Export prisma instance (singleton di dev)
 export const prisma =
-    globalForPrisma.prisma ?? createPrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-    globalForPrisma.prisma = prisma;
-}
+    globalForPrisma.prisma ?? (globalForPrisma.prisma = getExtendedClient());

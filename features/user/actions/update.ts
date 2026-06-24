@@ -1,11 +1,11 @@
 'use server';
 
-import { prisma } from "@/lib/prisma";
-import { userFormValues } from "../validations";
-import { Role, StatusUser } from "@prisma/client";
-import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { hash } from "@/lib/bcrypt";
+import { prisma } from "@/lib/prisma";
+import { Role, StatusUser } from "@prisma/client";
+import { getServerSession } from "next-auth";
+import { userFormValues } from "../validations";
 
 export async function update(id: number, formData: userFormValues) {
     const find = await prisma.user.findUnique({ where: { id } });

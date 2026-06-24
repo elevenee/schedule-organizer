@@ -1,8 +1,8 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
-import { ProgramStudiFormValues } from "../validations";
 import { Jenjang } from "@prisma/client";
+import { ProgramStudiFormValues } from "../validations";
 
 export async function create(formData: ProgramStudiFormValues) {
   const { nama, jenjang, fakultas, kode, singkatan } = formData;

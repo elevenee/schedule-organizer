@@ -1,8 +1,8 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
+import { StatusTahun } from "@prisma/client";
 import { kurikulumFormValues } from "../validations";
-import { SemesterPeriode, StatusTahun } from "@prisma/client";
 
 export async function create(formData: kurikulumFormValues) {
   const { nama, status } = formData;

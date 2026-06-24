@@ -1,8 +1,8 @@
 'use server';
 
 import { prisma } from "@/lib/prisma";
-import { pengaturanJadwalFormValues } from "../validations";
 import { TypeDosen } from "@prisma/client";
+import { pengaturanJadwalFormValues } from "../validations";
 export async function update(id: number, formData: pengaturanJadwalFormValues) {
     const find = await prisma.pengaturanJadwal.findUnique({ where: { id } });
     if (!find) return { error: 'Pengaturan Jadwal tidak ditemukan' };
