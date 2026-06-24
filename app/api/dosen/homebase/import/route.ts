@@ -1,10 +1,7 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
-const prisma = new PrismaClient();
-
-/* eslint-disable */
 export async function POST(request: NextRequest) {
     try {
         const formData = await request.formData();
@@ -17,7 +14,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validasi file type
         if (!file.name.match(/\.(xlsx|xls)$/)) {
             return NextResponse.json(
                 { error: 'Format file harus Excel (.xlsx atau .xls)' },
@@ -25,43 +21,32 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Baca file Excel
         const buffer = await file.arrayBuffer();
         const workbook = XLSX.read(buffer, { type: 'buffer' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+
         const data = XLSX.utils.sheet_to_json(worksheet, {
             header: ['no', 'nip', 'nama', 'fk', 'jurusan', 'homebase', 'ni', 'prodi', 'fakultas'],
-            range: 1
+            range: 1,
         });
 
-        // Validasi data
         const validatedData: any[] = [];
-        const errors = [];
+        const errors: any[] = [];
 
         for (let i = 0; i < data.length; i++) {
             const row = data[i] as any;
-            const rowNumber = i + 2; // +2 karena header di row 1 dan array mulai dari 0
+            const rowNumber = i + 2;
 
-            // Validasi required fields
             if (!row.nip) {
-                errors.push({
-                    row: rowNumber,
-                    error: 'NIP wajib diisi',
-                    data: row
-                });
+                errors.push({ row: rowNumber, error: 'NIP wajib diisi', data: row });
                 continue;
             }
 
             if (!row.prodi) {
-                errors.push({
-                    row: rowNumber,
-                    error: 'Prodi wajib diisi',
-                    data: row
-                });
+                errors.push({ row: rowNumber, error: 'Prodi wajib diisi', data: row });
                 continue;
             }
 
-            // Format data
             validatedData.push({
                 nip: String(row.nip).trim(),
                 fakultasId: row.fakultas ? Number(row.fakultas) : null,
@@ -76,38 +61,32 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Mulai transaction
         let successCount = 0;
         let failedCount = 0;
         const detailErrors: any[] = [];
-        // try {
-        //     await prisma.dosen.updateMany({ data: validatedData });
-        // } catch (error) {
-        //     console.log(error);
 
-        // }
         await prisma.$transaction(async (tx) => {
-            for (const data of validatedData) {
+            for (const item of validatedData) {
                 try {
-                    // Cek apakah NIP sudah ada (UPSERT)
-                    const x = await tx.dosen.findFirst({
-                        where: {
-                            nip: data.nip
-                        }
-                    })
+                    const existing = await tx.dosen.findFirst({
+                        where: { nip: item.nip },
+                    });
+
+                    if (!existing) {
+                        throw new Error(`NIP ${item.nip} tidak ditemukan`);
+                    }
+
                     await tx.dosen.update({
-                        where: {
-                            id: x?.id
-                        },
-                        data: data
-                    })
+                        where: { id: existing.id },
+                        data: item,
+                    });
 
                     successCount++;
                 } catch (error) {
                     failedCount++;
                     detailErrors.push({
-                        nip: data.nip,
-                        error: error instanceof Error ? error.message : 'Unknown error'
+                        nip: item.nip,
+                        error: error instanceof Error ? error.message : 'Unknown error',
                     });
                 }
             }
@@ -115,13 +94,13 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            message: `Import berhasil`,
+            message: 'Import berhasil',
             summary: {
                 totalData: validatedData.length,
                 success: successCount,
                 failed: failedCount,
-                errors: detailErrors.length > 0 ? detailErrors : null
-            }
+                errors: detailErrors.length ? detailErrors : null,
+            },
         });
 
     } catch (error) {

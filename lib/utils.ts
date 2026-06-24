@@ -1,7 +1,7 @@
-import { Decimal } from "@prisma/client/runtime/library";
-import { clsx, type ClassValue } from "clsx"
-import { DateRange } from "react-day-picker"
-import { twMerge } from "tailwind-merge"
+import { Decimal } from "@prisma/client/runtime/client";
+import { clsx, type ClassValue } from "clsx";
+import { DateRange } from "react-day-picker";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

@@ -3,7 +3,9 @@ import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 
 const globalForPrisma = globalThis as unknown as {
-    prisma: PrismaClient | undefined;
+    prisma?: PrismaClient;
+    pool?: Pool;
+    adapter?: PrismaPg;
 };
 
 type Context = {
@@ -12,21 +14,11 @@ type Context = {
     };
 };
 
-/* eslint-disable */
+/* ---------------- SOFT DELETE ---------------- */
 function softDeleteHandlers() {
     return {
-        async findMany({
-            args,
-            query,
-            ctx,
-        }: {
-            args: any;
-            query: (args: any) => Promise<any>;
-            ctx?: Context;
-        }) {
-            if (ctx?.user?.role === 'ADMIN') {
-                return query(args);
-            }
+        async findMany({ args, query, ctx }: any) {
+            if (ctx?.user?.role === 'ADMIN') return query(args);
 
             args.where = {
                 ...args.where,
@@ -36,15 +28,7 @@ function softDeleteHandlers() {
             return query(args);
         },
 
-        async findFirst({
-            args,
-            query,
-            ctx,
-        }: {
-            args: any;
-            query: (args: any) => Promise<any>;
-            ctx?: Context;
-        }) {
+        async findFirst({ args, query, ctx }: any) {
             const withDeleted = args?.withDeleted === true;
 
             if (ctx?.user?.role === 'ADMIN' || withDeleted) {
@@ -60,15 +44,7 @@ function softDeleteHandlers() {
             return query(args);
         },
 
-        async findUnique({
-            args,
-            query,
-            ctx,
-        }: {
-            args: any;
-            query: (args: any) => Promise<any>;
-            ctx?: Context;
-        }) {
+        async findUnique({ args, query, ctx }: any) {
             const withDeleted = args?.withDeleted === true;
 
             if (ctx?.user?.role === 'ADMIN' || withDeleted) {
@@ -86,33 +62,37 @@ function softDeleteHandlers() {
     };
 }
 
-function createPrismaClient(): PrismaClient {
-    const pool = new Pool({
-        connectionString: process.env.DATABASE_URL,
-    });
+/* ---------------- SINGLETON SAFE ---------------- */
+function getPrismaClient(): PrismaClient {
+    if (!globalForPrisma.pool) {
+        globalForPrisma.pool = new Pool({
+            connectionString: process.env.DATABASE_URL,
+        });
+    }
 
-    const adapter = new PrismaPg(pool);
+    if (!globalForPrisma.adapter) {
+        globalForPrisma.adapter = new PrismaPg(globalForPrisma.pool);
+    }
 
     const client = new PrismaClient({
-        adapter,
+        adapter: globalForPrisma.adapter,
         log:
             process.env.NODE_ENV !== 'production'
                 ? ['query', 'error', 'warn']
                 : ['error'],
     });
 
-    const extended = client.$extends({
+    return client.$extends({
         name: 'softDelete',
         query: {
             user: softDeleteHandlers(),
         },
-    });
-
-    return extended as PrismaClient;
+    }) as PrismaClient;
 }
 
+/* ---------------- EXPORT ---------------- */
 export const prisma =
-    globalForPrisma.prisma ?? createPrismaClient();
+    globalForPrisma.prisma ?? getPrismaClient();
 
 if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = prisma;

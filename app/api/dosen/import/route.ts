@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
-
-const prisma = new PrismaClient();
 
 /* eslint-disable */
 export async function POST(request: NextRequest) {
@@ -87,7 +85,6 @@ export async function POST(request: NextRequest) {
             await prisma.dosen.createMany({ data: validatedData });
         } catch (error) {
             console.log(error);
-            
         }
         await prisma.$transaction(async (tx) => {
             for (const data of validatedData) {

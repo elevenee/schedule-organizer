@@ -1,8 +1,7 @@
-import { Prisma, PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
-
-const prisma = new PrismaClient();
 
 /* eslint-disable */
 export async function POST(request: NextRequest) {
