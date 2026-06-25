@@ -188,7 +188,7 @@ export function JadwalForm({ form, onSubmit, jenisDosen }: Props) {
                     label: semester.label,
                 })));
             } else {
-                setAvailableSemester(SEMESTER.filter((s) => s.value % 2 !== 0).map((semester) => ({
+                setAvailableSemester(SEMESTER.filter((s) => s.value % 2 !== 0 && s.value !== 99).map((semester) => ({
                     value: semester.value.toString(),
                     label: semester.label,
                 })));
