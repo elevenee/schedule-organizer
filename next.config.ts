@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   // output: 'standalone',
   reactStrictMode: true,
   compiler:{
-    removeConsole: false
+    removeConsole: true
   }
   // outputFileTracingRoot:process.cwd(),
 };
