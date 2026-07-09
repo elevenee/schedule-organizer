@@ -1,11 +1,11 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { DataTableOptions, MutationOptions, handleFetchData, handleMutation, handleMutationError, handleMutationSuccess, handleSettled, showProcessAlert, validateForm } from "@/services/base";
-import { mataKuliahSchema } from "../validations";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { create } from "../actions/create";
-import { update } from "../actions/update";
 import { destroy } from "../actions/delete";
 import { GET_PAGINATE, GET_STATISTIC } from "../actions/get";
 import { SYNC } from "../actions/sync";
+import { update } from "../actions/update";
+import { mataKuliahSchema } from "../validations";
 
 interface StoreOptions extends MutationOptions { }
 
@@ -14,7 +14,8 @@ interface GetAllProps extends DataTableOptions {
     jenjang?: string | null,
     semester?: string | null,
     jurusanId?: number | null,
-    kurikulumId?: number | null
+    kurikulumId?: number | null,
+    kode?: number | null,
 }
 export const useGetMataKuliah = (params: GetAllProps) => {
     return handleFetchData(

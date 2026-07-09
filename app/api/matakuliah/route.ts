@@ -43,8 +43,6 @@ export async function POST(req: NextRequest) {
 
         return Response.json({ revalidated: true, now: Date.now(), data }, { status: 200 });
     } catch (error: any) {
-        console.log(error);
-        
         if (error.message === 'Validation failed') {
             return Response.json(
                 {
