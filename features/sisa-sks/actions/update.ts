@@ -16,7 +16,7 @@ export async function update(id: number, formData: sisaSksFormValues) {
             fakultasId: formData.fakultasId,
             semester: Number(formData),
             matakuliahId: Number(formData.matakuliahId),
-            dosenId: Number(formData.dosenId),
+            dosenId: Number(formData.dosenId)
         },
         include: {
             Jurusan: {
@@ -56,6 +56,7 @@ export async function update(id: number, formData: sisaSksFormValues) {
     if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
         return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
     }
+    
 
     const data = {
         tahunAkademikId: BigInt(tahunAkademik?.id || 0),
