@@ -56,9 +56,8 @@ export async function update(id: number, formData: sisaSksFormValues) {
     if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
         return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
     }
-    
 
-    const data = {
+    let data = {
         tahunAkademikId: BigInt(tahunAkademik?.id || 0),
         sks: Number(sks),
         semester: Number(semester),
@@ -67,6 +66,19 @@ export async function update(id: number, formData: sisaSksFormValues) {
         jurusanId: Number(jurusanId),
         matakuliahId: Number(matakuliahId),
         kelas: [...formData.kelas, ...isExists.kelas]
+    }
+
+    if (fakultasId !== 4) {
+        data = {
+            tahunAkademikId: BigInt(tahunAkademik?.id || 0),
+            sks: Number(sks),
+            semester: Number(semester),
+            dosenId: Number(dosenId),
+            fakultasId: Number(fakultasId),
+            jurusanId: Number(jurusanId),
+            matakuliahId: Number(matakuliahId),
+            kelas: [...formData.kelas]
+        }
     }
 
     const create = await prisma.jadwal.create({
