@@ -32,7 +32,7 @@ export function StatusJadwalRequestModal() {
         setIsSubmitting(true);
         try {
             if (jadwal?.id) {
-                await (await updatejadwal).mutateAsync({ id: jadwal.id, data: values });
+                await updatejadwal.mutateAsync({ id: jadwal.id, data: values });
             } else {
                 toast.error("Status tidak dapat disimpan.");
             }

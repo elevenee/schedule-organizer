@@ -1,9 +1,8 @@
 'use server'
 
-import { authOptions } from "@/lib/authOptions";
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
+import { Prisma, Role } from "@prisma/client";
 
 type SortProp = {
     field: string,
@@ -20,10 +19,11 @@ interface PropsPaginate {
     fakultas?: number | null;
     programStudi?: number | null;
     matakuliah?: string | null;
-    dosen?: number | null,
-    semester?: string | null,
-    kelas?: string[]
+    dosen?: number | null;
+    semester?: string | null;
+    kelas?: string[];
 }
+
 export async function GET_PAGINATE({
     page = 1,
     limit = 10,
@@ -37,55 +37,62 @@ export async function GET_PAGINATE({
     semester = null,
     kelas = []
 }: PropsPaginate) {
-    const skip = (page - 1) * limit;
-    const fakultasFilter = fakultas ? {
-        fakultasId: fakultas
-    } : {}
+    const session = await requireAuth();
+
+    const sanitizedLimit = Math.min(Math.max(1, limit), 100);
+    const sanitizedPage = Math.max(1, page);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
+    let targetFakultasId = fakultas;
+    if (session.user.role === Role.FAKULTAS && session.user.fakultasId) {
+        targetFakultasId = Number(session.user.fakultasId);
+    }
+
+    const fakultasFilter = targetFakultasId ? {
+        fakultasId: BigInt(targetFakultasId)
+    } : {};
     const programStudiFilter = programStudi ? {
-        jurusanId: programStudi
-    } : {}
+        jurusanId: BigInt(programStudi)
+    } : {};
     const semesterFilter = semester ? {
         semester: Number(semester)
-    } : {}
+    } : {};
     const kelasFilter = kelas.length ? {
-        kelas: { hasSome: kelas}
-    } : {}
+        kelas: { hasSome: kelas }
+    } : {};
     const matakuliahFilter = matakuliah ? {
-        matakuliah: { contains: matakuliah, mode: Prisma.QueryMode.insensitive }
-    } : {}
+        Matakuliah: { nama: { contains: matakuliah, mode: Prisma.QueryMode.insensitive } }
+    } : {};
 
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
-    const selectedTahunAkademik = tahunAkademik ?? undefined;
-
-    const whereSisaSks = {
-        tahunAkademikId: selectedTahunAkademik,
+    const whereSisaSks: Prisma.SisaSksWhereInput = {
+        ...(tahunAkademik ? { tahunAkademikId: BigInt(tahunAkademik) } : {}),
         ...fakultasFilter,
         ...programStudiFilter,
         ...matakuliahFilter,
         ...semesterFilter,
         ...kelasFilter
     };
+
     const [data, total] = await Promise.all([
         prisma.sisaSks.findMany({
-            skip,
-            take: limit,
+            skip: remove_pagination ? undefined : skip,
+            take: remove_pagination ? undefined : sanitizedLimit,
             where: whereSisaSks,
             include: {
-                Fakultas:{
-                    select:{
+                Fakultas: {
+                    select: {
                         id: true,
                         nama: true
                     }
                 },
-                Jurusan:{
-                    select:{
+                Jurusan: {
+                    select: {
                         id: true,
                         nama: true
                     }
                 },
-                Matakuliah:{
-                    select:{
+                Matakuliah: {
+                    select: {
                         id: true,
                         nama: true,
                         semester: true,
@@ -97,18 +104,20 @@ export async function GET_PAGINATE({
         }),
         prisma.sisaSks.count({ where: whereSisaSks }),
     ]);
-    const listData = data.map((d:any)=>{
-        return {
-            ...d,
-            sks: d.sks.toNumber(),
-            totalSks: d.sks.toNumber() * d.kelas.length
-        }
-    })
+
+    const listData = data.map((d: any) => ({
+        ...d,
+        sks: d.sks.toNumber(),
+        totalSks: d.sks.toNumber() * d.kelas.length
+    }));
+
     return { data: listData, total };
 }
 
 export default async function GET_ALL() {
-    const result = await prisma.jadwal.findMany({
+    await requireAuth();
+
+    const result = await prisma.sisaSks.findMany({
         orderBy: { createdAt: 'desc' }
     });
 

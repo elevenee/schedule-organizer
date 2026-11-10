@@ -1,81 +1,94 @@
 'use server';
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { jadwalFormValues } from "../validations";
+import { Role } from "@prisma/client";
+import { jadwalFormValues, jadwalSchema } from "../validations";
 
 export async function create(formData: jadwalFormValues) {
-  const tahunAkademik = await prisma.tahunAkademik.findFirst({
-    where: { status: "ACTIVE" },
-  })
-  if (!tahunAkademik) {
-    throw new Error("Tahun akademik tidak ditemukan")
+  await requireAuth([Role.ADMIN]);
+
+  const validated = jadwalSchema.safeParse(formData);
+  if (!validated.success) {
+    return { errors_message: 'Data jadwal tidak valid' };
   }
 
-  const { matakuliahId, sks, dosenId, semester, kelas, fakultasId, jurusanId } = formData;
+  const { matakuliahId, sks, dosenId, semester, kelas, fakultasId, jurusanId } = validated.data;
 
-  const isExists = await prisma.jadwal.findFirst({
-    where: {
-      tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-      jurusanId: jurusanId,
-      fakultasId: fakultasId,
-      semester: Number(semester),
-      matakuliahId: Number(matakuliahId),
-      kelas: { hasSome: kelas },
-    },
-    include: {
-      Jurusan: {
-        select: {
-          id: true,
-          nama: true,
-          jenjang: true
-        }
-      },
-      Matakuliah: true
-    }
-  });
-
-  if (isExists) {
-    if (isExists.Jurusan?.jenjang == 'S1') {
-      return { errors_message: `Jadwal kelas pada matakuliah ${isExists?.Matakuliah.nama} semester ${semester} di prodi ${isExists?.Jurusan?.nama} telah terisi. \n silahkan cek kembali kelas yang dipilih` };
-    }
-  }
-  const getCurrent = await prisma.jadwal.findMany({
-    where: {
-      tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-      dosenId: Number(dosenId),
-    },
-    include: { Dosen: true }
-  });
-
-  const getPengaturanJadwal = await prisma.pengaturanJadwal.findFirst({
-    where: {
-      jenisDosen: getCurrent[0]?.Dosen?.status
-    },
-  });
-
-  const totalSks = getCurrent.reduce((total, jadwal) => total + (jadwal.sks.toNumber() * jadwal.kelas.length), 0) + (Number(sks) * kelas.length);
-  if (totalSks > (getPengaturanJadwal?.maxSks?.toNumber() || 0)) {
-    return { errors_message: 'Total SKS yang dibebankan melebihi batas pada semester ini.' };
-  }
-
-  const data = {
-    tahunAkademikId: BigInt(tahunAkademik?.id || 0),
-    sks: Number(sks),
-    semester: Number(semester),
-    dosenId: Number(dosenId),
-    fakultasId: Number(fakultasId),
-    jurusanId: Number(jurusanId),
-    matakuliahId: Number(matakuliahId),
-    kelas
-  }
-  try {
-    const create = await prisma.jadwal.create({
-      data: data
+  return await prisma.$transaction(async (tx) => {
+    const tahunAkademik = await tx.tahunAkademik.findFirst({
+      where: { status: "ACTIVE" },
     });
-    return { ...create, sks: create.sks.toNumber(), totalSks: create.totalSks?.toNumber() }
+    if (!tahunAkademik) {
+      throw new Error("Tahun akademik aktif tidak ditemukan");
+    }
 
-  } catch (error: any) {
-    console.error("Error creating jadwal:", error.code);
-    return { errors_message: 'Gagal membuat jadwal. Mungkin jadwal dengan data yang sama sudah ada.' };
-  }
+    const dosen = await tx.dosen.findUnique({
+      where: { id: BigInt(dosenId) },
+    });
+    if (!dosen) {
+      return { errors_message: 'Dosen tidak ditemukan' };
+    }
+
+    const isExists = await tx.jadwal.findFirst({
+      where: {
+        tahunAkademikId: tahunAkademik.id,
+        jurusanId: BigInt(jurusanId),
+        fakultasId: BigInt(fakultasId),
+        semester: Number(semester),
+        matakuliahId: BigInt(matakuliahId),
+        kelas: { hasSome: kelas },
+      },
+      include: {
+        Jurusan: {
+          select: {
+            nama: true,
+            jenjang: true
+          }
+        },
+        Matakuliah: true
+      }
+    });
+
+    if (isExists && isExists.Jurusan?.jenjang === 'S1') {
+      return { errors_message: `Jadwal kelas pada matakuliah ${isExists.Matakuliah.nama} semester ${semester} di prodi ${isExists.Jurusan.nama} telah terisi. Silakan cek kembali kelas yang dipilih.` };
+    }
+
+    const currentJadwal = await tx.jadwal.findMany({
+      where: {
+        tahunAkademikId: tahunAkademik.id,
+        dosenId: BigInt(dosenId),
+      },
+    });
+
+    const pengaturanJadwal = await tx.pengaturanJadwal.findFirst({
+      where: {
+        jenisDosen: dosen.status
+      },
+    });
+
+    const currentSksTotal = currentJadwal.reduce((total, j) => total + (j.sks.toNumber() * j.kelas.length), 0);
+    const addedSks = Number(sks) * kelas.length;
+    const maxAllowedSks = pengaturanJadwal?.maxSks?.toNumber() || 0;
+
+    if (currentSksTotal + addedSks > maxAllowedSks) {
+      return { errors_message: `Total SKS (${currentSksTotal + addedSks}) yang dibebankan melebihi batas (${maxAllowedSks} SKS) pada semester ini.` };
+    }
+
+    const created = await tx.jadwal.create({
+      data: {
+        tahunAkademikId: tahunAkademik.id,
+        sks: Number(sks),
+        semester: Number(semester),
+        dosenId: BigInt(dosenId),
+        fakultasId: BigInt(fakultasId),
+        jurusanId: BigInt(jurusanId),
+        matakuliahId: BigInt(matakuliahId),
+        totalSks: addedSks,
+        kelas
+      }
+    });
+
+    return { ...created, sks: created.sks.toNumber(), totalSks: created.totalSks?.toNumber() };
+  });
 }

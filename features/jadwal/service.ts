@@ -61,7 +61,7 @@ const updateJadwal = async (id: number, formData: any, showProccessAlert: boolea
     );
 };
 
-export const useStoreJadwal = async (options: StoreOptions = {}) => {
+export const useStoreJadwal = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -72,7 +72,7 @@ export const useStoreJadwal = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateJadwal = async (options: MutationOptions = {}) => {
+export const useUpdateJadwal = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

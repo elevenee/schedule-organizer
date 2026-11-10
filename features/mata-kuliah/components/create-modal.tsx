@@ -36,12 +36,12 @@ export function MataKuliahModal() {
         try {
             if (mataKuliah) {
                 if (values.id) {
-                    await (await updateMataKuliah).mutateAsync({ id: values.id, data: values });
+                    await updateMataKuliah.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }
             } else {
-                await (await storeMatakuliah).mutateAsync(values);
+                await storeMatakuliah.mutateAsync(values);
             }
         } finally {
             setIsSubmitting(false);

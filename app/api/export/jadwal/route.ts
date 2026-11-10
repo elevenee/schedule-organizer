@@ -1,4 +1,3 @@
-
 import { exportDosenExcel } from "@/features/jadwal/utils/exportDosen";
 import { authOptions } from "@/lib/authOptions";
 import { prisma } from "@/lib/prisma";
@@ -7,11 +6,14 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const dosenTetap = await getDataDosen("TETAP");
     const dosenTidakTetap = await getDataDosen("TIDAK_TETAP");
-    const buffer = await exportDosenExcel(dosenTetap, dosenTidakTetap)
+    const buffer = await exportDosenExcel(dosenTetap, dosenTidakTetap);
 
     return new NextResponse(buffer, {
         headers: {
@@ -21,25 +23,32 @@ export async function GET() {
                 'attachment; filename="jadwal-dosen.xlsx"',
             "Cache-Control": "no-store"
         }
-    })
+    });
 }
 
 /* eslint-disable */
 async function getDataDosen(status: string): Promise<any[]> {
     const findTahunAkademik = await prisma.tahunAkademik.findFirst({
         where: { status: 'ACTIVE' }
-    })
+    });
+
+    if (!findTahunAkademik) {
+        return [];
+    }
+
     const findPengaturan = await prisma.pengaturanJadwal.findFirst({
         where: { jenisDosen: status as TypeDosen }
-    })
+    });
 
-    const [dosenList, jadwalData, total] = await Promise.all([
+    const [dosenList, jadwalData] = await Promise.all([
         prisma.dosen.findMany({
             where: {
                 status: status as TypeDosen,
                 deletedAt: null,
                 Jadwal: {
-                    some: {}
+                    some: {
+                        tahunAkademikId: findTahunAkademik.id
+                    }
                 }
             },
             include: {
@@ -60,7 +69,7 @@ async function getDataDosen(status: string): Promise<any[]> {
         }),
         prisma.jadwal.findMany({
             where: {
-                tahunAkademikId: findTahunAkademik?.id,
+                tahunAkademikId: findTahunAkademik.id,
             },
             select: {
                 id: true,
@@ -97,18 +106,19 @@ async function getDataDosen(status: string): Promise<any[]> {
                 { Matakuliah: { id: 'asc' } }
             ]
         }),
-        prisma.dosen.count(),
     ]);
 
     // Group jadwal by dosenId untuk mapping
     const jadwalByDosen = jadwalData.reduce((acc, jadwal) => {
-        const dosenIdStr = jadwal.dosenId.toString(); // Convert bigint to string
+        const dosenIdStr = jadwal.dosenId.toString();
         if (!acc[dosenIdStr]) {
             acc[dosenIdStr] = [];
         }
         acc[dosenIdStr].push(jadwal);
         return acc;
     }, {} as Record<string, typeof jadwalData>);
+
+    const tahunAkademikLabel = `${(findTahunAkademik.name || "").replace(/_/g, '/')} - SMT ${findTahunAkademik.semester || ""}`;
 
     const data = dosenList.map(dosen => {
         const jadwalDosen = jadwalByDosen[dosen.id.toString()] || [];
@@ -118,7 +128,7 @@ async function getDataDosen(status: string): Promise<any[]> {
             nidn: dosen.nidn,
             status: dosen.status,
             homebase: dosen.Jurusan?.nama || "",
-            tahunAkademik: findTahunAkademik?.name.replace(/_/g, '/') || "" + " - SMT " + findTahunAkademik?.semester,
+            tahunAkademik: tahunAkademikLabel,
             totalJadwal: jadwalDosen.length,
             pengaturan: findPengaturan,
             totalSKS: jadwalDosen.reduce((sum: any, j: any) => sum + (j.sks?.toNumber() * j.kelas.length), 0),

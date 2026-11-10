@@ -1,17 +1,21 @@
 'use server'
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-export async function destroy(id: number) {
+import { Role } from "@prisma/client";
 
-    if (!id) throw new Error("ID is required");
+export async function destroy(id: number) {
+    await requireAuth([Role.ADMIN]);
+
+    if (!id) throw new Error("ID sisa SKS wajib diisi");
 
     const sisaSks = await prisma.sisaSks.findUnique({
-        where: { id }
+        where: { id: BigInt(id) }
     });
-    if (!sisaSks) throw new Error("Sisa SKS not found");
+    if (!sisaSks) throw new Error("Sisa SKS tidak ditemukan");
 
     await prisma.sisaSks.delete({
-        where: { id }
+        where: { id: BigInt(id) }
     });
 
     return true;

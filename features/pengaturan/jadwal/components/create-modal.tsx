@@ -42,12 +42,12 @@ export function PengaturanJadwalModal() {
         try {
             if (pengaturanJadwal) {
                 if (values.id) {
-                    await (await updatePengaturanJadwal).mutateAsync({ id: values.id, data: values });
+                    await updatePengaturanJadwal.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }
             } else {
-                await (await storePengaturanJadwal).mutateAsync(values);
+                await storePengaturanJadwal.mutateAsync(values);
             }
         } finally {
             setIsSubmitting(false);

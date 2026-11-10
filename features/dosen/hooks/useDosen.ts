@@ -46,7 +46,7 @@ const createDosen = async (formData: any, showProccessAlert: boolean) => {
 };
 
 
-export const useStoreDosen = async (options: StoreOptions = {}) => {
+export const useStoreDosen = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -66,7 +66,7 @@ const updateDosen = async (id: number, formData: any, showProccessAlert: boolean
         "Data sedang diproses"
     );
 };
-export const useUpdateDosen = async (options: MutationOptions = {}) => {
+export const useUpdateDosen = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
@@ -85,7 +85,7 @@ const updateHpDosen = async (id: number, formData: any, showProccessAlert: boole
         "Data sedang diproses"
     );
 };
-export const useUpdateNoHpDosen = async (options: MutationOptions = {}) => {
+export const useUpdateNoHpDosen = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

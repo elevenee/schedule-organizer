@@ -1,4 +1,5 @@
 'use server'
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -27,6 +28,7 @@ export async function GET_PAGINATE({
     kurikulumId,
     semester,
 }: PropsPaginate) {
+    await requireAuth();
     const skip = (page - 1) * limit;
     const searchFilter = search
         ? {
@@ -132,6 +134,7 @@ export async function GET_STATISTIC({
     semester,
     kelas = [],
 }: PropsPaginate) {
+    await requireAuth();
     const searchFilter = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};

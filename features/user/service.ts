@@ -50,7 +50,7 @@ const updateUser = async (id: number, formData: any, showProccessAlert: boolean)
     );
 };
 
-export const useStoreUser = async (options: StoreOptions = {}) => {
+export const useStoreUser = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -61,7 +61,7 @@ export const useStoreUser = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateUser = async (options: MutationOptions = {}) => {
+export const useUpdateUser = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
@@ -108,7 +108,7 @@ const updateStatusUser = async (id: number, showProccessAlert: boolean) => {
     );
 };
 
-export const useUpdateStatusUser = async (options: MutationOptions = {}) => {
+export const useUpdateStatusUser = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

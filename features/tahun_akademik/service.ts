@@ -56,7 +56,7 @@ const updateTahunAkademik = async (id: number, formData: any, showProccessAlert:
     );
 };
 
-export const useStoreTahunAkademik = async (options: StoreOptions = {}) => {
+export const useStoreTahunAkademik = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -67,7 +67,7 @@ export const useStoreTahunAkademik = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateTahunAkademik = async (options: MutationOptions = {}) => {
+export const useUpdateTahunAkademik = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
@@ -114,7 +114,7 @@ const updateStatusTahunAkademik = async (id: number, showProccessAlert: boolean)
     );
 };
 
-export const useUpdateStatusTahunAkademik = async (options: MutationOptions = {}) => {
+export const useUpdateStatusTahunAkademik = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

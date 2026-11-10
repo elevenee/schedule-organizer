@@ -94,7 +94,7 @@ export default function List() {
     });
 
     const handleStatusChange = async (id: number) => {
-        await (await updateStatusTahunAkademik).mutateAsync({
+        await updateStatusTahunAkademik.mutateAsync({
             id: id
         });
     }

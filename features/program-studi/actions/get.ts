@@ -1,14 +1,16 @@
 'use server'
 
-import { authOptions } from "@/lib/authOptions";
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
+import { Prisma, Role } from "@prisma/client";
 
 type SortProp = {
     field: string,
     orderBy: string | "ASC" | "DESC"
 }
+
+const ALLOWED_SORT_FIELDS = ["id", "nama", "kode", "singkatan", "jenjang", "createdAt", "updatedAt"];
+
 export async function GET_PAGINATE({
     page = 1,
     limit = 10,
@@ -17,40 +19,42 @@ export async function GET_PAGINATE({
     sort = { field: "createdAt", orderBy: "DESC" },
     id,
 }: { page?: number, limit?: number, search?: string, sort?: SortProp, fakultas?: string, id?: number }) {
-    const skip = (page - 1) * limit;
+    const session = await requireAuth();
+
+    const sanitizedLimit = Math.min(Math.max(1, limit), 100);
+    const sanitizedPage = Math.max(1, page);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
+    const sortField = ALLOWED_SORT_FIELDS.includes(sort.field) ? sort.field : "createdAt";
+    const sortOrder = String(sort.orderBy).toLowerCase() === "asc" ? "asc" : "desc";
     
     const searchFilters = {
         OR: [
             { nama: { contains: search, mode: Prisma.QueryMode.insensitive } },
+            { kode: { contains: search, mode: Prisma.QueryMode.insensitive } },
         ],
     };
-    const fakultasFilter = fakultas && fakultas !== 'ALL' && fakultas !== '' && fakultas !== '0' ? {
-        fakultasId: Number(fakultas)
-    } : {}
-    
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
 
-     let withDeleted = { deletedAt: null } as any;
-    if (user?.user?.role === 'ADMIN') {
-        withDeleted = {  } as any;
+    let targetFakultasId: bigint | null = null;
+    if (session.user.role === Role.FAKULTAS && session.user.fakultasId) {
+        targetFakultasId = BigInt(session.user.fakultasId);
+    } else if (fakultas && fakultas !== 'ALL' && fakultas !== '' && fakultas !== '0') {
+        targetFakultasId = BigInt(fakultas);
     }
 
-    const idFilter = id ? { id: Number(id) } : {};
-
-    const where = {
+    const where: Prisma.JurusanWhereInput = {
         ...(search ? searchFilters : {}),
-        ...fakultasFilter,
-        ...idFilter,
-        ...withDeleted
+        ...(targetFakultasId ? { fakultasId: targetFakultasId } : {}),
+        ...(id ? { id: BigInt(id) } : {}),
+        deletedAt: null
     };    
     
     const [data, total] = await Promise.all([
         prisma.jurusan.findMany({
             skip,
-            take: limit,
-            where: where,
-            orderBy: { [sort.field]: sort.orderBy.toLowerCase() as Prisma.SortOrder },
+            take: sanitizedLimit,
+            where,
+            orderBy: { [sortField]: sortOrder as Prisma.SortOrder },
             include: {
                 Fakultas: { select: { id: true, nama: true } }
             }
@@ -62,7 +66,11 @@ export async function GET_PAGINATE({
 }
 
 export default async function GET_ALL() {
+    await requireAuth();
+
     const result = await prisma.jurusan.findMany({
+        where: { deletedAt: null },
+        orderBy: { nama: 'asc' },
         include: {
             Fakultas: {
                 select: { id: true, nama: true }

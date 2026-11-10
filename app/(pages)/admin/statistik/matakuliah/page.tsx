@@ -1,4 +1,3 @@
-'use server'
 
 export async function generateMetadata() {
     return {

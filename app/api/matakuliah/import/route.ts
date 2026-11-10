@@ -1,11 +1,14 @@
+import { requireAuth } from '@/lib/auth-guard';
 import { prisma } from '@/lib/prisma';
-import { Prisma } from '@prisma/client';
+import { Jenjang, Role } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
 /* eslint-disable */
 export async function POST(request: NextRequest) {
     try {
+        await requireAuth([Role.ADMIN]);
+
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
@@ -16,7 +19,13 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Validasi file type
+        if (file.size > 5 * 1024 * 1024) {
+            return NextResponse.json(
+                { error: 'Ukuran file melebihi batas maksimal 5MB' },
+                { status: 400 }
+            );
+        }
+
         if (!file.name.match(/\.(xlsx|xls)$/)) {
             return NextResponse.json(
                 { error: 'Format file harus Excel (.xlsx atau .xls)' },
@@ -24,170 +33,106 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Baca file Excel
         const buffer = await file.arrayBuffer();
         const workbook = XLSX.read(buffer, { type: 'buffer' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(worksheet, {
             header: ['NO', 'PRODI', 'KODE', 'MATAKULIAH', 'SEMESTER', 'SKS', 'KURIKULUM', 'PRODI_ID'],
-            range: 1 // Skip header
+            range: 1
         });
 
-        // Validasi data
+        if (data.length > 3000) {
+            return NextResponse.json(
+                { error: 'Jumlah baris melebihi batas maksimal 3000 baris' },
+                { status: 400 }
+            );
+        }
+
         const validatedData: any[] = [];
         const errors = [];
 
         for (let i = 0; i < data.length; i++) {
             const row = data[i] as any;
-            const rowNumber = i + 2; // +2 karena header di row 1 dan array mulai dari 0
-
-            // Validasi required fields
-            if (!row.KODE) {
-                errors.push({
-                    row: rowNumber,
-                    error: 'ID wajib diisi',
-                    data: row
-                });
-                continue;
-            }
+            const rowNumber = i + 2;
 
             if (!row.MATAKULIAH) {
-                errors.push({
-                    row: rowNumber,
-                    error: 'Nama wajib diisi',
-                    data: row
-                });
+                errors.push({ row: rowNumber, error: 'Nama matakuliah wajib diisi' });
                 continue;
             }
 
-            // Format data
+            if (!row.PRODI_ID) {
+                errors.push({ row: rowNumber, error: 'PRODI_ID wajib diisi' });
+                continue;
+            }
+
             validatedData.push({
-                kode: row.KODE,
                 nama: String(row.MATAKULIAH).trim(),
-                semester: row.SEMESTER,
-                sks: row.SKS,
-                jenjang: "S1",
-                kurikulum: row.KURIKULUM,
-                jurusanId: Number(row.PRODI_ID)
+                kode: row.KODE ? String(row.KODE).trim() : null,
+                sks: Number(row.SKS) || 0,
+                semester: Number(row.SEMESTER) || 1,
+                jurusanId: BigInt(row.PRODI_ID),
+                jenjang: Jenjang.S1,
+                kurikulumId: row.KURIKULUM ? Number(row.KURIKULUM) : null,
             });
         }
 
         if (validatedData.length === 0) {
             return NextResponse.json(
-                { error: 'Tidak ada data valid untuk diimport' },
+                { error: 'Tidak ada data valid untuk diimport', errors },
                 { status: 400 }
             );
         }
 
-        // Mulai transaction
         let successCount = 0;
         let failedCount = 0;
-        const detailErrors: any[] = [];
 
-        const uniqueData = [];
-        const seenKeys = new Set();
-
-        for (const data of validatedData) {
-            const key = `${data.kode}-${data.jurusanId}-${data.semester}-${data.jenjang}-${data.kurikulum}`;
-
-            if (!seenKeys.has(key)) {
-                seenKeys.add(key);
-                uniqueData.push(data);
-            } else {
-                console.log(`Duplicate found and removed: ${key}`);
-            }
-        }
-
-        console.log(`Original: ${validatedData.length}, Unique: ${uniqueData.length}`);
-
-        let lastProdi: any = null;
-        let lastKurikulum: any = null;
         await prisma.$transaction(async (tx) => {
-            for (const data of validatedData) {
+            for (const item of validatedData) {
                 try {
-                    // Cek apakah NIP sudah ada (UPSERT)
-                    // const existingMatkul = await tx.mataKuliah.findFirst({
-                    //     where: {
-                    //         nama: data.nama,
-                    //         kode: data.kode,
-                    //         semester: data.semester,
-                    //         jurusanId: data.jurusanId,
-                    //     }
-                    // });
-                    // if (!existingMatkul) {
-                    // if (Number(lastProdi) !== data.jurusanId) {
-                    //     const kuri = {
-                    //         nama: data.kurikulum,
-                    //         status: "ACTIVE" as StatusTahun,
-                    //     };
-
-                    //     lastKurikulum = await tx.kurikulum.create({
-                    //         data: kuri
-                    //     })
-                    //     lastProdi = data.jurusanId;
-                    // }
-                    // if (lastKurikulum) {
-                        // const existingMatkul = await tx.mataKuliah.findFirst({
-                        //     where: {
-                        //         nama: data.nama,
-                        //         kode: data.kode,
-                        //         semester: data.semester,
-                        //         jurusanId: data.jurusanId,
-                        //         kurikulumId: lastKurikulum?.id,
-                        //         jenjang: data.jenjang
-                        //     }
-                        // });
-                        // if (existingMatkul) {
-                        //     console.log("EXIST: ", existingMatkul);
-                        //     // continue;
-                        // }
-                        const ck = {
-                            nama: data.nama,
-                            kode: data.kode,
-                            semester: data.semester,
-                            jurusanId: data.jurusanId,
-                            sks: data.sks,
-                            jenjang: data.jenjang,
-                            kurikulumId: data?.kurikulum
+                    const existing = await tx.mataKuliah.findFirst({
+                        where: {
+                            kode: item.kode,
+                            jurusanId: item.jurusanId,
+                            semester: item.semester,
+                            jenjang: item.jenjang,
+                            kurikulumId: item.kurikulumId,
                         }
-
-                        await tx.mataKuliah.create({
-                            data: ck
-                        });
-                    // }
-                    // }
-
-                    successCount++;
-                } catch (error) {
-                    failedCount++;
-                    detailErrors.push({
-                        nip: data.nip,
-                        error: error instanceof Error ? error.message : 'Unknown error'
                     });
+
+                    if (existing) {
+                        await tx.mataKuliah.update({
+                            where: { id: existing.id },
+                            data: {
+                                nama: item.nama,
+                                sks: item.sks,
+                            }
+                        });
+                    } else {
+                        await tx.mataKuliah.create({
+                            data: item
+                        });
+                    }
+                    successCount++;
+                } catch {
+                    failedCount++;
                 }
             }
-        }, {
-            maxWait: 100000,
-            timeout: 100000,
-            isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
         });
 
         return NextResponse.json({
             success: true,
-            message: `Import berhasil`,
+            message: 'Import matakuliah berhasil',
             summary: {
                 totalData: validatedData.length,
                 success: successCount,
                 failed: failedCount,
-                errors: detailErrors.length > 0 ? detailErrors : null
             }
         });
 
-    } catch (error) {
-        console.error('Import error:', error);
+    } catch (error: any) {
         return NextResponse.json(
-            { error: 'Terjadi kesalahan saat import' },
-            { status: 500 }
+            { error: error?.message || 'Terjadi kesalahan saat import' },
+            { status: error?.message?.startsWith('UNAUTHORIZED') ? 401 : error?.message?.startsWith('FORBIDDEN') ? 403 : 500 }
         );
     }
 }

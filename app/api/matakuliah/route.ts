@@ -1,27 +1,35 @@
-'use server'
+import { requireAuth } from "@/lib/auth-guard";
 import { apiFetcher } from "@/lib/api-fetcher";
+import { Role } from "@prisma/client";
 import { NextRequest } from "next/server";
 
 /* eslint-disable */
 export async function GET(req: NextRequest) {
     try {
-        const data = await apiFetcher('/siakad/matakuliah', { tokenRequired: true }, req);
+        await requireAuth([Role.ADMIN, Role.FAKULTAS]);
+
+        const data = await apiFetcher('/siakad/matakuliah', { tokenRequired: true });
         if (!data) {
             return Response.json({ message: "Data tidak ditemukan" }, { status: 404 });
         }
         return Response.json(data);
     } catch (error: any) {        
+        if (error.message?.startsWith('UNAUTHORIZED')) {
+            return Response.json({ message: "Unauthorized" }, { status: 401 });
+        }
+        if (error.message?.startsWith('FORBIDDEN')) {
+            return Response.json({ message: "Forbidden" }, { status: 403 });
+        }
         if (error.message === 'Validation failed') {
             return Response.json(
                 {
                     message: "Validation failed",
-                    errors: error.details?.details.map((err: any) => ({
+                    errors: error.details?.details?.map((err: any) => ({
                         field: err.field,
                         message: err.errors.join(', ')
                     }))
                 },
                 { status: 422 }
-
             );
         }
 
@@ -31,9 +39,11 @@ export async function GET(req: NextRequest) {
         );
     }
 }
-/* eslint-disable */
+
 export async function POST(req: NextRequest) {
     try {
+        await requireAuth([Role.ADMIN, Role.FAKULTAS]);
+
         const body = await req.json().catch(() => ({}));
         const query = new URLSearchParams();
 
@@ -45,7 +55,6 @@ export async function POST(req: NextRequest) {
         if (body?.semester) query.set('semester', String(body.semester));
         if (body?.search) query.set('search', String(body.search));
 
-        // Parse legacy filter e.g. "KODE_PRODI = '70232'"
         if (body?.filter && typeof body.filter === 'string') {
             const match = body.filter.match(/KODE_PRODI\s*=\s*['"]?([^'"]+)['"]?/i);
             if (match && !body?.kode_prodi) {
@@ -57,10 +66,16 @@ export async function POST(req: NextRequest) {
         const data = await apiFetcher(`/siakad/matakuliah${queryString}`, {
             method: 'GET',
             tokenRequired: true
-        }, req);
+        });
 
         return Response.json({ revalidated: true, now: Date.now(), data }, { status: 200 });
     } catch (error: any) {
+        if (error.message?.startsWith('UNAUTHORIZED')) {
+            return Response.json({ message: "Unauthorized" }, { status: 401 });
+        }
+        if (error.message?.startsWith('FORBIDDEN')) {
+            return Response.json({ message: "Forbidden" }, { status: 403 });
+        }
         if (error.message === 'Validation failed') {
             return Response.json(
                 {
@@ -74,7 +89,6 @@ export async function POST(req: NextRequest) {
                     }
                 },
                 { status: 422 }
-
             );
         }
 

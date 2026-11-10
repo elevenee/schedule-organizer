@@ -41,12 +41,12 @@ export function TahunAkademikModal() {
         try {
             if (tahunAkademik) {
                 if (values.id) {
-                    await (await updateTahunAkademik).mutateAsync({ id: values.id, data: values });
+                    await updateTahunAkademik.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }
             } else {
-                await (await storeTahunAkademik).mutateAsync(values);
+                await storeTahunAkademik.mutateAsync(values);
             }
         } finally {
             setIsSubmitting(false);

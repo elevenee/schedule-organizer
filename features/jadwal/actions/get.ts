@@ -1,9 +1,8 @@
 'use server'
 
-import { authOptions } from "@/lib/authOptions";
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { Prisma, TypeDosen } from "@prisma/client";
-import { getServerSession } from "next-auth";
+import { Prisma, Role, TypeDosen } from "@prisma/client";
 
 type SortProp = {
     field: string,
@@ -87,8 +86,10 @@ export async function GET_PAGINATE({
         }
     } : {}
 
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
+    const session = await requireAuth();
+    if (session.user.role === Role.FAKULTAS && session.user.fakultasId) {
+        fakultas = Number(session.user.fakultasId);
+    }
     const selectedTahunAkademik = tahunAkademik ?? undefined;
     const findTahunAkademik = selectedTahunAkademik
         ? await prisma.tahunAkademik.findUnique({

@@ -51,7 +51,7 @@ const updateProgramStudi = async (id: number, formData: any, showProccessAlert: 
     );
 };
 
-export const useStoreProgramStudi = async (options: StoreOptions = {}) => {
+export const useStoreProgramStudi = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -62,7 +62,7 @@ export const useStoreProgramStudi = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateProgramStudi = async (options: MutationOptions = {}) => {
+export const useUpdateProgramStudi = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

@@ -48,7 +48,7 @@ const updatePengaturanJadwal = async (id: number, formData: any, showProccessAle
     );
 };
 
-export const useStorePengaturanJadwal = async (options: StoreOptions = {}) => {
+export const useStorePengaturanJadwal = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -59,7 +59,7 @@ export const useStorePengaturanJadwal = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdatePengaturanJadwal = async (options: MutationOptions = {}) => {
+export const useUpdatePengaturanJadwal = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

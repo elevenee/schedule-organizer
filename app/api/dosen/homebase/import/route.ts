@@ -1,15 +1,26 @@
+import { requireAuth } from '@/lib/auth-guard';
 import { prisma } from '@/lib/prisma';
+import { Role } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
 export async function POST(request: NextRequest) {
     try {
+        await requireAuth([Role.ADMIN]);
+
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
         if (!file) {
             return NextResponse.json(
                 { error: 'File tidak ditemukan' },
+                { status: 400 }
+            );
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            return NextResponse.json(
+                { error: 'Ukuran file melebihi batas maksimal 5MB' },
                 { status: 400 }
             );
         }
@@ -30,6 +41,13 @@ export async function POST(request: NextRequest) {
             range: 1,
         });
 
+        if (data.length > 2000) {
+            return NextResponse.json(
+                { error: 'Jumlah baris melebihi batas maksimal 2000 baris' },
+                { status: 400 }
+            );
+        }
+
         const validatedData: any[] = [];
         const errors: any[] = [];
 
@@ -42,72 +60,61 @@ export async function POST(request: NextRequest) {
                 continue;
             }
 
-            if (!row.prodi) {
-                errors.push({ row: rowNumber, error: 'Prodi wajib diisi', data: row });
-                continue;
-            }
-
             validatedData.push({
                 nip: String(row.nip).trim(),
-                fakultasId: row.fakultas ? Number(row.fakultas) : null,
-                jurusanId: row.prodi ? Number(row.prodi) : null,
+                nama: row.nama ? String(row.nama).trim() : null,
+                fakultasId: row.fakultas ? BigInt(row.fakultas) : null,
+                jurusanId: row.prodi ? BigInt(row.prodi) : null,
             });
         }
 
         if (validatedData.length === 0) {
             return NextResponse.json(
-                { error: 'Tidak ada data valid untuk diimport' },
+                { error: 'Tidak ada data valid untuk diimport', errors },
                 { status: 400 }
             );
         }
 
-        let successCount = 0;
-        let failedCount = 0;
+        let updatedCount = 0;
+        let notFoundCount = 0;
         const detailErrors: any[] = [];
 
         await prisma.$transaction(async (tx) => {
             for (const item of validatedData) {
-                try {
-                    const existing = await tx.dosen.findFirst({
-                        where: { nip: item.nip },
-                    });
+                const existing = await tx.dosen.findFirst({
+                    where: { nip: item.nip }
+                });
 
-                    if (!existing) {
-                        throw new Error(`NIP ${item.nip} tidak ditemukan`);
-                    }
-
+                if (existing) {
                     await tx.dosen.update({
                         where: { id: existing.id },
-                        data: item,
+                        data: {
+                            fakultasId: item.fakultasId ?? existing.fakultasId,
+                            jurusanId: item.jurusanId ?? existing.jurusanId,
+                        }
                     });
-
-                    successCount++;
-                } catch (error) {
-                    failedCount++;
-                    detailErrors.push({
-                        nip: item.nip,
-                        error: error instanceof Error ? error.message : 'Unknown error',
-                    });
+                    updatedCount++;
+                } else {
+                    notFoundCount++;
+                    detailErrors.push({ nip: item.nip, error: 'Dosen tidak ditemukan' });
                 }
             }
         });
 
         return NextResponse.json({
             success: true,
-            message: 'Import berhasil',
+            message: 'Import homebase dosen berhasil',
             summary: {
                 totalData: validatedData.length,
-                success: successCount,
-                failed: failedCount,
-                errors: detailErrors.length ? detailErrors : null,
-            },
+                updated: updatedCount,
+                notFound: notFoundCount,
+                errors: detailErrors.length > 0 ? detailErrors : null
+            }
         });
-
-    } catch (error) {
-        console.error('Import error:', error);
+    } catch (error: any) {
         return NextResponse.json(
-            { error: 'Terjadi kesalahan saat import' },
-            { status: 500 }
+            { error: error?.message || 'Terjadi kesalahan saat import homebase' },
+            { status: error?.message?.startsWith('UNAUTHORIZED') ? 401 : error?.message?.startsWith('FORBIDDEN') ? 403 : 500 }
         );
     }
 }

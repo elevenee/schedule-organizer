@@ -1,17 +1,25 @@
 'use server'
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-export async function destroy(id: number) {
+import { Role } from "@prisma/client";
 
-    if (!id) throw new Error("ID is required");
+export async function destroy(id: number) {
+    const session = await requireAuth([Role.ADMIN]);
+
+    if (!id) throw new Error("ID wajib diisi");
+
+    if (String(session.user.id) === String(id)) {
+        throw new Error("Anda tidak dapat menghapus akun Anda sendiri");
+    }
 
     const user = await prisma.user.findUnique({
-        where: { id }
+        where: { id: BigInt(id) }
     });
-    if (!user) throw new Error("User not found");
+    if (!user) throw new Error("Pengguna tidak ditemukan");
 
     await prisma.user.update({
-        where: { id },
+        where: { id: BigInt(id) },
         data: { deletedAt: new Date() }
     });
     return true;

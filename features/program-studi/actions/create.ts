@@ -1,20 +1,28 @@
 'use server';
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { Jenjang } from "@prisma/client";
-import { ProgramStudiFormValues } from "../validations";
+import { Jenjang, Role } from "@prisma/client";
+import { ProgramStudiFormValues, programStudiSchema } from "../validations";
 
 export async function create(formData: ProgramStudiFormValues) {
-  const { nama, jenjang, fakultas, kode, singkatan } = formData;
+  await requireAuth([Role.ADMIN]);
+
+  const validated = programStudiSchema.safeParse(formData);
+  if (!validated.success) {
+    return { error: 'Validasi program studi gagal', details: validated.error.flatten().fieldErrors };
+  }
+
+  const { nama, jenjang, fakultas, kode, singkatan } = validated.data;
   const data = {
-    nama: nama,
+    nama,
     kode,
-    singkatan,
+    singkatan: singkatan || null,
     jenjang: jenjang as Jenjang,
     fakultasId: BigInt(fakultas),
-  }
+  };
   
   return await prisma.jurusan.create({
-    data: data
+    data
   });
 }

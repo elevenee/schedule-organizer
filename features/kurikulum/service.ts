@@ -60,7 +60,7 @@ const updateKurikulum = async (id: number, formData: any, showProccessAlert: boo
     );
 };
 
-export const useStoreKurikulum = async (options: StoreOptions = {}) => {
+export const useStoreKurikulum = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -71,7 +71,7 @@ export const useStoreKurikulum = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateKurikulum = async (options: MutationOptions = {}) => {
+export const useUpdateKurikulum = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
@@ -118,7 +118,7 @@ const updateStatusKurikulum = async (id: number, showProccessAlert: boolean) => 
     );
 };
 
-export const useUpdateStatusKurikulum = async (options: MutationOptions = {}) => {
+export const useUpdateStatusKurikulum = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

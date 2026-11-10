@@ -1,16 +1,28 @@
+import { requireAuth } from '@/lib/auth-guard';
 import { prisma } from '@/lib/prisma';
+import { Role, TypeDosen } from '@prisma/client';
 import { NextRequest, NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
 
 /* eslint-disable */
 export async function POST(request: NextRequest) {
     try {
+        await requireAuth([Role.ADMIN]);
+
         const formData = await request.formData();
         const file = formData.get('file') as File;
 
         if (!file) {
             return NextResponse.json(
                 { error: 'File tidak ditemukan' },
+                { status: 400 }
+            );
+        }
+
+        // Validasi ukuran file (maksimal 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            return NextResponse.json(
+                { error: 'Ukuran file melebihi batas maksimal 5MB' },
                 { status: 400 }
             );
         }
@@ -28,9 +40,16 @@ export async function POST(request: NextRequest) {
         const workbook = XLSX.read(buffer, { type: 'buffer' });
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const data = XLSX.utils.sheet_to_json(worksheet, {
-            header: ['nama', 'status', 'nidn', 'nip','fakultas','prodi'],
+            header: ['nama', 'status', 'nidn', 'nip', 'fakultas', 'prodi'],
             range: 1 // Skip header
         });
+
+        if (data.length > 2000) {
+            return NextResponse.json(
+                { error: 'Jumlah baris melebihi batas maksimal 2000 baris per unggahan' },
+                { status: 400 }
+            );
+        }
 
         // Validasi data
         const validatedData: any[] = [];
@@ -38,89 +57,70 @@ export async function POST(request: NextRequest) {
         
         for (let i = 0; i < data.length; i++) {
             const row = data[i] as any;
-            const rowNumber = i + 2; // +2 karena header di row 1 dan array mulai dari 0
+            const rowNumber = i + 2;
 
-            // Validasi required fields
-            if (!row.nama) {
+            if (!row.nama || String(row.nama).trim() === '') {
                 errors.push({
                     row: rowNumber,
-                    error: 'Nama wajib diisi',
-                    data: row
+                    error: 'Nama wajib diisi'
                 });
                 continue;
             }
 
-            if (!row.status) {
-                errors.push({
-                    row: rowNumber,
-                    error: 'Status wajib diisi',
-                    data: row
-                });
-                continue;
-            }
+            const rawStatus = String(row.status || '').trim().toUpperCase();
+            const statusVal = rawStatus.includes('TIDAK') ? TypeDosen.TIDAK_TETAP : TypeDosen.TETAP;
 
-            // Format data
             validatedData.push({
                 nama: String(row.nama).trim(),
-                status: String(row.status).trim(),
-                nip: row.nip ? String(row.nip).trim(): null,
+                status: statusVal,
+                nip: row.nip ? String(row.nip).trim() : null,
                 nidn: row.nidn ? String(row.nidn).trim() : null,
-                fakultasId: row.fakultas ? Number(row.fakultas) : null,
-                jurusanId: row.prodi ? Number(row.prodi) : null,
+                fakultasId: row.fakultas ? BigInt(row.fakultas) : null,
+                jurusanId: row.prodi ? BigInt(row.prodi) : null,
             });
         }
 
         if (validatedData.length === 0) {
             return NextResponse.json(
-                { error: 'Tidak ada data valid untuk diimport' },
+                { error: 'Tidak ada data valid untuk diimport', errors },
                 { status: 400 }
             );
         }
 
-        // Mulai transaction
         let successCount = 0;
         let failedCount = 0;
-        const detailErrors:any[] = [];
-        try {
-            await prisma.dosen.createMany({ data: validatedData });
-        } catch (error) {
-            console.log(error);
-        }
+        const detailErrors: any[] = [];
+
         await prisma.$transaction(async (tx) => {
-            for (const data of validatedData) {
+            for (const item of validatedData) {
                 try {
-                    // Cek apakah NIP sudah ada (UPSERT)
-                    const existingDosen = await tx.dosen.findFirst({
-                        where: { nip: data.nip }
-                    });
-                    if (existingDosen) {
-                        // Update data dosen yang sudah ada
-                        // await tx.dosen.update({
-                        //     where: { id: existingDosen.id },
-                        //     data: {
-                        //         fakultasId: data.fakultasId,
-                        //         jurusanId: data.jurusanId,
-                        //     }
-                        // });
-                    } else {
-                        // await tx.dosen.create({
-                        //     data: {
-                        //         nama: data.nama,
-                        //         status: data.status as TypeDosen,
-                        //         nip: data.nip,
-                        //         nidn: data.nidn,
-                        //         fakultasId: data?.fakultasId ?? null,
-                        //         jurusanId: data?.jurusanId ?? null,
-                        //     }
-                        // });
+                    let existing = null;
+                    if (item.nip) {
+                        existing = await tx.dosen.findFirst({ where: { nip: item.nip } });
                     }
-                    
+
+                    if (existing) {
+                        await tx.dosen.update({
+                            where: { id: existing.id },
+                            data: {
+                                nama: item.nama,
+                                status: item.status,
+                                nidn: item.nidn || existing.nidn,
+                                ...(item.fakultasId ? { fakultasId: item.fakultasId } : {}),
+                                ...(item.jurusanId ? { jurusanId: item.jurusanId } : {}),
+                            }
+                        });
+                    } else {
+                        await tx.dosen.create({
+                            data: item
+                        });
+                    }
                     successCount++;
-                } catch (error) {
+                } catch (err: any) {
                     failedCount++;
                     detailErrors.push({
-                        nip: data.nip,
-                        error: error instanceof Error ? error.message : 'Unknown error'
+                        nama: item.nama,
+                        error: err?.message || 'Error processing row'
                     });
                 }
             }
@@ -137,11 +137,10 @@ export async function POST(request: NextRequest) {
             }
         });
 
-    } catch (error) {
-        console.error('Import error:', error);
+    } catch (error: any) {
         return NextResponse.json(
-            { error: 'Terjadi kesalahan saat import' },
-            { status: 500 }
+            { error: error?.message || 'Terjadi kesalahan saat import' },
+            { status: error?.message?.startsWith('UNAUTHORIZED') ? 401 : error?.message?.startsWith('FORBIDDEN') ? 403 : 500 }
         );
     }
 }

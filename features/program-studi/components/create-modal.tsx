@@ -49,10 +49,10 @@ export function ProgramStudiModal() {
         setIsSubmitting(true);
         try {
             if (program_studi) {
-                await (await update).mutateAsync({ id: values.id!, data: values });
+                await update.mutateAsync({ id: values.id!, data: values });
             } else {
                 const { id, ...data } = values;
-                await (await store).mutateAsync({ ...data });
+                await store.mutateAsync({ ...data });
                 form.reset({
                     id: undefined,
                     nama: '',

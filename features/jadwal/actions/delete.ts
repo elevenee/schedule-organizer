@@ -1,39 +1,40 @@
 'use server'
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
+import { Role } from "@prisma/client";
+
 export async function destroy(id: number) {
+    await requireAuth([Role.ADMIN]);
 
-    if (!id) throw new Error("ID is required");
+    if (!id) throw new Error("ID jadwal wajib diisi");
 
-    const jadwal = await prisma.jadwal.findUnique({
-        where: { id }
-    });
-    if (!jadwal) throw new Error("Jadwal not found");
+    return await prisma.$transaction(async (tx) => {
+        const jadwal = await tx.jadwal.findUnique({
+            where: { id: BigInt(id) }
+        });
+        if (!jadwal) throw new Error("Jadwal tidak ditemukan");
 
-    const findSisaSks = await prisma.sisaSks.findMany({
-        where: {
-            fakultasId: jadwal?.fakultasId,
-            jurusanId: jadwal?.jurusanId,
-            matakuliahId: jadwal?.matakuliahId,
-            semester: jadwal?.semester,
-            tahunAkademikId: jadwal?.tahunAkademikId,
-            kelas: {
-                hasSome: jadwal.kelas
-            }
-        },
-    })
+        const findSisaSks = await tx.sisaSks.findMany({
+            where: {
+                fakultasId: jadwal.fakultasId,
+                jurusanId: jadwal.jurusanId,
+                matakuliahId: jadwal.matakuliahId,
+                semester: jadwal.semester,
+                tahunAkademikId: jadwal.tahunAkademikId,
+                kelas: {
+                    hasSome: jadwal.kelas
+                }
+            },
+        });
 
-    if (findSisaSks.length > 0) {
-        const ids = findSisaSks.map(item => item.id);
-        await prisma.$transaction([
-            prisma.sisaSks.deleteMany({ where: { id: { in: ids } } }),
-            prisma.jadwal.delete({ where: { id } })
-        ])
-    } else {
-        await prisma.$transaction([
-            prisma.sisaSks.create({
+        if (findSisaSks.length > 0) {
+            const ids = findSisaSks.map(item => item.id);
+            await tx.sisaSks.deleteMany({ where: { id: { in: ids } } });
+        } else {
+            await tx.sisaSks.create({
                 data: {
-                    tahunAkademikId: jadwal?.tahunAkademikId,
+                    tahunAkademikId: jadwal.tahunAkademikId,
                     matakuliahId: jadwal.matakuliahId,
                     sks: jadwal.sks,
                     semester: jadwal.semester,
@@ -41,10 +42,10 @@ export async function destroy(id: number) {
                     jurusanId: jadwal.jurusanId,
                     kelas: jadwal.kelas
                 }
-            }),
-            prisma.jadwal.delete({ where: { id } })
-        ])
-    }
+            });
+        }
 
-    return true;
+        await tx.jadwal.delete({ where: { id: BigInt(id) } });
+        return true;
+    });
 }

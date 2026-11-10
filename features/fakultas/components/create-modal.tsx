@@ -31,12 +31,12 @@ export function FakultasModal() {
         try {
             if (fakultas) {
                 if (values.id) {
-                    await (await updateFakultas).mutateAsync({ id: values.id, data: values });
+                    await updateFakultas.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update download.");
                 }
             } else {
-                await (await storeFakultas).mutateAsync(values);
+                await storeFakultas.mutateAsync(values);
                 form.reset({
                     id: undefined,
                     nama: '',

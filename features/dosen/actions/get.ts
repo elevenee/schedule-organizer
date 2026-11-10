@@ -1,14 +1,16 @@
 'use server'
 
-import { authOptions } from "@/lib/authOptions";
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { Prisma, TypeDosen } from "@prisma/client";
-import { getServerSession } from "next-auth";
+import { Prisma, Role, TypeDosen } from "@prisma/client";
 
 type SortProp = {
     field: string,
     orderBy: string | "ASC" | "DESC"
 }
+
+const ALLOWED_SORT_FIELDS = ["id", "nama", "nidn", "nip", "status", "createdAt", "updatedAt"];
+
 export async function GET_PAGINATE({
     page = 1,
     limit = 100,
@@ -21,41 +23,35 @@ export async function GET_PAGINATE({
     isActive = true,
     deleted = false
 }: { page?: number, limit?: number, search?: string, sort?: SortProp, status?: string, fakultasId?: number, jurusanId?: number, id?: number, isActive?: boolean, deleted?: boolean }) {
-    const skip = (page - 1) * limit;
+    const session = await requireAuth();
+
+    const sanitizedLimit = Math.min(Math.max(1, limit), 200);
+    const sanitizedPage = Math.max(1, page);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
+    const sortField = ALLOWED_SORT_FIELDS.includes(sort.field) ? sort.field : "createdAt";
+    const sortOrder = String(sort.orderBy).toLowerCase() === "asc" ? "asc" : "desc";
+
     const searchNama = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};
     const statusFilter = status ? { status: status as TypeDosen } : {};
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
 
-    let withDeleted = { deletedAt: null } as any;
-    let isActiveFilter = { isActive } as any;
-    if (user?.user?.role === 'ADMIN') {
-        withDeleted = {} as any;
-        isActiveFilter = false;
-    }
-
-    const fakultasFilter = fakultasId ? { fakultasId } : {};
-    const jurusanFilter = jurusanId ? { jurusanId } : {};
-    const idFilter = id ? { id } : {};
-
-    const where = {
-        ...idFilter,
+    const where: Prisma.DosenWhereInput = {
         ...searchNama,
         ...statusFilter,
-        ...fakultasFilter,
-        ...jurusanFilter,
-        ...withDeleted,
-        ...isActiveFilter
+        ...(id ? { id: BigInt(id) } : {}),
+        ...(fakultasId ? { fakultasId: BigInt(fakultasId) } : {}),
+        ...(jurusanId ? { jurusanId: BigInt(jurusanId) } : {}),
+        ...(session.user.role === Role.ADMIN ? (deleted ? {} : { deletedAt: null }) : { deletedAt: null, isActive: true }),
     };
-    // prisma.user.findMany({ withDeleted: true })
+
     const [data, total] = await Promise.all([
         prisma.dosen.findMany({
             skip,
-            take: limit,
+            take: sanitizedLimit,
             where,
-            orderBy: { [sort.field]: sort.orderBy },
+            orderBy: { [sortField]: sortOrder },
             include: {
                 Fakultas: {
                     select: {
@@ -73,13 +69,16 @@ export async function GET_PAGINATE({
         }),
         prisma.dosen.count({ where }),
     ]);
+
     return { data, total };
 }
 
 export default async function GET_ALL() {
+    await requireAuth();
+
     const result = await prisma.dosen.findMany({
-        where: { deletedAt: null },
-        orderBy: { createdAt: 'desc' }
+        where: { deletedAt: null, isActive: true },
+        orderBy: { nama: 'asc' }
     });
 
     return result;

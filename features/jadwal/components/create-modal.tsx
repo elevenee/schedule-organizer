@@ -41,12 +41,12 @@ export function JadwalModal() {
         try {
             if (jadwal?.id) {
                 if (values.id) {
-                    await (await updatejadwal).mutateAsync({ id: values.id, data: values });
+                    await updatejadwal.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }
             } else {
-                await (await storejadwal).mutateAsync(values);
+                await storejadwal.mutateAsync(values);
             }
         } finally {
             setIsSubmitting(false);

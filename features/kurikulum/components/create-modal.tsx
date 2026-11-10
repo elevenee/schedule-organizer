@@ -40,12 +40,12 @@ export function KurikulumModal() {
         try {
             if (kurikulum) {
                 if (values.id) {
-                    await (await updateKurikulum).mutateAsync({ id: values.id, data: values });
+                    await updateKurikulum.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }
             } else {
-                await (await storeKurikulum).mutateAsync(values);
+                await storeKurikulum.mutateAsync(values);
             }
         } finally {
             setIsSubmitting(false);

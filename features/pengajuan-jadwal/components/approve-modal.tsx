@@ -45,7 +45,7 @@ export function ApproveJadwalRequestModal() {
         try {
             if (jadwal?.id) {
                 if (values.id) {
-                    await (await approveJadwal).mutateAsync({ id: values.id, data: values });
+                    await approveJadwal.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }

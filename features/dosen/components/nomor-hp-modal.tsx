@@ -32,7 +32,7 @@ export function DosenNoHPModal() {
         try {
             if (dosen) {
                 if (values.id) {
-                    await (await updateHp).mutateAsync({ id: values.id, data: values });
+                    await updateHp.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }

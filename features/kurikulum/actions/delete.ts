@@ -1,18 +1,22 @@
 'use server'
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-export async function destroy(id: number) {
+import { Role } from "@prisma/client";
 
-    if (!id) throw new Error("ID is required");
+export async function destroy(id: number) {
+    await requireAuth([Role.ADMIN]);
+
+    if (!id) throw new Error("ID kurikulum wajib diisi");
 
     const kurikulum = await prisma.kurikulum.findUnique({
-        where: { id }
+        where: { id: Number(id) }
     });
 
-    if (!kurikulum) throw new Error("Kurikulum not found");
+    if (!kurikulum) throw new Error("Kurikulum tidak ditemukan");
 
     await prisma.kurikulum.delete({
-        where: { id }
+        where: { id: Number(id) }
     });
 
     return true;

@@ -1,9 +1,8 @@
 'use server'
 
-import { authOptions } from "@/lib/authOptions";
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { Prisma, StatusJadwalRequest, TypeDosen } from "@prisma/client";
-import { getServerSession } from "next-auth";
+import { Prisma, Role, StatusJadwalRequest, TypeDosen } from "@prisma/client";
 
 type SortProp = {
     field: string,
@@ -38,10 +37,12 @@ export async function GET_PAGINATE({
 }: PaginateProps) {
     const skip = (page - 1) * limit;
 
-    const session = await getServerSession(authOptions);
-    if (!session) throw new Error("Unauthorized");
-    if (session.user?.role !== 'FAKULTAS' && session.user?.role !== 'ADMIN') throw new Error("Unauthorized");
-    // const fakultas = session.user?.fakultasId ?? undefined;
+    const session = await requireAuth([Role.ADMIN, Role.FAKULTAS]);
+    let targetFakultas = fakultas;
+    if (session.user.role === Role.FAKULTAS) {
+        if (!session.user.fakultasId) throw new Error("Akun Anda tidak terikat dengan fakultas mana pun");
+        targetFakultas = Number(session.user.fakultasId);
+    }
     const searchFilter = search
         ? {
             Dosen: {
@@ -59,8 +60,8 @@ export async function GET_PAGINATE({
     const jenisDosenFilter = jenisDosen ? {
         Dosen: { status: jenisDosen as TypeDosen }
     } : {}
-    const fakultasFilter = fakultas ? {
-        fakultasId: fakultas
+    const fakultasFilter = targetFakultas ? {
+        fakultasId: targetFakultas
     } : {}
 
     const programStudiFilter = programStudi ? {
@@ -72,8 +73,6 @@ export async function GET_PAGINATE({
         }
     } : {}
 
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
     const selectedTahunAkademik = tahunAkademik ?? undefined;
     const findTahunAkademik = selectedTahunAkademik
         ? await prisma.tahunAkademik.findUnique({

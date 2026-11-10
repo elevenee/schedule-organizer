@@ -1,14 +1,16 @@
 'use server'
 
-import { authOptions } from "@/lib/authOptions";
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
 import { Prisma, Role, StatusUser } from "@prisma/client";
-import { getServerSession } from "next-auth";
 
 type SortProp = {
     field: string,
     orderBy: string | "ASC" | "DESC"
 }
+
+const ALLOWED_SORT_FIELDS = ["id", "name", "username", "role", "status", "createdAt", "updatedAt"];
+
 export async function GET_PAGINATE({
     page = 1,
     limit = 10,
@@ -19,12 +21,19 @@ export async function GET_PAGINATE({
     remove_pagination = false,
     fakultasId,
 }: { page?: number, limit?: number, search?: string, sort?: SortProp, remove_pagination?: boolean, status?: string, role?: string, fakultasId?: number }) {
-    const skip = (page - 1) * limit;
+    await requireAuth([Role.ADMIN]);
+
+    const sanitizedLimit = Math.min(Math.max(1, limit), 100);
+    const sanitizedPage = Math.max(1, page);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
+    const sortField = ALLOWED_SORT_FIELDS.includes(sort.field) ? sort.field : "createdAt";
+    const sortOrder = String(sort.orderBy).toLowerCase() === "asc" ? "asc" : "desc";
+
     const searchName = search
         ? {
             OR: [
                 { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-                { email: { contains: search, mode: Prisma.QueryMode.insensitive } },
                 { username: { contains: search, mode: Prisma.QueryMode.insensitive } },
             ]
         }
@@ -35,38 +44,40 @@ export async function GET_PAGINATE({
     const roleFilter = role && role !== ''
         ? { role: role as Role } : {};
     const fakultasFilter = fakultasId
-        ? { fakultasId: fakultasId } : {};
+        ? { fakultasId: BigInt(fakultasId) } : {};
 
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
-
-    let withDeleted = {deletedAt: null} as any;
-    if (user?.user?.role === 'ADMIN') {
-        withDeleted = {};
-    }
-
-    const where = {
+    const where: Prisma.UserWhereInput = {
         ...searchName,
         ...statusFilter,
         ...roleFilter,
         ...fakultasFilter,
-        ...withDeleted
+    };
+
+    const userSelect = {
+        id: true,
+        name: true,
+        username: true,
+        role: true,
+        status: true,
+        fakultasId: true,
+        createdAt: true,
+        updatedAt: true,
+        deletedAt: true,
+        Fakultas: {
+            select: {
+                id: true,
+                nama: true
+            }
+        }
     };
 
     const [data, total] = await Promise.all([
         prisma.user.findMany({
-            skip,
-            take: limit,
+            skip: remove_pagination ? undefined : skip,
+            take: remove_pagination ? undefined : sanitizedLimit,
             where,
-            orderBy: { [sort.field]: sort.orderBy },
-            include: {
-                Fakultas: {
-                    select:{
-                        id: true,
-                        nama: true
-                    }
-                }
-            }
+            orderBy: { [sortField]: sortOrder },
+            select: userSelect
         }),
         prisma.user.count({ where }),
     ]);
@@ -75,9 +86,26 @@ export async function GET_PAGINATE({
 }
 
 export default async function GET_ALL() {
+    await requireAuth([Role.ADMIN]);
+
     const result = await prisma.user.findMany({
         where: { deletedAt: null },
-        orderBy: { createdAt: 'desc' }
+        orderBy: { createdAt: 'desc' },
+        select: {
+            id: true,
+            name: true,
+            username: true,
+            role: true,
+            status: true,
+            fakultasId: true,
+            createdAt: true,
+            Fakultas: {
+                select: {
+                    id: true,
+                    nama: true
+                }
+            }
+        }
     });
 
     return result;

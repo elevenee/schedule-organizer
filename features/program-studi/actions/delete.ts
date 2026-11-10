@@ -1,17 +1,21 @@
 'use server'
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-export async function destroy(id: number) {
+import { Role } from "@prisma/client";
 
-    if (!id) throw new Error("ID is required");
+export async function destroy(id: number) {
+    await requireAuth([Role.ADMIN]);
+
+    if (!id) throw new Error("ID program studi wajib diisi");
 
     const program_studi = await prisma.jurusan.findUnique({
-        where: { id }
+        where: { id: BigInt(id) }
     });
-    if (!program_studi) throw new Error("Program studi not found");
+    if (!program_studi) throw new Error("Program studi tidak ditemukan");
 
     await prisma.jurusan.update({
-        where: { id },
+        where: { id: BigInt(id) },
         data: { deletedAt: new Date() }
     });
     return true;

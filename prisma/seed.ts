@@ -4,28 +4,18 @@ import { Jenjang, PrismaClient, Role, StatusUser, TypeDosen } from "@prisma/clie
 const prisma = new PrismaClient();
 
 async function main() {
+    const initialAdminPassword = process.env.INITIAL_ADMIN_PASSWORD || "admin9900";
     await prisma.user.upsert({
         where: { username: "ADMIN" },
         update: {},
         create: {
             name: "ADMIN",
             username: "ADMIN",
-            password: await hash("admin9900"),
+            password: await hash(initialAdminPassword),
             role: Role.ADMIN,
             status: StatusUser.ACTIVE
         }
-    })
-    await prisma.user.upsert({
-        where: { username: "ADMIN" },
-        update: {},
-        create: {
-            name: "ADMIN",
-            username: "ADMIN",
-            password: await hash("admin9900"),
-            role: Role.ADMIN,
-            status: StatusUser.ACTIVE
-        }
-    })
+    });
     // await prisma.pengaturanJadwal.upsert({
     //     where: { id: 1, jenisDosen: TypeDosen.TETAP },
     //     update: {},

@@ -49,7 +49,7 @@ const updateFakultas = async (id: number, formData: any, showProccessAlert: bool
     );
 };
 
-export const useStoreFakultas = async (options: StoreOptions = {}) => {
+export const useStoreFakultas = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -60,7 +60,7 @@ export const useStoreFakultas = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateFakultas = async (options: MutationOptions = {}) => {
+export const useUpdateFakultas = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

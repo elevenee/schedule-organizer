@@ -38,12 +38,12 @@ export function UserModal() {
         try {
             if (user) {
                 if (values.id) {
-                    await (await updateUser).mutateAsync({ id: values.id, data: values });
+                    await updateUser.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }
             } else {
-                await (await storeUser).mutateAsync(values);
+                await storeUser.mutateAsync(values);
             }
         } finally {
             setIsSubmitting(false);

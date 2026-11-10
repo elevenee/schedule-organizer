@@ -56,7 +56,7 @@ const updateJadwal = async (id: number, formData: any, showProccessAlert: boolea
     );
 };
 
-export const useStoreJadwal = async (options: StoreOptions = {}) => {
+export const useStoreJadwal = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -67,7 +67,7 @@ export const useStoreJadwal = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateJadwal = async (options: MutationOptions = {}) => {
+export const useUpdateJadwal = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
@@ -113,7 +113,7 @@ const updateStatusJadwalRequest = async (id: number, formData: any, showProccess
     );
 };
 
-export const useUpdateStatusJadwal = async (options: MutationOptions = {}) => {
+export const useUpdateStatusJadwal = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
@@ -133,7 +133,7 @@ const approveJadwalRequest = async (id: number, formData: any, showProccessAlert
     );
 };
 
-export const useApproveJadwalRequest = async (options: MutationOptions = {}) => {
+export const useApproveJadwalRequest = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 
@@ -153,7 +153,7 @@ const updateStatusJadwalRequestAll = async (ids: number[], formData: any, showPr
     );
 };
 
-export const useUpdateStatusJadwalAll = async (options: MutationOptions = {}) => {
+export const useUpdateStatusJadwalAll = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

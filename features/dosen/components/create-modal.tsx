@@ -35,12 +35,12 @@ export function DosenModal() {
         try {
             if (dosen) {
                 if (values.id) {
-                    await (await updatedosen).mutateAsync({ id: values.id, data: values });
+                    await updatedosen.mutateAsync({ id: values.id, data: values });
                 } else {
                     console.error("ID is undefined. Cannot update.");
                 }
             } else {
-                await (await storedosen).mutateAsync(values);
+                await storedosen.mutateAsync(values);
             }
         } finally {
             setIsSubmitting(false);

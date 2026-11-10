@@ -1,17 +1,35 @@
 'use server';
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-import { SemesterPeriode, StatusTahun } from "@prisma/client";
-import { tahunAkademikFormValues } from "../validations";
+import { Role, SemesterPeriode, StatusTahun } from "@prisma/client";
+import { tahunAkademikFormValues, tahunAkademikSchema } from "../validations";
 
 export async function create(formData: tahunAkademikFormValues) {
-  const { name, status, semester } = formData;
-  const data = {
-    name: name,
-    status: status as StatusTahun,
-    semester: semester as SemesterPeriode
+  await requireAuth([Role.ADMIN]);
+
+  const validated = tahunAkademikSchema.safeParse(formData);
+  if (!validated.success) {
+    return { error: 'Validasi tahun akademik gagal', details: validated.error.flatten().fieldErrors };
   }
-  return await prisma.tahunAkademik.create({
-    data: data
+
+  const { name, status, semester } = validated.data;
+  const targetStatus = (status as StatusTahun) || StatusTahun.INACTIVE;
+
+  return await prisma.$transaction(async (tx) => {
+    if (targetStatus === StatusTahun.ACTIVE) {
+      await tx.tahunAkademik.updateMany({
+        where: { status: StatusTahun.ACTIVE },
+        data: { status: StatusTahun.INACTIVE }
+      });
+    }
+
+    return await tx.tahunAkademik.create({
+      data: {
+        name,
+        status: targetStatus,
+        semester: semester as SemesterPeriode
+      }
+    });
   });
 }

@@ -25,7 +25,8 @@ export function LoginForm({
 
     const [isSubmiting, setIsSubmiting] = useState(false)
 
-    const callbackUrl = Array.isArray(rawCallbackUrl) ? rawCallbackUrl[0] : rawCallbackUrl || '/dashboard';
+    const raw = Array.isArray(rawCallbackUrl) ? rawCallbackUrl[0] : rawCallbackUrl;
+    const callbackUrl = (raw && raw.startsWith('/') && !raw.startsWith('//')) ? raw : '/dashboard';
 
     useEffect(() => {
         if (session) {

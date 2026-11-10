@@ -4,12 +4,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { roleAccessMap } from "./lib/role-map";
 
 export async function proxy(req: NextRequest) {
-    const token = await getToken({ req });
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
     const { pathname } = req.nextUrl;
 
     // Belum login
     if (!token) {
-        return NextResponse.redirect(new URL("/login", req.url));
+        const loginUrl = new URL("/login", req.url);
+        loginUrl.searchParams.set("callbackUrl", pathname);
+        return NextResponse.redirect(loginUrl);
     }
 
     // Cek role access
@@ -30,7 +32,6 @@ export const config = {
     matcher: [
         "/admin/:path*",
         "/fakultas/:path*",
-        "/prodi/:path*",
-        "/rektor/:path*",
+        "/dashboard/:path*",
     ],
 };

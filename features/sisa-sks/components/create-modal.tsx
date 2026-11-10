@@ -38,7 +38,7 @@ export function SisaSksModal() {
     const onSubmit = async (values: sisaSksFormValues) => {
         setIsSubmitting(true);
         try {
-            await (await storejadwal).mutateAsync(values);
+            await storejadwal.mutateAsync(values);
             close('sisaSksModal')
         } finally {
             setIsSubmitting(false);

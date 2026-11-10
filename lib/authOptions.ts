@@ -9,6 +9,7 @@ export const authOptions: NextAuthOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     session: {
         strategy: "jwt",
+        maxAge: 7 * 24 * 60 * 60, // 7 days
     },
     providers: [
         CredentialsProvider({
@@ -26,28 +27,35 @@ export const authOptions: NextAuthOptions = {
                     where: { username: credentials.username },
                 });
 
-                if (user && user.status === StatusUser.INACTIVE) {
-                    throw Error("Akun anda belum belum diaktifkan")
-                }
-
-                if (!user) throw Error('Username atau password salah.');
+                if (!user) throw new Error('Username atau password salah.');
 
                 const isValid = await bcrypt.compare(credentials.password, user.password);
-                if (!isValid) throw Error('Username atau password salah.');
+                if (!isValid) throw new Error('Username atau password salah.');
+
+                if (user.status === StatusUser.INACTIVE || user.deletedAt) {
+                    throw new Error("Akun anda belum diaktifkan atau telah dinonaktifkan.");
+                }
+
                 let SIAKAD_LOGIN = null;
-                try {
-                    SIAKAD_LOGIN = await apiFetcher('/auth/login', {
-                        method: 'POST',
-                        body: {
-                            username: process.env.API_SIAKAD_USERNAME || "admin",
-                            password: process.env.API_SIAKAD_PASSWORD || "sunSet@5cm",
-                        },
-                        headers: {
-                            'X-API-Key': process.env.API_SIAKAD_KEY || 'pk_dev_8bf741f6',
-                        },
-                    });
-                } catch (error) {
-                    console.log("Error logging in to SIAKAD:", error);
+                const siakadUser = process.env.API_SIAKAD_USERNAME;
+                const siakadPass = process.env.API_SIAKAD_PASSWORD;
+                const siakadKey = process.env.API_SIAKAD_KEY;
+
+                if (siakadUser && siakadPass && siakadKey) {
+                    try {
+                        SIAKAD_LOGIN = await apiFetcher('/auth/login', {
+                            method: 'POST',
+                            body: {
+                                username: siakadUser,
+                                password: siakadPass,
+                            },
+                            headers: {
+                                'X-API-Key': siakadKey,
+                            },
+                        });
+                    } catch (error) {
+                        console.error("SIAKAD auth bridge failed:", error instanceof Error ? error.message : "Unknown error");
+                    }
                 }
                 
                 return {
@@ -55,7 +63,7 @@ export const authOptions: NextAuthOptions = {
                     name: user.name,
                     role: user.role,
                     accessToken: SIAKAD_LOGIN?.token || null,
-                    fakultasId: user.fakultasId ? String(user.fakultasId) : undefined,
+                    fakultasId: user.fakultasId ? Number(user.fakultasId) : null,
                 };
             },
         }),
@@ -69,20 +77,18 @@ export const authOptions: NextAuthOptions = {
                 token.fakultasId = user.fakultasId;
             }
             return token;
-            
         },
         async session({ session, token }) {
             if (token && session.user) {
                 session.user.id = token.id as string;
                 session.user.role = token.role as string;
                 session.user.accessToken = token.accessToken as string;
-                session.user.fakultasId = token.fakultasId as number | null;
+                session.user.fakultasId = (token.fakultasId as number) || null;
             }
-            
             return session;
         },
     },
     pages: {
-        signIn: "/",
+        signIn: "/login",
     },
 };

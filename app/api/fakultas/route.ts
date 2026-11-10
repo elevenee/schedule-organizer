@@ -1,18 +1,28 @@
+import { requireAuth } from "@/lib/auth-guard";
 import { apiFetcher } from "@/lib/api-fetcher";
+import { Role } from "@prisma/client";
 import { NextRequest } from "next/server";
 
 /* eslint-disable */
 export async function POST(req: NextRequest) {
     try {
+        await requireAuth([Role.ADMIN, Role.FAKULTAS]);
+
         const body = await req.json();
         const data = await apiFetcher('/akademik/fakultas', {
             method: 'POST',
             body,
             tokenRequired: true
-        }, req);
+        });
 
         return Response.json({ revalidated: true, now: Date.now(), data }, { status: 200 });
     } catch (error: any) {
+        if (error.message?.startsWith('UNAUTHORIZED')) {
+            return Response.json({ message: "Unauthorized" }, { status: 401 });
+        }
+        if (error.message?.startsWith('FORBIDDEN')) {
+            return Response.json({ message: "Forbidden" }, { status: 403 });
+        }
         if (error.message === 'Validation failed') {
             return Response.json(
                 {
@@ -26,7 +36,6 @@ export async function POST(req: NextRequest) {
                     }
                 },
                 { status: 422 }
-
             );
         }
 

@@ -1,4 +1,3 @@
-'use server'
 
 import List from "./_components/list";
 

@@ -64,7 +64,7 @@ const updateMataKuliah = async (id: number, formData: any, showProccessAlert: bo
     );
 };
 
-export const useStoreMataKuliah = async (options: StoreOptions = {}) => {
+export const useStoreMataKuliah = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -75,7 +75,7 @@ export const useStoreMataKuliah = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateMataKuliah = async (options: MutationOptions = {}) => {
+export const useUpdateMataKuliah = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

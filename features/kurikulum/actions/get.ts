@@ -1,14 +1,14 @@
 'use server'
 
-import { authOptions } from "@/lib/authOptions";
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { getServerSession } from "next-auth";
 
 type SortProp = {
     field: string,
     orderBy: string | "ASC" | "DESC"
 }
+
 export async function GET_PAGINATE({
     page = 1,
     limit = 10,
@@ -16,36 +16,26 @@ export async function GET_PAGINATE({
     sort = { field: "createdAt", orderBy: "DESC" },
     jurusanId = null
 }: { page?: number, limit?: number, search?: string, sort?: SortProp, jurusanId?: number | null }) {
-    const skip = (page - 1) * limit;
+    await requireAuth();
+
+    const sanitizedLimit = Math.min(Math.max(1, limit), 100);
+    const sanitizedPage = Math.max(1, page);
+    const skip = (sanitizedPage - 1) * sanitizedLimit;
+
     const searchKurikulum = search
         ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } }
         : {};
 
-    const user = await getServerSession(authOptions);
-    if (!user) throw new Error("Unauthorized");
-
-    let withDeleted = { deletedAt: null } as any;
-    if (user?.user?.role === 'ADMIN') {
-        withDeleted = {} as any;
-    }
-
-    // const getKurikulumMatakul = await prisma.mataKuliah.findMany({
-    //     where: {
-    //         jurusanId: jurusanId ? Number(jurusanId) : 99999999
-    //     }
-    // })
-
     const where = {
         ...searchKurikulum,
-        ...withDeleted,
-        // id: { in: getKurikulumMatakul.map((x) => x.kurikulumId) }
     };
+
     const [data, total] = await Promise.all([
         prisma.kurikulum.findMany({
             skip,
-            take: limit,
+            take: sanitizedLimit,
             where,  
-            orderBy: { "status": "asc" },
+            orderBy: { status: "asc" },
         }),
         prisma.kurikulum.count({ where }),
     ]);
@@ -58,23 +48,30 @@ export async function GET_KURIKULUM_AKTIF({
     sort = { field: "nama", orderBy: "asc" },
     jurusanId = null
 }: { page?: number, limit?: number, search?: string, sort?: SortProp, jurusanId?: number | null }) {
-    const getKurikulumMatakul = await prisma.mataKuliah.findMany({
-        where: {
-            jurusanId: jurusanId ? Number(jurusanId) : 99999999
-        }
-    })
-    const ids = getKurikulumMatakul
-        ?.map((x) => x.kurikulumId)
-        ?.filter((id): id is number => id !== null) ?? [];
-    
+    await requireAuth();
+
+    const ids: number[] = [];
+    if (jurusanId) {
+        const getKurikulumMatakul = await prisma.mataKuliah.findMany({
+            where: {
+                jurusanId: BigInt(jurusanId)
+            },
+            select: { kurikulumId: true }
+        });
+        getKurikulumMatakul.forEach((x) => {
+            if (x.kurikulumId !== null) ids.push(x.kurikulumId);
+        });
+    }
+
+    const where: Prisma.KurikulumWhereInput = {
+        status: 'ACTIVE',
+        ...(search ? { nama: { contains: search, mode: Prisma.QueryMode.insensitive } } : {}),
+        ...(ids.length > 0 ? { id: { in: ids } } : {})
+    };
 
     const result = await prisma.kurikulum.findMany({
-        where: {
-            id: { in: ids },
-            status: 'ACTIVE',
-            nama: { contains: search, mode: Prisma.QueryMode.insensitive },
-        },
-        orderBy: { [sort.field]: sort.orderBy }
+        where,
+        orderBy: { nama: 'asc' }
     });
 
     return result;

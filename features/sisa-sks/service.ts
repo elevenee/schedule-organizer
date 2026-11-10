@@ -58,7 +58,7 @@ const updateSisaSks = async (id: number, formData: any, showProccessAlert: boole
     );
 };
 
-export const useStoreSisaSks = async (options: StoreOptions = {}) => {
+export const useStoreSisaSks = (options: StoreOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
     return useMutation({
@@ -69,7 +69,7 @@ export const useStoreSisaSks = async (options: StoreOptions = {}) => {
     });
 };
 
-export const useUpdateSisaSks = async (options: MutationOptions = {}) => {
+export const useUpdateSisaSks = (options: MutationOptions = {}) => {
     const queryClient = useQueryClient();
     const { showProccessAlert = true, showAlert = true } = { showProccessAlert: true, showAlert: true, ...options };
 

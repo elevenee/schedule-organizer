@@ -1,21 +1,26 @@
 'use server'
 
+import { requireAuth } from "@/lib/auth-guard";
 import { prisma } from "@/lib/prisma";
-export async function destroy(id: number) {
+import { Role } from "@prisma/client";
 
-    if (!id) throw new Error("ID is required");
+export async function destroy(id: number) {
+    await requireAuth([Role.ADMIN]);
+
+    if (!id) throw new Error("ID tahun akademik wajib diisi");
 
     const tahunAkademik = await prisma.tahunAkademik.findUnique({
-        where: { id }
+        where: { id: BigInt(id) }
     });
-    if (!tahunAkademik) throw new Error("Tahun Akademik not found");
+    if (!tahunAkademik) throw new Error("Tahun Akademik tidak ditemukan");
+
     if (tahunAkademik.deletedAt) {
         await prisma.tahunAkademik.delete({
-            where: { id }
+            where: { id: BigInt(id) }
         });
     } else {
         await prisma.tahunAkademik.update({
-            where: { id },
+            where: { id: BigInt(id) },
             data: { deletedAt: new Date() }
         });
     }
