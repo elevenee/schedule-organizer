@@ -4,10 +4,20 @@ import { NextRequest } from "next/server";
 /* eslint-disable */
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
-        const data = await apiFetcher('/akademik/dosen', {
-            method: 'POST',
-            body,
+        const body = await req.json().catch(() => ({}));
+        const query = new URLSearchParams();
+
+        if (body?.offset !== undefined) query.set('offset', String(body.offset));
+        if (body?.limit !== undefined) query.set('limit', String(body.limit));
+        if (body?.page !== undefined) query.set('page', String(body.page));
+        if (body?.kode_prodi) query.set('kode_prodi', String(body.kode_prodi));
+        if (body?.nidn) query.set('nidn', String(body.nidn));
+        if (body?.nip) query.set('nip', String(body.nip));
+        if (body?.search) query.set('search', String(body.search));
+
+        const queryString = query.toString() ? `?${query.toString()}` : '';
+        const data = await apiFetcher(`/siakad/dosen${queryString}`, {
+            method: 'GET',
             tokenRequired: true
         }, req);
 

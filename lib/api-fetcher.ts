@@ -13,6 +13,7 @@ type ApiFetcherOptions = {
   multipart?: boolean;
 };
 const API_BASE_URL = process.env.API_SIAKAD_URL || "https://api.uinmataram.ac.id";
+const API_KEY = process.env.API_SIAKAD_KEY || "pk_dev_8bf741f6";
 
  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function apiFetcher<T = any>(
@@ -36,6 +37,10 @@ export async function apiFetcher<T = any>(
         "Content-Type": "application/json",
         ...headers,
       };
+
+  if (API_KEY && !finalHeaders["X-API-Key"] && !finalHeaders["X-API-KEY"]) {
+    finalHeaders["X-API-Key"] = API_KEY;
+  }
   if (tokenRequired) {
     const session = await getServerSession(authOptions);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

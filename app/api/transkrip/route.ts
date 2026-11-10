@@ -34,10 +34,27 @@ export async function GET(req: NextRequest) {
 /* eslint-disable */
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
-        const data = await apiFetcher('/akademik/matakuliah', {
-            method: 'POST',
-            body,
+        const body = await req.json().catch(() => ({}));
+        const query = new URLSearchParams();
+
+        if (body?.offset !== undefined) query.set('offset', String(body.offset));
+        if (body?.limit !== undefined) query.set('limit', String(body.limit));
+        if (body?.page !== undefined) query.set('page', String(body.page));
+        if (body?.kode_prodi) query.set('kode_prodi', String(body.kode_prodi));
+        if (body?.kurikulum_id) query.set('kurikulum_id', String(body.kurikulum_id));
+        if (body?.semester) query.set('semester', String(body.semester));
+        if (body?.search) query.set('search', String(body.search));
+
+        if (body?.filter && typeof body.filter === 'string') {
+            const match = body.filter.match(/KODE_PRODI\s*=\s*['"]?([^'"]+)['"]?/i);
+            if (match && !body?.kode_prodi) {
+                query.set('kode_prodi', match[1].trim());
+            }
+        }
+
+        const queryString = query.toString() ? `?${query.toString()}` : '';
+        const data = await apiFetcher(`/siakad/matakuliah${queryString}`, {
+            method: 'GET',
             tokenRequired: true
         }, req);
 

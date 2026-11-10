@@ -4,10 +4,17 @@ import { NextRequest } from "next/server";
 /* eslint-disable */
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
-        const data = await apiFetcher('/akademik/prodi', {
-            method: 'POST',
-            body,
+        const body = await req.json().catch(() => ({}));
+        const query = new URLSearchParams();
+        if (body?.limit !== undefined) query.set('limit', String(body.limit));
+        if (body?.offset !== undefined) query.set('offset', String(body.offset));
+        if (body?.page !== undefined) query.set('page', String(body.page));
+        if (body?.id_fakultas !== undefined) query.set('id_fakultas', String(body.id_fakultas));
+        if (body?.search) query.set('search', String(body.search));
+
+        const queryString = query.toString() ? `?${query.toString()}` : '';
+        const data = await apiFetcher(`/siakad/program-studi${queryString}`, {
+            method: 'GET',
             tokenRequired: true
         }, req);
 

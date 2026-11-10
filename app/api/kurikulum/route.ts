@@ -4,10 +4,16 @@ import { NextRequest } from "next/server";
 /* eslint-disable */
 export async function POST(req: NextRequest) {
     try {
-        const body = await req.json();
-        const data = await apiFetcher('/akademik/kurikulum', {
-            method: 'POST',
-            body,
+        const body = await req.json().catch(() => ({}));
+        const query = new URLSearchParams();
+        const prodiId = body?.prodi_id || body?.prodiId || body?.ProdiID;
+        if (prodiId) query.set('prodi_id', String(prodiId));
+        if (body?.search) query.set('search', String(body.search));
+        if (body?.na) query.set('na', String(body.na));
+
+        const queryString = query.toString() ? `?${query.toString()}` : '';
+        const data = await apiFetcher(`/siakad/kurikulum${queryString}`, {
+            method: 'GET',
             tokenRequired: true
         }, req);
 

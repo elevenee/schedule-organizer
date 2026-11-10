@@ -29,29 +29,35 @@ export async function SYNC() {
         offset += limit; // lanjut ke halaman berikutnya
     }
     try {
-        if (allData) {
+        if (allData && allData.length > 0) {
             for (const r of allData) {
-                let nama = r ? parseDosen(r) : '';
+                if (!r || !r.NAMA_DOSEN) continue;
                 if (r.NAMA_DOSEN.includes("TIM FAKULTAS")) continue;
-                const prodi = await findByKode(r.KODE_PRODI);
+
+                const nama = parseDosen(r);
+                const prodi = r.KODE_PRODI ? await findByKode(r.KODE_PRODI) : null;
+
+                const nip = r.NIP_PNS && String(r.NIP_PNS).trim() !== '' ? String(r.NIP_PNS).trim() : null;
+                const nidn = r.NIDN && String(r.NIDN).trim() !== '' ? String(r.NIDN).trim() : null;
 
                 await upsertDosen({
-                    nip: r.NIP_PNS,
-                    nidn: r.NIDN,
+                    nip,
+                    nidn,
                     nama,
                     status: 'TETAP',
-                    jurusanId: prodi?.id,
-                    fakultasId: prodi?.fakultasId,
+                    jurusanId: prodi?.id || null,
+                    fakultasId: prodi?.fakultasId || null,
                 });
             }
         }
 
         return allData;
     } catch (error) {
-        console.error("Error mengambil data prodi:", error);
-        throw new Error("Gagal mengambil data prodi: " + (error as Error).message);
+        console.error("Error mensinkronkan data dosen:", error);
+        throw new Error("Gagal mensinkronkan data dosen: " + (error as Error).message);
     }
 }
+
 function parseDosen(data: any) {
     const { NAMA_DOSEN, GELAR } = data;
 
@@ -103,4 +109,3 @@ function parseDosen(data: any) {
 
     return NAMA_DOSEN;
 }
-

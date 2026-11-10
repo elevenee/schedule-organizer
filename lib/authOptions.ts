@@ -37,14 +37,17 @@ export const authOptions: NextAuthOptions = {
                 let SIAKAD_LOGIN = null;
                 try {
                     SIAKAD_LOGIN = await apiFetcher('/auth/login', {
-                    method: 'POST',
-                    body: {
-                        username: "ijazah",
-                        password: "ijazah123",
-                    },
-                });
+                        method: 'POST',
+                        body: {
+                            username: process.env.API_SIAKAD_USERNAME || "admin",
+                            password: process.env.API_SIAKAD_PASSWORD || "sunSet@5cm",
+                        },
+                        headers: {
+                            'X-API-Key': process.env.API_SIAKAD_KEY || 'pk_dev_8bf741f6',
+                        },
+                    });
                 } catch (error) {
-                    console.log(error);
+                    console.log("Error logging in to SIAKAD:", error);
                 }
                 
                 return {
