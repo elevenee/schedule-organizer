@@ -4,20 +4,30 @@ import { Role } from "@prisma/client";
 import { NextRequest } from "next/server";
 
 /* eslint-disable */
-export async function POST(req: NextRequest) {
+async function handleDosenRequest(req: NextRequest) {
     try {
         await requireAuth([Role.ADMIN, Role.FAKULTAS]);
 
-        const body = await req.json().catch(() => ({}));
+        const searchParams = req.nextUrl?.searchParams || new URL(req.url).searchParams;
+        const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+
         const query = new URLSearchParams();
 
-        if (body?.offset !== undefined) query.set('offset', String(body.offset));
-        if (body?.limit !== undefined) query.set('limit', String(body.limit));
-        if (body?.page !== undefined) query.set('page', String(body.page));
-        if (body?.kode_prodi) query.set('kode_prodi', String(body.kode_prodi));
-        if (body?.nidn) query.set('nidn', String(body.nidn));
-        if (body?.nip) query.set('nip', String(body.nip));
-        if (body?.search) query.set('search', String(body.search));
+        const offset = body?.offset ?? searchParams.get('offset');
+        const limit = body?.limit ?? searchParams.get('limit');
+        const page = body?.page ?? searchParams.get('page');
+        const kodeProdi = body?.kode_prodi ?? searchParams.get('kode_prodi');
+        const nidn = body?.nidn ?? searchParams.get('nidn');
+        const nip = body?.nip ?? searchParams.get('nip');
+        const search = body?.search ?? searchParams.get('search');
+
+        if (offset !== undefined && offset !== null && offset !== '') query.set('offset', String(offset));
+        if (limit !== undefined && limit !== null && limit !== '') query.set('limit', String(limit));
+        if (page !== undefined && page !== null && page !== '') query.set('page', String(page));
+        if (kodeProdi) query.set('kode_prodi', String(kodeProdi));
+        if (nidn) query.set('nidn', String(nidn));
+        if (nip) query.set('nip', String(nip));
+        if (search) query.set('search', String(search));
 
         const queryString = query.toString() ? `?${query.toString()}` : '';
         const data = await apiFetcher(`/siakad/dosen${queryString}`, {
@@ -54,4 +64,12 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+export async function GET(req: NextRequest) {
+    return handleDosenRequest(req);
+}
+
+export async function POST(req: NextRequest) {
+    return handleDosenRequest(req);
 }

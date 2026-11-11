@@ -5,12 +5,13 @@ import { create } from "./actions/create";
 import { update, updateStatus } from "./actions/update";
 import { destroy } from "./actions/delete";
 import { GET_KURIKULUM_AKTIF, GET_PAGINATE } from "./actions/get";
+import { SYNC } from "./actions/sync";
 
 interface StoreOptions extends MutationOptions { }
 
 interface GetAllProps extends DataTableOptions {
     nama?: string,
-    jurusanId?: number |null
+    jurusanId?: number | null
 }
 export const useGetKurikulum = (params: GetAllProps) => {
     return handleFetchData(
@@ -36,7 +37,7 @@ export const useGetKurikulumAktif = (params: GetAllProps) => {
 
 const handleValidation = (formData: any) => {
     const validationErrors = validateForm(kurikulumSchema, formData);
-    
+
     if (validationErrors) throw { ...validationErrors };
 };
 
@@ -127,5 +128,31 @@ export const useUpdateStatusKurikulum = (options: MutationOptions = {}) => {
         onSettled: async (_, error, variables) => handleSettled(error, queryClient, ["kurikulum"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Status Tahun akademik gagal disimpan"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert),
+    });
+};
+
+const syncKurikulum = async (action: () => Promise<any>, alertTitle: string) => {
+    try {
+        showProcessAlert(alertTitle, "Proses sinkronisasi data..");
+        const response = await action();
+        if (response) {
+            return response;
+        } else {
+            throw new Error(`Data gagal diproses: ${response.statusText}`);
+        }
+    } catch (error) {
+        throw new Error(`Data gagal diproses: ${error}`);
+    }
+};
+
+export const useSyncKurikulum = (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showAlert = true } = { showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: () => syncKurikulum(() => SYNC(), "Syncroning Data"),
+        onSettled: async (_, error) => handleSettled(error, queryClient, ["kurikulum"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Kurikulum gagal disinkronkan"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Kurikulum berhasil disinkronkan"),
     });
 };

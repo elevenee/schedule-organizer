@@ -5,6 +5,7 @@ import { destroy } from "../actions/delete";
 import { GET_PAGINATE, GET_STATISTIC } from "../actions/get";
 import { SYNC } from "../actions/sync";
 import { update } from "../actions/update";
+import { cleanupDuplicateMataKuliah } from "../actions/cleanup-duplicates";
 import { mataKuliahSchema } from "../validations";
 
 interface StoreOptions extends MutationOptions { }
@@ -136,5 +137,17 @@ export const useSyncMatkul = (options: MutationOptions = {}) => {
         onSettled: async (_, error) => handleSettled(error, queryClient, ["mata-kuliah"], showAlert),
         onError: (error: any) => handleMutationError(error, showAlert, "Mata Kuliah gagal disingkronkan"),
         onSuccess: (res: any) => handleMutationSuccess(res, showAlert, "Mata Kuliah berhasil disingkronkan"),
+    });
+};
+
+export const useCleanupDuplicateMatkul = (options: MutationOptions = {}) => {
+    const queryClient = useQueryClient();
+    const { showAlert = true } = { showAlert: true, ...options };
+
+    return useMutation({
+        mutationFn: () => syncMatkul(() => cleanupDuplicateMataKuliah(), "Pembersihan Duplikat"),
+        onSettled: async (_, error) => handleSettled(error, queryClient, ["mata-kuliah"], showAlert),
+        onError: (error: any) => handleMutationError(error, showAlert, "Gagal membersihkan duplikat"),
+        onSuccess: (res: any) => handleMutationSuccess(res, showAlert, res?.message || "Data duplikat berhasil dibersihkan"),
     });
 };

@@ -2,6 +2,14 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
 
+// Polyfill BigInt serialization to prevent Next.js / JSON serialization errors
+if (typeof BigInt !== 'undefined') {
+    (BigInt.prototype as any).toJSON = function () {
+        const int = Number(this);
+        return Number.isSafeInteger(int) ? int : this.toString();
+    };
+}
+
 const globalForPrisma = globalThis as unknown as {
     prisma?: PrismaClient;
     pool?: Pool;
@@ -67,6 +75,9 @@ function getPrismaClient(): PrismaClient {
     if (!globalForPrisma.pool) {
         globalForPrisma.pool = new Pool({
             connectionString: process.env.DATABASE_URL,
+            max: 20,                       // Maksimal 20 koneksi concurrent
+            idleTimeoutMillis: 30000,      // Tutup koneksi idle setelah 30 detik
+            connectionTimeoutMillis: 5000, // Timeout koneksi 5 detik jika pool jenuh
         });
     }
 
@@ -78,7 +89,7 @@ function getPrismaClient(): PrismaClient {
         adapter: globalForPrisma.adapter,
         log:
             process.env.NODE_ENV !== 'production'
-                ? ['query', 'error', 'warn']
+                ? ['error', 'warn']
                 : ['error'],
     });
 
@@ -94,6 +105,5 @@ function getPrismaClient(): PrismaClient {
 export const prisma =
     globalForPrisma.prisma ?? getPrismaClient();
 
-if (process.env.NODE_ENV !== 'production') {
-    globalForPrisma.prisma = prisma;
-}
+// Selalu simpan di globalThis agar tidak merekonstruksi instance koneksi di server runtime
+globalForPrisma.prisma = prisma;

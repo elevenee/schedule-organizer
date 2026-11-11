@@ -14,6 +14,54 @@ type ApiFetcherOptions = {
 const API_BASE_URL = process.env.API_SIAKAD_URL || "https://api.uinmataram.ac.id";
 const API_KEY = process.env.API_SIAKAD_KEY;
 
+let cachedSystemToken: { token: string; expiresAt: number } | null = null;
+
+async function getSiakadSystemToken(): Promise<string | null> {
+  const username = process.env.API_SIAKAD_USERNAME;
+  const password = process.env.API_SIAKAD_PASSWORD;
+  const apiKey = API_KEY;
+
+  if (!username || !password || !apiKey) return null;
+
+  // Gunakan cached token jika masih valid (buffer 60 detik)
+  if (cachedSystemToken && Date.now() < cachedSystemToken.expiresAt - 60000) {
+    return cachedSystemToken.token;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-API-Key": apiKey,
+      },
+      body: JSON.stringify({ username, password }),
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      console.error("Gagal login sistem ke SIAKAD:", res.status, res.statusText);
+      return null;
+    }
+
+    const data = await res.json();
+    const token = data?.token || data?.accessToken || data?.data?.token;
+    const expiresIn = Number(data?.expiresIn) || 900;
+
+    if (token) {
+      cachedSystemToken = {
+        token,
+        expiresAt: Date.now() + expiresIn * 1000,
+      };
+      return token;
+    }
+  } catch (error) {
+    console.error("Error mengambil token sistem SIAKAD:", error);
+  }
+
+  return null;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function apiFetcher<T = any>(
   path: string,
@@ -30,12 +78,12 @@ export async function apiFetcher<T = any>(
 
   const finalHeaders: Record<string, string> = multipart
     ? {
-        ...headers,
-      }
+      ...headers,
+    }
     : {
-        "Content-Type": "application/json",
-        ...headers,
-      };
+      "Content-Type": "application/json",
+      ...headers,
+    };
 
   if (API_KEY) {
     if (!finalHeaders["X-API-Key"] && !finalHeaders["X-API-KEY"]) {
@@ -44,11 +92,21 @@ export async function apiFetcher<T = any>(
   }
 
   if (tokenRequired) {
-    const session = await getServerSession(authOptions);
     let token: string | null = null;
 
-    if (session?.user?.accessToken) {
-      token = session.user.accessToken;
+    // Prioritaskan token sistem SIAKAD yang valid dan otomatis diperbarui
+    token = await getSiakadSystemToken();
+
+    // Fallback ke token session pengguna jika token sistem tidak tersedia
+    if (!token) {
+      try {
+        const session = await getServerSession(authOptions);
+        if (session?.user?.accessToken) {
+          token = session.user.accessToken;
+        }
+      } catch {
+        // Abaikan error session
+      }
     }
 
     if (token) {
@@ -58,12 +116,27 @@ export async function apiFetcher<T = any>(
 
   const url = `${API_BASE_URL}${path}`;
 
-  const res = await fetch(url, {
+  let res = await fetch(url, {
     method,
     headers: finalHeaders,
     ...(body && { body: multipart ? body : JSON.stringify(body) }),
     cache: "no-store",
   });
+
+  // Jika 401 unauthorized (misal token JWT expired), refresh token sistem dan retry 1 kali
+  if (res.status === 401 && tokenRequired) {
+    cachedSystemToken = null;
+    const freshToken = await getSiakadSystemToken();
+    if (freshToken) {
+      finalHeaders["Authorization"] = `Bearer ${freshToken}`;
+      res = await fetch(url, {
+        method,
+        headers: finalHeaders,
+        ...(body && { body: multipart ? body : JSON.stringify(body) }),
+        cache: "no-store",
+      });
+    }
+  }
 
   if (!res.ok) {
     const errorData = await res.json().catch(() => null);

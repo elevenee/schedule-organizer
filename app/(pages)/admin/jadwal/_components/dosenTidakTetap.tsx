@@ -39,13 +39,17 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
     const [selectedTotalSKS, setSelectedTotalSKS] = useState<string | null>(null);
     const [searchDosen, setSearchDosen] = useState<string | null>(null);
     const [reorders, setReOrders] = useState<boolean>(false);
+    const [page, setPage] = useState<number>(1);
+    const [pageSize, setPageSize] = useState<number>(50);
 
     const [sort, setSort] = useState<sort[]>([
         { field: 'semester', orderBy: 'asc' },
         { field: 'Matakuliah', orderBy: { id: 'asc' } }
     ]);
     const { data, isLoading } = useGetJadwal({
-        page: 1,
+        page: page,
+        limit: pageSize,
+        remove_pagination: pageSize === -1,
         search: "",
         jenisDosen: "TIDAK_TETAP",
         tahunAkademik: tahunAkademik ? Number(tahunAkademik.id) : null,
@@ -152,7 +156,20 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
         setSelectedKelas([])
         setSelectedTotalSKS(null)
         setReOrders(false)
+        setPage(1)
     }
+
+    const searchItems = useMemo(() => {
+        return (dosenList?.data || []).map((item: any) => ({
+            id: item.id,
+            label: item.nama,
+            value: item.id,
+            description: item?.Fakultas?.nama ?? "-"
+        }));
+    }, [dosenList?.data]);
+
+    const totalRecords = data?.total ?? (data?.data?.length ?? 0);
+    const totalPages = data?.totalPages ?? (pageSize === -1 ? 1 : Math.ceil(totalRecords / pageSize));
 
     const SEMESTER = [1, 2, 3, 4, 5, 6, 7, 8];
     const availableKelas = [
@@ -319,7 +336,7 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                                 <DosenTableRow
                                     key={item.id || index}
                                     item={item}
-                                    index={index}
+                                    index={(pageSize === -1 ? 0 : (page - 1) * pageSize) + index}
                                     pengaturan={pengaturan}
                                     onOpenModal={open}
                                 />
@@ -332,14 +349,65 @@ export default function DosenTidakTetap({ pengaturan, tahunAkademik }: Props) {
                     }
                 </TableBody>
             </Table>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-4 border-t border-gray-200 dark:border-gray-800">
+                <div className="text-sm text-muted-foreground">
+                    Menampilkan{" "}
+                    <span className="font-medium">
+                        {totalRecords > 0 ? (pageSize === -1 ? 1 : (page - 1) * pageSize + 1) : 0}
+                    </span>{" "}
+                    -{" "}
+                    <span className="font-medium">
+                        {pageSize === -1 ? totalRecords : Math.min(page * pageSize, totalRecords)}
+                    </span>{" "}
+                    dari <span className="font-medium">{totalRecords}</span> dosen
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="flex items-center gap-2 text-sm">
+                        <span>Baris per halaman:</span>
+                        <Select
+                            value={pageSize.toString()}
+                            onValueChange={(val) => {
+                                setPageSize(Number(val));
+                                setPage(1);
+                            }}
+                        >
+                            <SelectTrigger className="h-8 w-[90px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="25">25</SelectItem>
+                                <SelectItem value="50">50</SelectItem>
+                                <SelectItem value="100">100</SelectItem>
+                                <SelectItem value="-1">Semua</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.max(1, p - 1))}
+                            disabled={page <= 1 || pageSize === -1}
+                        >
+                            Sebelumnya
+                        </Button>
+                        <div className="text-sm px-2">
+                            Halaman {page} dari {totalPages || 1}
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                            disabled={page >= totalPages || pageSize === -1}
+                        >
+                            Selanjutnya
+                        </Button>
+                    </div>
+                </div>
+            </div>
             <SearchCommand
                 title="Dosen"
-                items={dosenList && dosenList?.data?.map((item: any) => ({
-                    id: item.id,
-                    label: item.nama,
-                    value: item.id,
-                    description: item?.Fakultas?.nama ?? "-"
-                }))}
+                items={searchItems}
                 onSearch={setSearchDosen}
                 isLoading={isLoadingDosen}
                 hotkey="ctrl+k"

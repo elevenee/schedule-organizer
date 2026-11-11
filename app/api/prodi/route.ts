@@ -4,17 +4,25 @@ import { Role } from "@prisma/client";
 import { NextRequest } from "next/server";
 
 /* eslint-disable */
-export async function POST(req: NextRequest) {
+async function handleProdiRequest(req: NextRequest) {
     try {
         await requireAuth([Role.ADMIN, Role.FAKULTAS]);
 
-        const body = await req.json().catch(() => ({}));
+        const searchParams = req.nextUrl?.searchParams || new URL(req.url).searchParams;
+        const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+
         const query = new URLSearchParams();
-        if (body?.limit !== undefined) query.set('limit', String(body.limit));
-        if (body?.offset !== undefined) query.set('offset', String(body.offset));
-        if (body?.page !== undefined) query.set('page', String(body.page));
-        if (body?.id_fakultas !== undefined) query.set('id_fakultas', String(body.id_fakultas));
-        if (body?.search) query.set('search', String(body.search));
+        const idFakultas = body?.id_fakultas ?? searchParams.get('id_fakultas');
+        const kodeJenjang = body?.kode_jenjang ?? searchParams.get('kode_jenjang');
+        const search = body?.search ?? searchParams.get('search');
+        const status = body?.status ?? searchParams.get('status');
+
+        if (idFakultas !== undefined && idFakultas !== null && idFakultas !== '') {
+            query.set('id_fakultas', String(idFakultas));
+        }
+        if (kodeJenjang) query.set('kode_jenjang', String(kodeJenjang));
+        if (search) query.set('search', String(search));
+        if (status) query.set('status', String(status));
 
         const queryString = query.toString() ? `?${query.toString()}` : '';
         const data = await apiFetcher(`/siakad/program-studi${queryString}`, {
@@ -51,4 +59,12 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+export async function GET(req: NextRequest) {
+    return handleProdiRequest(req);
+}
+
+export async function POST(req: NextRequest) {
+    return handleProdiRequest(req);
 }

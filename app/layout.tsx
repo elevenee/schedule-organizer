@@ -2,6 +2,7 @@ import QueryProvider from "@/components/providers/query-provider";
 import Providers from "@/components/providers/session-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { CommandStackProvider } from "@/contexts/comand-scope-context";
+import { SyncProgressIndicator } from "@/components/sync-progress-indicator";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "react-hot-toast";
@@ -42,6 +43,7 @@ export default function RootLayout({
             <Providers>
               <CommandStackProvider>
                 {children}
+                <SyncProgressIndicator />
               </CommandStackProvider>
             </Providers>
           </ThemeProvider>

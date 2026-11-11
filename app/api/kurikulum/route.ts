@@ -4,16 +4,21 @@ import { Role } from "@prisma/client";
 import { NextRequest } from "next/server";
 
 /* eslint-disable */
-export async function POST(req: NextRequest) {
+async function handleKurikulumRequest(req: NextRequest) {
     try {
         await requireAuth([Role.ADMIN, Role.FAKULTAS]);
 
-        const body = await req.json().catch(() => ({}));
+        const searchParams = req.nextUrl?.searchParams || new URL(req.url).searchParams;
+        const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+
         const query = new URLSearchParams();
-        const prodiId = body?.prodi_id || body?.prodiId || body?.ProdiID;
+        const prodiId = body?.prodi_id || body?.prodiId || body?.ProdiID || searchParams.get('prodi_id');
+        const search = body?.search || searchParams.get('search');
+        const na = body?.na || searchParams.get('na');
+
         if (prodiId) query.set('prodi_id', String(prodiId));
-        if (body?.search) query.set('search', String(body.search));
-        if (body?.na) query.set('na', String(body.na));
+        if (search) query.set('search', String(search));
+        if (na) query.set('na', String(na));
 
         const queryString = query.toString() ? `?${query.toString()}` : '';
         const data = await apiFetcher(`/siakad/kurikulum${queryString}`, {
@@ -50,4 +55,12 @@ export async function POST(req: NextRequest) {
             { status: 500 }
         );
     }
+}
+
+export async function GET(req: NextRequest) {
+    return handleKurikulumRequest(req);
+}
+
+export async function POST(req: NextRequest) {
+    return handleKurikulumRequest(req);
 }

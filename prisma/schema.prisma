@@ -1,17 +1,12 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
-  // output   = "../lib/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  // url      = env("DATABASE_URL")
 }
 
 model User {
@@ -28,6 +23,10 @@ model User {
   deletedAt  DateTime?
 
   @@index([username])
+  @@index([role])
+  @@index([status])
+  @@index([fakultasId])
+  @@index([deletedAt])
 }
 
 model TahunAkademik {
@@ -43,6 +42,7 @@ model TahunAkademik {
   sisaSks       SisaSks[]
 
   @@unique([name, semester])
+  @@index([status, deletedAt])
 }
 
 model PengaturanJadwal {
@@ -53,6 +53,8 @@ model PengaturanJadwal {
   createdAt  DateTime? @default(now())
   updatedAt  DateTime? @updatedAt
   deletedAt  DateTime?
+
+  @@index([jenisDosen, deletedAt])
 }
 
 model Fakultas {
@@ -83,11 +85,12 @@ model Jurusan {
   updatedAt  DateTime     @updatedAt
   deletedAt  DateTime?
 
-  // @@unique([nama, fakultasId])
   Jadwal        Jadwal[]
   Dosen         Dosen[]
   JadwalRequest JadwalRequest[]
   sisaSks       SisaSks[]
+
+  @@index([fakultasId, deletedAt])
 }
 
 model Dosen {
@@ -107,6 +110,13 @@ model Dosen {
   updatedAt     DateTime        @updatedAt
   deletedAt     DateTime?
   JadwalRequest JadwalRequest[]
+
+  @@index([status, isActive, deletedAt])
+  @@index([fakultasId])
+  @@index([jurusanId])
+  @@index([nama])
+  @@index([nip])
+  @@index([nidn])
 }
 
 model MataKuliah {
@@ -128,6 +138,10 @@ model MataKuliah {
   kurikulum     Kurikulum?      @relation(fields: [kurikulumId], references: [id])
 
   @@unique([kode, jurusanId, semester, jenjang, kurikulumId])
+  @@index([jurusanId, semester])
+  @@index([kurikulumId])
+  @@index([deletedAt])
+  @@index([nama])
 }
 
 model Kurikulum {
@@ -135,6 +149,8 @@ model Kurikulum {
   nama        String
   status      StatusTahun  @default(ACTIVE)
   mataKuliahs MataKuliah[]
+
+  @@index([status])
 }
 
 model Jadwal {
@@ -158,6 +174,9 @@ model Jadwal {
   Jurusan         Jurusan?      @relation(fields: [jurusanId], references: [id])
 
   @@unique([tahunAkademikId, matakuliahId, fakultasId, jurusanId, dosenId, semester, kelas])
+  @@index([tahunAkademikId, dosenId])
+  @@index([fakultasId, jurusanId])
+  @@index([semester])
 }
 
 model JadwalRequest {
@@ -183,6 +202,9 @@ model JadwalRequest {
   Jurusan         Jurusan?            @relation(fields: [jurusanId], references: [id])
 
   @@unique([tahunAkademikId, matakuliahId, fakultasId, jurusanId, dosenId, semester, kelas])
+  @@index([status, tahunAkademikId])
+  @@index([dosenId])
+  @@index([fakultasId, jurusanId])
 }
 
 model SisaSks {
@@ -204,6 +226,8 @@ model SisaSks {
   Jurusan         Jurusan?      @relation(fields: [jurusanId], references: [id])
 
   @@unique([tahunAkademikId, matakuliahId, fakultasId, jurusanId, semester, kelas])
+  @@index([tahunAkademikId])
+  @@index([fakultasId, jurusanId])
 }
 
 enum StatusJadwalRequest {

@@ -34,6 +34,7 @@ export async function GET_PAGINATE({
     dosen = null,
     status,
     fakultas = null,
+    remove_pagination = false,
 }: PaginateProps) {
     const skip = (page - 1) * limit;
 
@@ -285,7 +286,9 @@ export async function GET_PAGINATE({
             jadwal: merged
         };
     });
-    return { data, total };
+        const totalFiltered = data?.length ?? 0;
+        const paginatedData = remove_pagination ? data : data?.slice(skip, skip + limit);
+        return { data: paginatedData, total: totalFiltered };
 }
 
 function mergeJadwalLists(requests: any, jadwals: any) {

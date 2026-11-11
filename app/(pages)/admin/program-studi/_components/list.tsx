@@ -86,7 +86,7 @@ export default function List() {
         resetAll()
     }
 
-    const handleSync = async ()=>{
+    const handleSync = async () => {
         const sync = await syncronMutation.mutateAsync()
     }
 

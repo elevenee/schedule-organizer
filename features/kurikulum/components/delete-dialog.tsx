@@ -17,7 +17,7 @@ export function DeleteKurikulum({ id, custom_text = "Hapus" }: Props) {
     const queryClient = new QueryClient()
     const deleteKurikulumMutation = useDeleteKurikulum(id)
     const handleDelete = async () => {
-        (await deleteKurikulumMutation).mutate();
+        deleteKurikulumMutation.mutate();
         setOpenModal(false)
         await queryClient.invalidateQueries({ queryKey: ['kurikulum'] });
     };

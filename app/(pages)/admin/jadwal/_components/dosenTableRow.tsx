@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { DeleteJadwal } from '@/features/jadwal/components/delete-dialog';
 import { useCapacityCheck } from '@/features/jadwal/hooks/use-capacity-check';
 import { Edit } from 'lucide-react';
+import { memo } from 'react';
 
 /* eslint-disable */
 interface DosenTableRowProps {
@@ -15,14 +16,14 @@ interface DosenTableRowProps {
     onOpenModal: (modal: string, data: any) => void;
 }
 
-export function DosenTableRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
+export const DosenTableRow = memo(function DosenTableRow({ item, index, pengaturan, onOpenModal }: DosenTableRowProps) {
     const hasMultipleJadwal = item?.jadwal?.length > 1;
     if (hasMultipleJadwal) {
         return <MultipleJadwalRow item={item} index={index} pengaturan={pengaturan} onOpenModal={onOpenModal} />;
     }
 
     return <SingleJadwalRow item={item} index={index} pengaturan={pengaturan} onOpenModal={onOpenModal} />;
-}
+});
 
 // Helper component for multiple jadwal
 /* eslint-disable */

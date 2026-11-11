@@ -361,40 +361,37 @@ export async function GET_PAGINATE({
     if (Object.keys(fakultasFilter).length > 0 || Object.keys(programStudiFilter).length > 0 || Object.keys(matakuliahFilter).length > 0) {
         data = data?.filter((x: any) => x.jadwal.length > 0);
     }
-    // data = [...data].sort((a, b) => {
-    //     return (
-    //         a.uniqeId.localeCompare(b.uniqeId)
-    //     )
-    // })
-    if (!totalSks) return { data, total };
 
-    return {
-        data: data?.filter((d: any) => {
-            const pengaturanMap = new Map<TypeDosen, number>(
-                pengaturan.map(p => [
-                    p.jenisDosen,
-                    p.maxSks?.toNumber() ?? 0
-                ])
-            );
+    if (totalSks && totalSks !== 'SEMUA') {
+        const pengaturanMap = new Map<TypeDosen, number>(
+            pengaturan.map(p => [
+                p.jenisDosen,
+                p.maxSks?.toNumber() ?? 0
+            ])
+        );
+        data = data?.filter((d: any) => {
             const maxSks = pengaturanMap.get(d.status) ?? 0;
 
             if (totalSks === 'TERSEDIA') {
                 return d.totalSKS > 0 && d.totalSKS <= maxSks;
-            }
-
-            else if (totalSks === 'DIBAWAH_BATAS') {
+            } else if (totalSks === 'DIBAWAH_BATAS') {
                 return d.totalSKS < 12;
-            }
-            else if (totalSks === 'MELEBIHI_BATAS') {
+            } else if (totalSks === 'MELEBIHI_BATAS') {
                 return d.totalSKS > maxSks;
-            }
-            else if (totalSks === 'BELUM_ADA') {
+            } else if (totalSks === 'BELUM_ADA') {
                 return d.totalSKS === 0;
             }
 
             return true;
-        }),
-        total
+        });
+    }
+
+    const totalFiltered = data?.length ?? 0;
+    const paginatedData = remove_pagination ? data : data?.slice(skip, skip + limit);
+
+    return {
+        data: paginatedData,
+        total: totalFiltered
     };
 }
 

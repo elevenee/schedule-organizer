@@ -65,6 +65,7 @@ export async function GET_PAGINATE({
         : { kurikulumId: { in: activeCuriculums.map((m) => m.id) } };
 
     const where = {
+        deletedAt: null,
         ...idFilter,
         ...searchFilter,
         ...jurusanFilter,
@@ -143,6 +144,7 @@ export async function GET_STATISTIC({
     const semesterFilter = semester ? { semester: Number(semester) } : {};
 
     const where = {
+        deletedAt: null,
         ...idFilter,
         ...searchFilter,
         ...jurusanFilter,

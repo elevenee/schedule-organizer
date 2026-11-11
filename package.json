@@ -7,7 +7,8 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx prisma/seed.ts"
+    "seed": "tsx prisma/seed.ts",
+    "cleanup:matakuliah": "tsx --env-file=.env scripts/cleanup-duplicates.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
@@ -50,6 +51,7 @@
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "input-otp": "^1.4.2",
+    "ioredis": "^6.0.0",
     "lucide-react": "^1.21.0",
     "next": "16.2.9",
     "next-auth": "^4.24.14",

@@ -7,12 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useGetFakultas } from "@/features/fakultas/service";
 import { MataKuliahModal } from "@/features/mata-kuliah/components/create-modal";
 import { ImportMataKuliahModal } from "@/features/mata-kuliah/components/import-modal";
-import { useGetMataKuliah, useSyncMatkul } from "@/features/mata-kuliah/hooks/matkul.hook";
+import { useCleanupDuplicateMatkul, useGetMataKuliah, useSyncMatkul } from "@/features/mata-kuliah/hooks/matkul.hook";
 import { useGetProdi } from "@/features/program-studi/hooks/useProdi";
 import { useModalManager } from "@/hooks/modal-manager";
 import { useDataTable } from "@/hooks/use-datatables";
 import { ColumnDef } from "@tanstack/react-table";
-import { Edit, Import, Plus, RecycleIcon } from "lucide-react";
+import { Edit, Import, Plus, RecycleIcon, Sparkles } from "lucide-react";
+import Swal from "sweetalert2";
 import React, { useMemo } from "react";
 
 /* eslint-disable */
@@ -24,6 +25,7 @@ export default function List() {
     const [searchJurusan, setSearchJurusan] = React.useState<string>("");
 
     const syncronMutation = useSyncMatkul()
+    const cleanupMutation = useCleanupDuplicateMatkul()
 
     const columns: ColumnDef<any>[] = [
         {
@@ -165,13 +167,28 @@ export default function List() {
     const handleSync = async () => {
         return syncronMutation.mutateAsync()
     }
+    const handleCleanup = async () => {
+        const result = await Swal.fire({
+            title: "Bersihkan Duplikat?",
+            text: "Sistem akan mendeteksi mata kuliah ganda dengan nama, kurikulum, dan jurusan yang sama, lalu melakukan soft-delete pada data versi lama.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Ya, Bersihkan",
+            cancelButtonText: "Batal",
+        });
+
+        if (result.isConfirmed) {
+            await cleanupMutation.mutateAsync();
+        }
+    }
 
     return (
         <div className="w-full">
             <div className="flex gap-2 flex-col md:flex-row md:items-center md:flex-column md:justify-between mb-4">
                 <h1 className="text-3xl font-bold order-2 md:order-1">Daftar Mata Kuliah</h1>
-                <div className="order-1 md:order-2 flex gap-2">
+                <div className="order-1 md:order-2 flex flex-wrap gap-2">
                     <Button variant={"outline"} onClick={handleSync}><RecycleIcon /> Sync</Button>
+                    <Button variant={"outline"} onClick={handleCleanup} className="text-amber-600 hover:text-amber-700 dark:text-amber-400"><Sparkles /> Bersihkan Duplikat</Button>
                     <Button variant={"outline"} onClick={() => open("importMataKuliahModal")}><Import /> Import</Button>
                     <Button variant={"default"} onClick={() => open("mataKuliahModal")}><Plus /> Tambah</Button>
                 </div>
